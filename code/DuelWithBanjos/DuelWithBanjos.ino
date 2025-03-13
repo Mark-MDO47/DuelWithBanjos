@@ -24,17 +24,22 @@
 
 // We will use UniRemote to control our activities - see https://github.com/Mark-MDO47/UniRemote
 //    Because UniRemote uses ESP-NOW, this must run on an ESP32.
-//    Thus we use the library EspSoftwareSerial by Dirk Kaar & Peter Lerup.
-//    https://github.com/plerup/espsoftwareserial
+//    We will use an inexpensive ESP-WROOM-32 and this guides us on selection of UART and GPIO pins
+//       https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
+//       https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf
 
 // connections:
 //
 // YX5200/DFPlayer Sound Player
-//   Nano pin D-2     YX5200 TX; Arduino RXs
-//   Nano pin D-3     YX5200 RX; Arduino TX
-//   Nano pin D-4     YX5200 BUSY; HIGH when audio finishes
+//   ESP32 Dev Module pin D-16     Arduino RX; YX5200 TX - 9600 Baud
+//   ESP32 Dev Module pin D-17     Arduino TX; YX5200 RX - 9600 Baud
+//   ESP32 Dev Module pin D-23      YX5200 BUSY; HIGH when audio finishes
+//
+// LED PWM
+//   ESP32 Dev Module pin D-??     left  player
+//   ESP32 Dev Module pin D-??     right player
 
-// Attributions for the sound are on the SD card containing the sound.
+// Attributions for the sound are on the MicroSD card containing the sound.
 
 // See https://github.com/Mark-MDO47/AudioPlayer-YX5200 for details on using the YX5200/DFPlayer.
 //   I usually install a copy of the DFRobot.com DFPlayer code when using it, since I did a lot
@@ -48,18 +53,16 @@
 
 #include <UniRemoteRcvr.h>        // for UniRemoteRcvr "library"
 
-#include <SoftwareSerial.h>       // to talk to myDFPlayer without using up debug (HW) serial port
+#include "HardwareSerial.h"       // to talk with the YX5200
 #include "DFRobotDFPlayerMini.h"  // to communicate with the YX5200 audio player
 #include "DuelWithBanjos_SOUNDNUM.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// definitions for YX5200/DFPlayer and software serial
+// definitions for YX5200/DFPlayer and ESP-WROOM-32 serial port 
 
-#define DPIN_SWSRL_RX    2  // HW - serial in  - talk to DFPlayer audio player (YX5200)
-#define DPIN_SWSRL_TX    3  // HW - serial out - talk to DFPlayer audio player (YX5200)
-#define DPIN_AUDIO_BUSY  4  // HW - digital input - HIGH when audio finishes
-SoftwareSerial mySoftwareSerial(/*rx =*/DPIN_SWSRL_RX, /*tx =*/DPIN_SWSRL_TX); // to talk to YX5200 audio player
-              // SoftwareSerial(rxPin,                 txPin,       inverse_logic)
+#define DPIN_HWSRL_RX   16  // HW-serial in  - talk to DFPlayer audio player (YX5200)
+#define DPIN_HWSRL_TX   17  // HW-serial out - talk to DFPlayer audio player (YX5200)
+#define DPIN_AUDIO_BUSY 23  // digital input - HIGH when audio finishes
 DFRobotDFPlayerMini myDFPlayer;                                // to talk to YX5200 audio player
 void DFsetup();                                                // how to initialize myDFPlayer
 #define SOUND_DEFAULT_VOL     30  // default volume - 25 is pretty good
@@ -204,7 +207,9 @@ uint8_t DFcheckSoundDone() {
 void DFsetup() {
   Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
   
-  if (!myDFPlayer.begin(mySoftwareSerial, false, true)) {  // Use softwareSerial to communicate with mp3 player
+  pinMode(DPIN_AUDIO_BUSY,  INPUT_PULLUP); // HIGH when audio stops
+  Serial2.begin(9600, SERIAL_8N1, DPIN_HWSRL_RX, DPIN_HWSRL_TX); // this is control to DFPlayer audio player 
+  if (!myDFPlayer.begin(Serial2, false, true)) {  // Serial2 to communicate with mp3 player
     Serial.println(F("Unable to begin DFPlayer:"));
     Serial.println(F("1.Please recheck the connection!"));
     Serial.println(F("2.Please insert the SD card!"));
@@ -213,9 +218,9 @@ void DFsetup() {
     }
   }
   myDFPlayer.EQ(DFPLAYER_EQ_BASS); // our speaker is quite small
-  myDFPlayer.outputDevice(DFPLAYER_DEVICE_SD); // device is SD card
+  myDFPlayer.outputDevice(DFPLAYER_DEVICE_SD); // location of sound files is MicroSD card
   myDFPlayer.volume(SOUND_DEFAULT_VOL);  // Set volume value. From 0 to 30 - FIXME 25 is good
-  // delay(3000); // allow bluetooth connection to complete
+  // delay(3000); // allow bluetooth connection to complete - not using bluetooth; tinny sound from small speaker adds to effect
   delay(1000); // allow DFPlayer to stabilize
   Serial.println(F("DFPlayer Mini online."));
 
@@ -230,8 +235,6 @@ void setup() {
   }
   Serial.println(""); // print a blank line in case there is some junk from power-on
 
-  pinMode(DPIN_AUDIO_BUSY,  INPUT_PULLUP); // HIGH when audio stops
-  mySoftwareSerial.begin(9600); // this is control to DFPlayer audio player
   // initialize the YX5200 DFPlayer audio player
   DFsetup();
 

@@ -18,19 +18,21 @@
    limitations under the License.
  */
 
-// This sets up 4 "keys" that use capacitive sensing to activate.
-// The idea is to react similar to a piano, but have selectable sounds per key.
+// The idea is to play the song Dueling Banjos repeatedly on the speaker.
+// Alternatively we can play banjo Christmas music or even turn the music off.
+// Additionally we will control and fade the banjo player LED eyes.
+
+// We will use UniRemote to control our activities - see https://github.com/Mark-MDO47/UniRemote
+//    Because UniRemote uses ESP-NOW, this must run on an ESP32.
+//    Thus we use the library EspSoftwareSerial by Dirk Kaar & Peter Lerup.
+//    https://github.com/plerup/espsoftwareserial
 
 // connections:
 //
 // YX5200/DFPlayer Sound Player
-//   Nano pin D-2     YX5200 TX; Arduino RX
+//   Nano pin D-2     YX5200 TX; Arduino RXs
 //   Nano pin D-3     YX5200 RX; Arduino TX
 //   Nano pin D-4     YX5200 BUSY; HIGH when audio finishes
-
-// The idea is to play the song Dueling Banjos repeatedly on the Bluetooth speaker.
-// We will use power on/off of either Arduino or speaker to stop the sound.
-// We will use the reset button on the Arduino to restart the sound.
 
 // Attributions for the sound are on the SD card containing the sound.
 
@@ -43,6 +45,8 @@
 
 #include "Arduino.h"              // general Arduino definitions plus uint8_t etc.
 #include <FastLED.h>              // only for the convenient EVERY_N_MILLISECONDS() macro - too lazy to write my own...
+
+#include <UniRemoteRcvr.h>        // for UniRemoteRcvr "library"
 
 #include <SoftwareSerial.h>       // to talk to myDFPlayer without using up debug (HW) serial port
 #include "DFRobotDFPlayerMini.h"  // to communicate with the YX5200 audio player
@@ -234,7 +238,7 @@ void setup() {
   Serial.println("DuelWithBanjos init complete...");
 
   // play the INTRO sound to completion, then allow normal loop() processing
-  DFstartSound(SOUNDNUM_DuelWithBanjos, SOUND_DEFAULT_VOL);
+  DFstartSound(SOUNDNUM_DuelingBanjos, SOUND_DEFAULT_VOL);
   while (!DFcheckSoundDone()) {
     delay(10); // wait for the INTRO sound to finish
   } // end while
@@ -247,7 +251,7 @@ void loop() {
   EVERY_N_MILLISECONDS( 50 ) { 
     if (DFcheckSoundDone()) {
       // restart sound
-      DFstartSound(SOUNDNUM_DuelWithBanjos, SOUND_DEFAULT_VOL);
+      DFstartSound(SOUNDNUM_DuelingBanjos, SOUND_DEFAULT_VOL);
     } // end if DFcheckSoundDone
   } // end EVERY_N_MILLISECONDS
 } // end loop()

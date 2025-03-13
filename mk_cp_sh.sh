@@ -1,0 +1,1 @@
+python ~/Documents/GitHub_Mark-MDO47/AudioPlayer-YX5200/copyem.py -d gitignore_BanjoWavFiles -s D: -f 0002_silence.wav -l

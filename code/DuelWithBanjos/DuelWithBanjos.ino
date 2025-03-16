@@ -36,8 +36,8 @@
 //   ESP32 Dev Module pin D-23      YX5200 BUSY; HIGH when audio finishes
 //
 // LED PWM
-//   ESP32 Dev Module pin D-??     left  player
-//   ESP32 Dev Module pin D-??     right player
+//   ESP32 Dev Module pin D-18     left  player
+//   ESP32 Dev Module pin D-19     right player
 
 // Attributions for the sound are on the MicroSD card containing the sound.
 

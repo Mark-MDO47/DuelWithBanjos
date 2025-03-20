@@ -2,6 +2,11 @@
 
 **Table Of Contents**
 * [Top](#duel-with-banjos "Top")
+* [The Banjo Players](#the-banjo-players "The Banjo Players")
+* [YX5200 Audio Player](#yx5200-audio-player "YX5200 Audio Player")
+* [ESP32 LEDC PWM - LED Dimmer Control](#esp32-ledc-pwm-\--led-dimmer-control "ESP32 LEDC PWM - LED Dimmer Control")
+* [UniRemote and ESP-NOW](#uniremote-and-esp\-now "UniRemote and ESP-NOW")
+* [ESP32](#esp32 "ESP32")
 * [LICENSE for DFRobot code](#license-for-dfrobot-code "LICENSE for DFRobot code")
 
 ## The Banjo Players

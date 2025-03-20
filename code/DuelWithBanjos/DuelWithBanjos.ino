@@ -36,8 +36,10 @@
 //   ESP32 Dev Module pin D-23      YX5200 BUSY; HIGH when audio finishes
 //
 // LED PWM
-//   ESP32 Dev Module pin D-18     left  player
-//   ESP32 Dev Module pin D-19     right player
+//   ESP32 Dev Module pin D-18     right player eye 1
+//   ESP32 Dev Module pin D-19     right player eye 2
+//   ESP32 Dev Module pin D-32     left  player eye 1
+//   ESP32 Dev Module pin D-33     left  player eye 2
 
 // Attributions for the sound are on the MicroSD card containing the sound.
 
@@ -78,6 +80,14 @@ uint32_t gTimerForceSoundActv = 0;  // SOUND_ACTIVE_PROTECT until millis() >= th
 #else  // no DFPRINTDETAIL
   #define DFprintDetail(type, value) // nothing at all
 #endif // #if DFPRINTDETAIL
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// constants for LEDC PWM library to control the LED Eyes of the Banjo Players
+#define PWM_NUM_PINS 4  // number of LED pins to control
+const int PWM_PIN_NUMBERS[4] = {18, 19, 32, 33};
+const int PWM_FREQ = 500;     // Arduino Uno is ~490 Hz. ESP32 example uses 5,000Hz
+const int PWM_RESOLUTION = 8; // Use same resolution as Uno (8 bits, 0-255) but ESP32 can go up to 16 bits (some versions less)
+const int PWM_MAX_DUTY_CYCLE = (int)(pow(2, PWM_RESOLUTION) - 1); // The max duty cycle value based on PWM resolution (will be 255 if resolution is 8 bits)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #if DFPRINTDETAIL
@@ -234,6 +244,15 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
   Serial.println(""); // print a blank line in case there is some junk from power-on
+
+  // connect to Banjo Player LED eyes and initially turn off
+  for (int pin_idx = 0; pin_idx < PWM_NUM_PINS; pin_idx += 1) {
+    // connect a pin to a channel at a PWM duty cycle frequency, and a PWM resolution (1 - 16 bits)
+    if (!ledcAttach(PWM_PIN_NUMBERS[pin_idx], PWM_FREQ, PWM_RESOLUTION)) {
+      Serial.println("ERROR - could not attach pin to LEDC library");
+    }
+    ledcWrite(PWM_PIN_NUMBERS[pin_idx], 0); // initially set to off
+  } // end connect all pins to Banjo Player LED eyes
 
   // initialize the YX5200 DFPlayer audio player
   DFsetup();

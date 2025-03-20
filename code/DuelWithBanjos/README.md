@@ -24,7 +24,7 @@ I am providing sound for my banjo players using the YX5200 Audio Player, which i
 
 ## ESP32 LEDC PWM - LED Dimmer Control
 [Top](#duel-with-banjos "Top")<br>
-We will use the Espressif ESP32 Pulse Width Modulation (PWM) LED control libary to make the LED eyes do something interesting.
+We will use the Espressif ESP32 Pulse Width Modulation (PWM) LED control library to make the LED eyes do something interesting.
 - https://docs.espressif.com/projects/esp-idf/en/v5.4/esp32/api-reference/peripherals/ledc.html
 
 This seems like an excellent hands-on explanation of the details of the ESP32 LEDC PWM functionality

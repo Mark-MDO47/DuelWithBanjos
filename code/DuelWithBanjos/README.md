@@ -19,21 +19,21 @@ The ones I have each have a 3V power supply and two very bright red LED eyes. Th
 
 ## YX5200 Audio Player
 [Top](#duel-with-banjos "Top")<br>
-I am providing sound for my banjo players using the YX5200 Audio Player, which is widely available from many sources.
+I am providing sound for my banjo players using the YX5200 Audio Player, which is widely available from many sources. A MicroSD card is used to store the sound files.
 - https://github.com/Mark-MDO47/AudioPlayer-YX5200
 
 ## ESP32 LEDC PWM - LED Dimmer Control
 [Top](#duel-with-banjos "Top")<br>
-We will use the Espressif ESP32 Pulse Width Modulation (PWM) LED control library to make the LED eyes do something interesting. Be sure to use the new "pin-oriented" calling sequence.
+I am using the Espressif ESP32 Pulse Width Modulation (PWM) LED control to make the LED eyes do something interesting. This capability is similar to that available on Arduinos such as the Arduino Uno, but is specifically tailored to the ESP32. Be sure to use the new "pin-oriented" calling sequence instead of the earlier "channel-oriented" calling sequence.
 - https://docs.espressif.com/projects/esp-idf/en/v5.4/esp32/api-reference/peripherals/ledc.html
 - https://github.com/espressif/arduino-esp32/blob/master/docs/en/migration_guides/2.x_to_3.0.rst#ledc
 
 ## UniRemote and ESP-NOW
 [Top](#duel-with-banjos "Top")<br>
-We are using UniRemote and its ESP-NOW WiFi capability as the remote control for this project
+I am using UniRemote and its ESP-NOW WiFi capability as the remote control for this project
 - https://github.com/Mark-MDO47/UniRemote
 
-This means we use the *.cpp and *.h from UniRemoteRcvrTemplate
+This means I include the *.cpp and *.h from UniRemoteRcvrTemplate
 - https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteRcvrTemplate
 
 ## ESP32

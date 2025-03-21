@@ -7,6 +7,17 @@ Just for fun - tiny scarecrows playing banjo music, placed under the control of 
 * [Schematic](#schematic "Schematic")
 * [License](#license "License")
 
+## Introduction
+[Top](#duelwithbanjos "Top")<br>
+I have two country style skeleton banjo players approximately 14 inches tall ordered from Amazon.com but apparently that exact model is no longer available there.
+I think they might be similar to this one:
+- https://www.amazon.com/XINANDHAO-Halloween-Animated-Skeletons-Musicians/dp/B0DC56RL1F
+
+The plan is to make them
+- respond to controls from my UniRemote remote controller via ESP-NOW
+- play music using a YX5200 Audio Player which reads sound files from a MicroSD card
+- blink LED "eyes" using Pulse Width Modulation (PWM)
+
 ## Schematic
 [Top](#duelwithbanjos "Top")<br>
 This is the schematic of the interesting part of the design, including the ESP32 module, sound control, and LED control

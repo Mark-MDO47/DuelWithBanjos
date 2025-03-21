@@ -1,5 +1,5 @@
 # DuelWithBanjos
-Just for fun - tiny scarecrows playing banjo music, placed under the control of the UniRemote!
+Just for fun - tiny scarecrow skeletons playing banjo music, placed under the control of the UniRemote!
 - https://github.com/Mark-MDO47/UniRemote
 
 **Table Of Contents**

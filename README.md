@@ -2,6 +2,8 @@
 Just for fun - tiny scarecrow skeletons playing banjo music, placed under the control of the UniRemote!
 - https://github.com/Mark-MDO47/UniRemote
 
+<img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/banjo_players_1024_768.jpg" width="500" alt="My Banjo Players">
+
 **Table Of Contents**
 * [Top](#duelwithbanjos "Top")
 * [Introduction](#introduction "Introduction")

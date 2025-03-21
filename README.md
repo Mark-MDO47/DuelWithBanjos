@@ -4,6 +4,7 @@ Just for fun - tiny scarecrows playing banjo music, placed under the control of 
 
 **Table Of Contents**
 * [Top](#duelwithbanjos "Top")
+* [Introduction](#introduction "Introduction")
 * [Schematic](#schematic "Schematic")
 * [License](#license "License")
 

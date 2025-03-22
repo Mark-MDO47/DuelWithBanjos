@@ -29,7 +29,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // constants for LEDC PWM library to control the LED Eyes of the Banjo Players
-#define PWM_NO_CHANGE 0xFFFF  // .start_set_pwm value for no change to current pwm value
+#define PWM_NO_CHANGE 0xFFFF  // no change to current pwm value when init pattern (.start_set_pwm or init function)
+#define PWM_USE_PTRN  0xFFFE  // use pwm value from pattern step when init pattern (init function only)
 #define PWM_NUM_PINS 4        // number of LED pins to control
 #define PWM_FREQ 500          // Arduino Uno is ~490 Hz. ESP32 example uses 5,000Hz
 #define PWM_VAL_NUM_BITS 8    // Use same resolution as Uno (8 bits, 0-255) but ESP32 can go up to 16 bits (some versions less)
@@ -39,23 +40,18 @@
                               // 2^32millisec / 64 is about 18 hours, so that will exceed any gig time for the banjo players
 
 typedef struct {
-  uint16_t start_set_pwm; // if not PWM_NO_CHANGE, set pwm value to this ??? FIXME TODO should this be in the struct??? or pwm_pin_info???
-  uint16_t step_time;     // how long (millisec B4 scaling) until this step is complete
-  uint16_t  tick_time;    // how long (millisec B4 scaling) between each tick
-  int16_t   tick_pwm;     // how far and what direction for pwm value each tick_time
+  uint16_t  start_set_pwm; // if not PWM_NO_CHANGE, set pwm value to this ??? FIXME TODO should this be in the struct??? or pwm_pin_info???
+  int16_t   step_incr;     // if # >= 0, increment step counter by #; if # < 0 go to step "-# - 1"
+  uint16_t  step_time;     // how long (millisec B4 scaling) until this step is complete
+  uint16_t  tick_time;     // how long (millisec B4 scaling) between each tick
+  int16_t   tick_pwm;      // how far and what direction for pwm value each tick_time
 } pwm_led_ptrn_step;
 
 typedef struct {
-  pwm_led_ptrn_step *step_ptr; // pointer to this step
-  int16_t step_incr;           // if > 0, increment step counter by this
-                               // if zero, go to beginning; if < 0, go to (-val) steps past beginning
-} pwm_led_ptrn_step_cmd;
-
-typedef struct {
   uint16_t pin_num;             // pin number executing this pattern
-  uint16_t idx_curr_step;       // step within ptrn_step_cmd_ptr
-  pwm_led_ptrn_step_cmd * ptrn_step_cmd_ptr; // pointer to ptrn_step_cmd
-  uint16_t curr_pwm_val;        // pwm intensity from 0 to PWM_MAX_VALUE or else PWM_NO_CHANGE
+  pwm_led_ptrn_step * ptrn_step_ptr; // pointer to array of pwm_led_ptrn_step (steps)
+  uint16_t idx_curr_step;       // index into array of steps for current step
+  uint16_t curr_pwm_val;        // current pwm intensity from 0 to PWM_MAX_VALUE
   uint32_t scale_factor;        // to stretch time. scale_factor == TIME_SCALE_EQUAL means no stretch
   uint32_t scaledtm_tick_incr;  // time (tick_time * TIME_SCALE_EQUAL) to increment scaledtm_next_tick
   uint32_t scaledtm_next_tick;  // time (millisec * TIME_SCALE_EQUAL) to start next tick
@@ -63,17 +59,15 @@ typedef struct {
 } pwm_pin_info;
 
 pwm_pin_info g_pwm_pin_info[PWM_NUM_PINS] = {
-  { .pin_num=18, .idx_curr_step=0, .ptrn_step_cmd_ptr = (pwm_led_ptrn_step_cmd *)0, .curr_pwm_val=0, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
-  { .pin_num=19, .idx_curr_step=0, .ptrn_step_cmd_ptr = (pwm_led_ptrn_step_cmd *)0, .curr_pwm_val=0, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
-  { .pin_num=32, .idx_curr_step=0, .ptrn_step_cmd_ptr = (pwm_led_ptrn_step_cmd *)0, .curr_pwm_val=0, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
-  { .pin_num=33, .idx_curr_step=0, .ptrn_step_cmd_ptr = (pwm_led_ptrn_step_cmd *)0, .curr_pwm_val=0, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
+  { .pin_num=18, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
+  { .pin_num=19, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
+  { .pin_num=32, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
+  { .pin_num=33, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_next_tick=0, .scaledtm_next_step=0 }
 };
 
-pwm_led_ptrn_step pwm_ptrn_open_eye = { .start_set_pwm=PWM_NO_CHANGE, .step_time=37, .tick_time=5, .tick_pwm=7 };
-
-pwm_led_ptrn_step_cmd g_pwm_ptrn_blink_array[] = {
-   { .step_ptr=&pwm_ptrn_open_eye, .step_incr=0 }
-}; // pwm_ptrn_blink
+pwm_led_ptrn_step pwm_ptrn_open_eye[] = { 
+  { .start_set_pwm=0, .step_incr=0, .step_time=37, .tick_time=5, .tick_pwm=7} 
+};
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,38 +75,50 @@ pwm_led_ptrn_step_cmd g_pwm_ptrn_blink_array[] = {
 void dbg_display_step(int p_pin_idx) {
 
   pwm_pin_info * my_pin_info = &g_pwm_pin_info[p_pin_idx];
-  pwm_led_ptrn_step_cmd * my_step_cmd = my_pin_info->ptrn_step_cmd_ptr;
-  pwm_led_ptrn_step * my_step_ptr = my_step_cmd->step_ptr;
+  pwm_led_ptrn_step * my_step_ptr = &my_pin_info->ptrn_step_ptr[my_pin_info->idx_curr_step];
 
   Serial.printf("dbg_display_step my_pin_info[pin_idx=%d]\n", p_pin_idx);
   Serial.printf("  pin_num=%d idx_curr_step=%d curr_pwm_val=%d scale_factor=%ld\n",my_pin_info->pin_num,my_pin_info->idx_curr_step,my_pin_info->curr_pwm_val,my_pin_info->scale_factor);
   Serial.printf("  scaledtm_tick_incr=%ld scaledtm_next_tick=%ld scaledtm_next_step=%ld\n",my_pin_info->scaledtm_tick_incr,my_pin_info->scaledtm_next_tick,my_pin_info->scaledtm_next_step);
-  Serial.printf("dbg_display_step my_step_cmd->step_incr=%d\n",my_step_cmd->step_incr);
-  Serial.printf("dbg_display_step my_step_ptr\n");
-  Serial.printf("  start_set_pwm=%d step_time=%d tick_time=%d tick_pwm=%d\n",my_step_ptr->start_set_pwm,my_step_ptr->step_time,my_step_ptr->tick_time,my_step_ptr->tick_pwm);
+  Serial.printf("dbg_display_step my_step_ptr[idx_curr_step=%d]\n",my_pin_info->idx_curr_step);
+  Serial.printf("  start_set_pwm=%d step_incr=%d step_time=%d tick_time=%d tick_pwm=%d\n",my_step_ptr->start_set_pwm,my_step_ptr->step_incr,my_step_ptr->step_time,my_step_ptr->tick_time,my_step_ptr->tick_pwm);
   Serial.println(" ");
 } // end dbg_display_step()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // do_pin_pwm_init_step_times()
+//    Called once each time a new step in a pattern is entered for a particular pin
+//
 void do_pin_pwm_init_step_times(int p_pin_idx) {
   uint32_t time_msec_now = millis();
 
-  pwm_led_ptrn_step * my_step_ptr = g_pwm_pin_info[p_pin_idx].ptrn_step_cmd_ptr->step_ptr;
-  g_pwm_pin_info[p_pin_idx].scaledtm_tick_incr = g_pwm_pin_info[p_pin_idx].scale_factor * my_step_ptr->tick_time;
-  g_pwm_pin_info[p_pin_idx].scaledtm_next_tick = g_pwm_pin_info[p_pin_idx].scale_factor * (my_step_ptr->tick_time + time_msec_now);
-  g_pwm_pin_info[p_pin_idx].scaledtm_next_step = g_pwm_pin_info[p_pin_idx].scale_factor * (my_step_ptr->step_time + time_msec_now);
+  pwm_pin_info * my_pin_info = &g_pwm_pin_info[p_pin_idx];
+  pwm_led_ptrn_step * my_step_ptr = &my_pin_info->ptrn_step_ptr[my_pin_info->idx_curr_step];
+
+  my_pin_info->scaledtm_tick_incr = my_pin_info->scale_factor * my_step_ptr->tick_time;
+  my_pin_info->scaledtm_next_tick = my_pin_info->scale_factor * (my_step_ptr->tick_time + time_msec_now);
+  my_pin_info->scaledtm_next_step = my_pin_info->scale_factor * (my_step_ptr->step_time + time_msec_now);
 } // end do_pin_pwm_init_step_times()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// do_pin_pwm_init_step()
-void do_pin_pwm_init_step(int p_pin_idx, pwm_led_ptrn_step_cmd *p_ptrn_step_cmd_ptr, uint16_t p_idx_start_step = 0, uint32_t p_scale_factor=TIME_SCALE_EQUAL, uint16_t p_pwm_val_init=PWM_NO_CHANGE) {
-  g_pwm_pin_info[p_pin_idx].idx_curr_step = p_idx_start_step;
-  g_pwm_pin_info[p_pin_idx].ptrn_step_cmd_ptr = p_ptrn_step_cmd_ptr;
-  g_pwm_pin_info[p_pin_idx].curr_pwm_val = p_pwm_val_init;
-  g_pwm_pin_info[p_pin_idx].scale_factor = p_scale_factor;
+// do_pin_pwm_init_ptrn() - initialize a pwm_pin_info entry for a particular pattern
+//    Called once each time a new pattern is set for a particular pin
+// 
+void do_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step *p_ptrn_step_ptr, uint16_t p_idx_start_step = 0, uint32_t p_scale_factor=TIME_SCALE_EQUAL, uint16_t p_pwm_val_init=PWM_USE_PTRN) {
+  pwm_pin_info * my_pin_info = &g_pwm_pin_info[p_pin_idx];
+
+  my_pin_info->ptrn_step_ptr = p_ptrn_step_ptr;
+  my_pin_info->idx_curr_step = p_idx_start_step;
+  if (PWM_NO_CHANGE != p_pwm_val_init) {
+    if (PWM_USE_PTRN == p_pwm_val_init) {
+      my_pin_info->curr_pwm_val = my_pin_info->ptrn_step_ptr->start_set_pwm;
+    } else { // (PWM_USE_PTRN != p_pwm_val_init)
+      my_pin_info->curr_pwm_val = p_pwm_val_init;
+    }
+  }
+  my_pin_info->scale_factor = p_scale_factor;
   do_pin_pwm_init_step_times(p_pin_idx);
-} // end do_pin_pwm_init_step()
+} // end do_pin_pwm_init_ptrn()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // do_pin_pwm()
@@ -120,14 +126,19 @@ void do_pins_pwm() {
   uint32_t time_msec_now = millis();
   uint32_t time_scaled_now = time_msec_now * TIME_SCALE_EQUAL;
 
+
   for (int pin_idx = 0; pin_idx < PWM_NUM_PINS; pin_idx += 1) {
-    if (g_pwm_pin_info[pin_idx].scaledtm_next_step <= time_scaled_now) {
+    pwm_pin_info * my_pin_info = &g_pwm_pin_info[pin_idx];
+    pwm_led_ptrn_step * my_step_ptr = my_pin_info->ptrn_step_ptr;
+
+    if (my_pin_info->scaledtm_next_step <= time_scaled_now) {
       // go to next step
-    } else if (g_pwm_pin_info[pin_idx].scaledtm_next_tick <= time_scaled_now) {
+      if (my_step_ptr->step_incr >= 0) {
+        // TODO FIXME
+      }
+    } else if (my_pin_info->scaledtm_next_tick <= time_scaled_now) {
       // do next tick
-      g_pwm_pin_info[pin_idx].scaledtm_next_tick += 1; // TODO FIXME
-    } else {
-      ledcWrite(g_pwm_pin_info[pin_idx].pin_num, 5);
+      my_pin_info->scaledtm_next_tick += 1; // TODO FIXME
     }
   }
 } // end do_pins_pwm()
@@ -139,7 +150,7 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-  delay(1500);
+  delay(3000);
   Serial.println(""); // print a blank line in case there is some junk from power-on
   Serial.println("starting LEDC_steps");
 
@@ -163,8 +174,7 @@ void loop() {
 
   if (MAX_TICK_COUNT < tick_count) {
     for (int pin_idx = 0; pin_idx < PWM_NUM_PINS; pin_idx += 1) {
-      do_pin_pwm_init_step(pin_idx, g_pwm_ptrn_blink_array, 0, (loop_count+1)*TIME_SCALE_EQUAL + pin_idx*13, 0);
-      
+      do_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_open_eye, 0, (loop_count+1)*TIME_SCALE_EQUAL + pin_idx*13, 0);
     } // end for each pin_idx
     for (int pin_idx = 0; pin_idx < PWM_NUM_PINS; pin_idx += 1) { dbg_display_step(pin_idx); }
     tick_count = 0;

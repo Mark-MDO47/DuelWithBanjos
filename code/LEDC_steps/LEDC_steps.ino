@@ -123,7 +123,7 @@ void do_pin_pwm_init_step_times(int p_pin_idx) {
 //
 void do_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_t p_idx_start_step = 0, uint32_t p_scale_factor=TIME_SCALE_EQUAL, uint16_t p_pwm_val_init=PWM_USE_PTRN) {
 
-  if (( 0 > p_pin_idx ) || (NUMOF(g_pwm_pin_info) >= p_pin_idx)) {
+  if (( 0 > p_pin_idx ) || (NUMOF(g_pwm_pin_info) <= p_pin_idx)) {
     Serial.printf("ERROR do_pin_pwm_init_ptrn param p_pin_idx=%d is out of range\n",p_pin_idx);
     return;
   }
@@ -141,34 +141,67 @@ void do_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_t
   my_pin_info->idx_curr_step = p_idx_start_step;
   if (PWM_NO_CHANGE != p_pwm_val_init) {
     if (PWM_USE_PTRN == p_pwm_val_init) {
-      my_pin_info->curr_pwm_val = PWM_MAX_VALUE & my_pin_info->ptrn_step_ptr->start_set_pwm;
+      // the step itself might say not to change the pwm
+      uint16_t tmp_pwm = my_pin_info->ptrn_step_ptr->start_set_pwm;
+      if (PWM_NO_CHANGE != tmp_pwm) {
+        my_pin_info->curr_pwm_val = PWM_MAX_VALUE & tmp_pwm;
+      }
     } else { // (PWM_USE_PTRN != p_pwm_val_init)
       my_pin_info->curr_pwm_val = PWM_MAX_VALUE & p_pwm_val_init;
     }
   }
   my_pin_info->scale_factor = p_scale_factor;
   do_pin_pwm_init_step_times(p_pin_idx);
+  ledcWrite(my_pin_info->pin_num, my_pin_info->curr_pwm_val);
 } // end do_pin_pwm_init_ptrn()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// do_pin_pwm()
+// do_pins_pwm()
 void do_pins_pwm() {
   uint32_t time_msec_now = millis();
   uint32_t time_scaled_now = time_msec_now * TIME_SCALE_EQUAL;
+  static uint32_t num_calls = 0;
 
+  num_calls = (num_calls+1) % 1000;
 
-  for (int pin_idx = 0; pin_idx < PWM_NUM_PINS; pin_idx += 1) {
+  if (0 == num_calls) {
+    Serial.printf("do_pins_pwm millis=%ld\n",time_msec_now);
+  }
+
+  for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
     pwm_pin_info * my_pin_info = &g_pwm_pin_info[pin_idx];
-    pwm_led_ptrn_step * my_step_ptr = my_pin_info->ptrn_step_ptr;
+    pwm_led_ptrn_step * my_step_ptr = &my_pin_info->ptrn_step_ptr[my_pin_info->idx_curr_step];
+
+    if (!(pin_idx || num_calls)) dbg_display_step(pin_idx);
 
     if (my_pin_info->scaledtm_next_step <= time_scaled_now) {
       // go to next step
       if (my_step_ptr->step_incr >= 0) {
-        // TODO FIXME
+        // increment step
+        my_pin_info->idx_curr_step += my_step_ptr->step_incr;
+      } else {
+        // go to step offset from start of pattern (-1 --> 0, -2 --> 1, etc.)
+        my_pin_info->idx_curr_step = -my_step_ptr->step_incr -1;
       }
+      my_step_ptr = &my_pin_info->ptrn_step_ptr[my_pin_info->idx_curr_step];
+      // now that idx_curr_step is changed, we need to set the scaled times for the new step for this pin_idx
+      do_pin_pwm_init_step_times(pin_idx);
+      // also need to update pwm value from step
+      // the step itself might say not to change the pwm
+      uint16_t tmp_pwm = my_pin_info->ptrn_step_ptr->start_set_pwm;
+      if (PWM_NO_CHANGE != tmp_pwm) {
+        my_pin_info->curr_pwm_val = PWM_MAX_VALUE & tmp_pwm;
+      }
+      // write the pwm value for this step change
+      ledcWrite(my_pin_info->pin_num, my_pin_info->curr_pwm_val);
     } else if (my_pin_info->scaledtm_next_tick <= time_scaled_now) {
-      // do next tick
-      my_pin_info->scaledtm_next_tick += 1; // TODO FIXME
+      // do next tick: calc time to end of tick and adjust pwm by one tick_pwm
+      my_pin_info->scaledtm_next_tick += my_pin_info->scaledtm_tick_incr;
+      // always good practice to only update state vars to valid values
+      uint16_t tmp_pwm = my_pin_info->curr_pwm_val + my_step_ptr->tick_pwm;
+      if (PWM_MAX_VALUE < tmp_pwm) tmp_pwm = PWM_MAX_VALUE;
+      my_pin_info->curr_pwm_val = tmp_pwm;
+      ledcWrite(my_pin_info->pin_num, my_pin_info->curr_pwm_val);
     }
   }
 } // end do_pins_pwm()
@@ -186,7 +219,7 @@ void setup() {
 
 
   // connect to Banjo Player LED eyes and initially turn off
-  for (int pin_idx = 0; pin_idx < PWM_NUM_PINS; pin_idx += 1) {
+  for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
     // connect a pin to a channel at a pwm value frequency, and a PWM resolution (1 - 16 bits)
     if (!ledcAttach(g_pwm_pin_info[pin_idx].pin_num, PWM_FREQ, PWM_VAL_NUM_BITS)) {
       Serial.println("ERROR - could not attach pin to LEDC library");
@@ -197,19 +230,22 @@ void setup() {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // loop()
-#define MAX_TICK_COUNT 1000 // just for testing
+#define MAX_TICK_COUNT 100000 // just for testing
 void loop() {
   static int loop_count = 0;
   static uint32_t tick_count = MAX_TICK_COUNT+100;
 
   if (MAX_TICK_COUNT < tick_count) {
-    for (int pin_idx = 0; pin_idx < PWM_NUM_PINS; pin_idx += 1) {
+    for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
       do_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_open_eye, 0, (loop_count+1)*TIME_SCALE_EQUAL + pin_idx*13, 0);
     } // end for each pin_idx
-    for (int pin_idx = 0; pin_idx < PWM_NUM_PINS; pin_idx += 1) { dbg_display_step(pin_idx); }
+    for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) { dbg_display_step(pin_idx); }
     tick_count = 0;
     loop_count = (loop_count + 1) % 4;
   } // end if start next pattern time scale
 
-  // do_pins_pwm();
+  do_pins_pwm();
+  delay(1);
+  tick_count += 1;
+
 } // end loop()

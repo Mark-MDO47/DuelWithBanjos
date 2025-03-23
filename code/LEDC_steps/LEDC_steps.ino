@@ -28,6 +28,10 @@
  */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// generally useful definitions
+#define NUMOF(x) (sizeof((x)) / sizeof((*x)))
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // constants for LEDC PWM library to control the LED Eyes of the Banjo Players
 #define PWM_NO_CHANGE 0xFFFF  // no change to current pwm value when init pattern (.start_set_pwm or init function)
 #define PWM_USE_PTRN  0xFFFE  // use pwm value from pattern step when init pattern (init function only)
@@ -102,18 +106,44 @@ void do_pin_pwm_init_step_times(int p_pin_idx) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // do_pin_pwm_init_ptrn() - initialize a pwm_pin_info entry for a particular pattern
-//    Called once each time a new pattern is set for a particular pin
-// 
-void do_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step *p_ptrn_step_ptr, uint16_t p_idx_start_step = 0, uint32_t p_scale_factor=TIME_SCALE_EQUAL, uint16_t p_pwm_val_init=PWM_USE_PTRN) {
-  pwm_pin_info * my_pin_info = &g_pwm_pin_info[p_pin_idx];
+//    Called once each time a new pattern is set for a particular p_pin_idx in g_pwm_pin_info
+//
+// Things that are required when calling
+//    p_pin_idx  - must be a valid pin idx in g_pwm_pin_info
+//    p_ptrn_ptr - must point to an array of steps, with at least (1+p_idx_start_step) steps in the array
+// Things that can be adjusted when calling this for a new pattern
+//    p_idx_start_step - usually 0, occasionally 1, I don't know why it would be > 1
+//    p_scale_factor   - = TIME_SCALE_EQUAL means use the pattern millisec counts as-is
+//                       > TIME_SCALE_EQUAL means go faster than pattern by factor (p_scale_factor/TIME_SCALE_EQUAL)
+//                       < TIME_SCALE_EQUAL means go slower than pattern by factor (p_scale_factor/TIME_SCALE_EQUAL)
+//                       = 0 (special case) means stay on step p_idx_start_step forever and never tick
+//    p_pwm_val_init   - = PWM_NO_CHANGE means leave curr_pwm_val alone, do not change it from current value
+//                       = PWM_USE_PTRN  means store the pattern start_set_pwm into curr_pwm_val
+//                       = other         means store the parameter p_pwm_val_init into curr_pwm_val
+//
+void do_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_t p_idx_start_step = 0, uint32_t p_scale_factor=TIME_SCALE_EQUAL, uint16_t p_pwm_val_init=PWM_USE_PTRN) {
 
-  my_pin_info->ptrn_step_ptr = p_ptrn_step_ptr;
+  if (( 0 > p_pin_idx ) || (NUMOF(g_pwm_pin_info) >= p_pin_idx)) {
+    Serial.printf("ERROR do_pin_pwm_init_ptrn param p_pin_idx=%d is out of range\n",p_pin_idx);
+    return;
+  }
+  if (((pwm_led_ptrn_step*) 0) == p_ptrn_ptr) {
+    Serial.printf("ERROR do_pin_pwm_init_ptrn param p_ptrn_ptr=0 is out of range\n");
+    return;
+  }
+  if (1 < p_idx_start_step) {
+    Serial.printf("Warning do_pin_pwm_init_ptrn param p_idx_start_step=%d is unusual\n",p_idx_start_step);
+  }
+
+  pwm_pin_info* my_pin_info = &g_pwm_pin_info[p_pin_idx];
+
+  my_pin_info->ptrn_step_ptr = &p_ptrn_ptr[p_idx_start_step]; // initializing pattern
   my_pin_info->idx_curr_step = p_idx_start_step;
   if (PWM_NO_CHANGE != p_pwm_val_init) {
     if (PWM_USE_PTRN == p_pwm_val_init) {
-      my_pin_info->curr_pwm_val = my_pin_info->ptrn_step_ptr->start_set_pwm;
+      my_pin_info->curr_pwm_val = PWM_MAX_VALUE & my_pin_info->ptrn_step_ptr->start_set_pwm;
     } else { // (PWM_USE_PTRN != p_pwm_val_init)
-      my_pin_info->curr_pwm_val = p_pwm_val_init;
+      my_pin_info->curr_pwm_val = PWM_MAX_VALUE & p_pwm_val_init;
     }
   }
   my_pin_info->scale_factor = p_scale_factor;

@@ -235,22 +235,18 @@ void setup() {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // loop()
-#define MAX_TICK_COUNT 100000 // just for testing
 void loop() {
-  static int loop_count = 0;
-  static uint32_t tick_count = MAX_TICK_COUNT+100;
+  static uint32_t first_time = 1;
 
-  if (MAX_TICK_COUNT < tick_count) {
+  if (0 != first_time) {
     for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
-      do_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_open_eye, 0, (loop_count+1)*TIME_SCALE_EQUAL + pin_idx*13, 0);
+      do_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_open_eye, 0, TIME_SCALE_EQUAL + pin_idx*2, 0);
     } // end for each pin_idx
     for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) { dbg_display_step(pin_idx); }
-    tick_count = 0;
-    loop_count = (loop_count + 1) % 2;
+    first_time = 0;
   } // end if start next pattern time scale
 
   do_pins_pwm();
   delay(1);
-  tick_count += 1;
 
 } // end loop()

@@ -63,14 +63,14 @@ typedef struct {
 } pwm_pin_info;
 
 pwm_pin_info g_pwm_pin_info[PWM_NUM_PINS] = {
-  { .pin_num=18, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .scale_factor=TIME_SCALE_EQUAL, ..scaledtm_next_tick=0, .scaledtm_next_step=0 },
+  { .pin_num=18, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .scaledtm_tick_incr = 0, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
   { .pin_num=19, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .scaledtm_tick_incr = 0, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
   { .pin_num=32, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .scaledtm_tick_incr = 0, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
   { .pin_num=33, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .scaledtm_tick_incr = 0, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_next_tick=0, .scaledtm_next_step=0 }
 };
 
 pwm_led_ptrn_step pwm_ptrn_open_eye[] = { 
-  { .start_set_pwm=0, .step_incr=0, .step_time=37, .tick_time=5, .tick_pwm=7} 
+  { .start_set_pwm=0, .step_incr=0, .step_time=185, .tick_time=5, .tick_pwm=7}
 };
 
 

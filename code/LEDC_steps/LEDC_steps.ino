@@ -166,7 +166,7 @@ void do_pins_pwm() {
   num_calls = (num_calls+1) % 1000;
 
   if (0 == num_calls) {
-    Serial.printf("do_pins_pwm millis=%ld\n",time_msec_now);
+    Serial.printf("do_pins_pwm time_msec_now=%ld time_scaled_now=%ld\n",time_msec_now,time_scaled_now);
   }
 
   for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
@@ -189,7 +189,7 @@ void do_pins_pwm() {
       do_pin_pwm_init_step_times(pin_idx);
       // also need to update pwm value from step
       // the step itself might say not to change the pwm
-      uint16_t tmp_pwm = my_pin_info->ptrn_step_ptr->start_set_pwm;
+      uint32_t tmp_pwm = my_pin_info->ptrn_step_ptr->start_set_pwm;
       if (PWM_NO_CHANGE != tmp_pwm) {
         my_pin_info->curr_pwm_val = PWM_MAX_VALUE & tmp_pwm;
       }
@@ -199,8 +199,12 @@ void do_pins_pwm() {
       // do next tick: calc time to end of tick and adjust pwm by one tick_pwm
       my_pin_info->scaledtm_next_tick += my_pin_info->scaledtm_tick_incr;
       // always good practice to only update state vars to valid values
-      uint16_t tmp_pwm = my_pin_info->curr_pwm_val + my_step_ptr->tick_pwm;
-      if (PWM_MAX_VALUE < tmp_pwm) tmp_pwm = PWM_MAX_VALUE;
+      uint32_t tmp_pwm = my_pin_info->curr_pwm_val + my_step_ptr->tick_pwm;
+      if (0 <= my_step_ptr->tick_pwm) {
+        if (PWM_MAX_VALUE < tmp_pwm) tmp_pwm = PWM_MAX_VALUE;
+      } else {
+        if (PWM_MAX_VALUE < tmp_pwm) tmp_pwm = 0;
+      }
       my_pin_info->curr_pwm_val = tmp_pwm;
       ledcWrite(my_pin_info->pin_num, my_pin_info->curr_pwm_val);
     }
@@ -242,7 +246,7 @@ void loop() {
     } // end for each pin_idx
     for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) { dbg_display_step(pin_idx); }
     tick_count = 0;
-    loop_count = (loop_count + 1) % 4;
+    loop_count = (loop_count + 1) % 2;
   } // end if start next pattern time scale
 
   do_pins_pwm();

@@ -38,7 +38,7 @@
 #define PWM_NUM_PINS 4        // number of LED pins to control
 #define PWM_FREQ 500          // Arduino Uno is ~490 Hz. ESP32 example uses 5,000Hz
 #define PWM_VAL_NUM_BITS 8    // Use same resolution as Uno (8 bits, 0-255) but ESP32 can go up to 16 bits (some versions less)
-#define PWM_MAX_VALUE ((1 << (PWM_VAL_NUM_BITS-1)) - 1) // max pwm value (255 if PWM_VAL_NUM_BITS is 8)
+#define PWM_MAX_VALUE ((1 << PWM_VAL_NUM_BITS)-1) // max pwm value (255 if PWM_VAL_NUM_BITS is 8)
 #define TIME_SCALE_EQUAL 64   // pwm_pin_info factors for time_ entries: millisec = (time_<whatever> / TIME_SCALE_EQUAL)
                               // this allows a relatively smooth scaling of time by setting
                               // 2^32millisec / 64 is about 18 hours, so that will exceed any gig time for the banjo players
@@ -70,7 +70,8 @@ pwm_pin_info g_pwm_pin_info[PWM_NUM_PINS] = {
 };
 
 pwm_led_ptrn_step pwm_ptrn_open_eye[] = { 
-  { .start_set_pwm=0, .step_incr=0, .step_time=185, .tick_time=5, .tick_pwm=7}
+  { .start_set_pwm=0,             .step_incr=1,  .step_time=757, .tick_time=5, .tick_pwm=2},
+  { .start_set_pwm=PWM_NO_CHANGE, .step_incr=-1, .step_time=250, .tick_time=5, .tick_pwm=-7}
 };
 
 

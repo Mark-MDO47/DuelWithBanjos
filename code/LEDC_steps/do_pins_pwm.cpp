@@ -114,11 +114,11 @@ void do_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_t
   my_pin_info->ptrn_step_ptr = &p_ptrn_ptr[p_idx_start_step]; // initializing pattern
   my_pin_info->idx_curr_step = p_idx_start_step;
   pwm_led_ptrn_step * my_step_ptr = &my_pin_info->ptrn_step_ptr[my_pin_info->idx_curr_step];
-  if (DO_PINS_PWM_USE_PTRN != p_pwm_val_init) {
+  if (DO_PINS_PWM_NO_CHANGE != p_pwm_val_init) {
     if (DO_PINS_PWM_USE_PTRN == p_pwm_val_init) {
       // the step itself might say not to change the pwm
       uint16_t tmp_pwm = my_step_ptr->start_set_pwm;
-      if (DO_PINS_PWM_USE_PTRN != tmp_pwm) {
+      if (DO_PINS_PWM_NO_CHANGE != tmp_pwm) {
         my_pin_info->curr_pwm_val = DO_PINS_PWM_MAX_VALUE & tmp_pwm;
       }
     } else { // (DO_PINS_PWM_USE_PTRN != p_pwm_val_init)
@@ -190,7 +190,7 @@ void do_pins_pwm() {
       // also need to update pwm value from step
       // the step itself might say not to change the pwm
       uint32_t tmp_pwm = my_step_ptr->start_set_pwm;
-      if (DO_PINS_PWM_USE_PTRN != tmp_pwm) {
+      if (DO_PINS_PWM_NO_CHANGE != tmp_pwm) {
         my_pin_info->curr_pwm_val = DO_PINS_PWM_MAX_VALUE & tmp_pwm;
       }
       // write the pwm value for this step change

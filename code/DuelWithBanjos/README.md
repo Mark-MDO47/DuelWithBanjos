@@ -11,7 +11,7 @@
 
 ## The Banjo Players
 [Top](#duel-with-banjos "Top")<br>
-I have two country style skeleton banjo players approximately 14 inches tall ordered from Amazon.com but apparently that exact model is no longer available there.
+I have two country style skeleton scarecrow banjo players approximately 14 inches tall ordered from Amazon.com but apparently that exact model is no longer available there.
 I think they might be similar to this one:
 - https://www.amazon.com/XINANDHAO-Halloween-Animated-Skeletons-Musicians/dp/B0DC56RL1F
 

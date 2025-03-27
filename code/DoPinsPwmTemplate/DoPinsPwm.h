@@ -41,25 +41,14 @@
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// pre-definable constants for do_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
+// modifiable constants for do_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
 //
-#ifndef DO_PINS_PWM_NUM_PINS
-  #define DO_PINS_PWM_NUM_PINS 4        // number of LED pins to control
-#endif
-
-#ifndef DO_PINS_PWM_FREQ
-  #define DO_PINS_PWM_FREQ 500          // Arduino Uno is ~490 Hz. ESP32 example uses 5,000Hz
-#endif
-
-#ifndef DO_PINS_PWM_VAL_NUM_BITS
-  #define DO_PINS_PWM_VAL_NUM_BITS 8    // Use same resolution as Uno (8 bits, 0-255) but ESP32 can go up to 16 bits (some versions less)
-#endif
-
-#ifndef TIME_SCALE_EQUAL
-  #define TIME_SCALE_EQUAL 64   // pwm_pin_info factors for time_ entries: millisec = (time_<whatever> / TIME_SCALE_EQUAL)
-                                // this allows a relatively smooth scaling of time by setting
-                                // 2^32millisec / 64 is about 18 hours, so that will exceed any gig time for the banjo players
-#endif
+#define DO_PINS_PWM_NUM_PINS 4        // number of LED pins to control
+#define DO_PINS_PWM_FREQ 500          // Arduino Uno is ~490 Hz. ESP32 example uses 5,000Hz
+#define DO_PINS_PWM_VAL_NUM_BITS 8    // Use same resolution as Uno (8 bits, 0-255) but ESP32 can go up to 16 bits (some versions less)
+#define TIME_SCALE_EQUAL 64           // pwm_pin_info factors for time_ entries: millisec = (time_<whatever> / TIME_SCALE_EQUAL)
+                                      // this allows a relatively smooth scaling of time by setting
+                                      // 2^32millisec / 64 is about 18 hours, so that will exceed any gig time for the banjo players
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // constants for do_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
@@ -72,7 +61,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // structure typedefs for do_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
 typedef struct {
-  uint16_t  start_set_pwm; // if not DO_PINS_PWM_NO_CHANGE, set pwm value to this ??? FIXME TODO should this be in the struct??? or pwm_pin_info???
+  uint16_t  start_set_pwm; // if not DO_PINS_PWM_NO_CHANGE, set pwm value to this
   int16_t   step_incr;     // if # >= 0, increment step counter by #; if # < 0 go to step "-# - 1"
   uint16_t  step_time;     // how long (millisec B4 scaling) until this step is complete
   uint16_t  tick_time;     // how long (millisec B4 scaling) between each tick

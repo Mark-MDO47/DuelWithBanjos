@@ -27,7 +27,7 @@
  *
  */
 
-#include "do_pins_pwm.h"
+#include "DoPinsPwm.h"
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ void setup() {
   }
   delay(3000);
   Serial.println(""); // print a blank line in case there is some junk from power-on
-  Serial.println("starting LEDC_steps");
+  Serial.println("starting DoPinsPwmTemplate");
 
   if (do_pins_pwm_init(DO_PINS_PWM_FREQ, DO_PINS_PWM_VAL_NUM_BITS, 0)) {
     while (1) ;

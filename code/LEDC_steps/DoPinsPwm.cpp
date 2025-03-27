@@ -27,7 +27,7 @@
  *
  */
 
-#include "do_pins_pwm.h"
+#include "DoPinsPwm.h"
 
 static uint16_t g_do_pin_pwm_dbg_step = 1; // non-zero to do debug prints
 

@@ -72,8 +72,14 @@ void setup() {
 // loop()
 void loop() {
   static uint32_t first_time = 1;
+  static uint32_t time_msec_first_loop;
+  static uint16_t prev_ten_sec = 1;
+
+  uint32_t time_msec_this_loop = millis();
+  uint16_t ten_secs = (time_msec_this_loop-time_msec_first_loop) / 10000;
 
   if (0 != first_time) {
+    time_msec_first_loop = millis();
     for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
       led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_open_eye, 0, TIME_SCALE_EQUAL + pin_idx*2, 0);
     } // end for each pin_idx
@@ -82,5 +88,11 @@ void loop() {
 
   led_pins_pwm();
   delay(1);
+
+  if ((ten_secs > 1) && (ten_secs != prev_ten_sec)) {
+    Serial.printf("Scaling PWM to %d/%d\n",1,ten_secs);
+    led_pin_pwm_set_pwm_scale(1,ten_secs);
+    prev_ten_sec = ten_secs;
+  }
 
 } // end loop()

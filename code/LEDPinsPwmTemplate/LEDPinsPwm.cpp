@@ -30,14 +30,14 @@
 #include "LEDPinsPwm.h"
 
 static uint16_t g_led_pin_pwm_dbg_step = 0;      // non-zero to do debug prints
-static uint16_t g_led_pin_pwm_num_pwm_scale = 1; // zero turns off LEDs. numerator for pwm scaling
-static uint16_t g_led_pin_pwm_den_pwm_scale = 1; // should never be zero! denominator for pwm scaling
+static uint32_t g_led_pin_pwm_num_pwm_scale = 1; // zero turns off LEDs. numerator for pwm scaling
+static uint32_t g_led_pin_pwm_den_pwm_scale = 1; // should never be zero! denominator for pwm scaling
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// sled_pin_pwm_dbg_step() - for debugging, display steps at important steps
+// led_pin_pwm_int_dbg_step() - internal routine for debugging, display steps at important steps
 //
-void led_pin_pwm_dbg_step(int p_pin_idx);
-void led_pin_pwm_dbg_step(int p_pin_idx) {
+void led_pin_pwm_int_dbg_step(int p_pin_idx); // to keep the compiler happy
+void led_pin_pwm_int_dbg_step(int p_pin_idx) {
   static int first_time = 1;
 
   if (g_led_pin_pwm_dbg_step) {
@@ -45,7 +45,7 @@ void led_pin_pwm_dbg_step(int p_pin_idx) {
     pwm_led_ptrn_step * my_step_ptr = &my_pin_info->ptrn_step_ptr[my_pin_info->idx_curr_step];
 
     if (first_time) {
-      Serial.printf("led_pin_pwm_dbg_step:my_pin_info\tpin_num\tidx_curr_step\tcurr_pwm_val\tprev_pwm_val\tscale_factor");
+      Serial.printf("led_pin_pwm_int_dbg_step:my_pin_info\tpin_num\tidx_curr_step\tcurr_pwm_val\tprev_pwm_val\tscale_factor");
       Serial.printf("\tscaledtm_tick_incr\tscaledtm_next_tick\tscaledtm_next_step");
       Serial.printf("\tled_pin_pwm_dbg_step:my_step_ptr\tidx_curr_step");
       Serial.printf("\tstart_set_pwm\tstep_incr\tstep_time\ttick_time\ttick_pwm\n");
@@ -58,7 +58,57 @@ void led_pin_pwm_dbg_step(int p_pin_idx) {
 
     first_time = 0; // so we can turn this on and off
   } // end if g_led_pin_pwm_dbg_step
-} // end led_pin_pwm_dbg_step()
+} // end led_pin_pwm_int_dbg_step()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// led_pin_pwm_int_ledcWrite() - internal routine to write scaled pwm values 
+//
+// parameters:
+//    p_pin_num   - which pin to output to
+//    p_pwm_val   - pwm value to output
+//
+void led_pin_pwm_int_ledcWrite(uint16_t p_pin_num, uint16_t p_pwm_val); // to keep the compiler happy
+void led_pin_pwm_int_ledcWrite(uint16_t p_pin_num, uint16_t p_pwm_val) {
+  // force the order of operations so we don't overflow numerator calculation
+  uint16_t pwm_scaled = (((uint32_t)p_pwm_val) * g_led_pin_pwm_num_pwm_scale) / g_led_pin_pwm_den_pwm_scale;
+  // Serial.printf("DEBUG my ledcwrite pin=%d pwm=%d scaled=%d\n", p_pin_num, p_pwm_val, pwm_scaled);
+  ledcWrite(p_pin_num, pwm_scaled);
+} // end led_pin_pwm_int_ledcWrite()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// led_pin_pwm_int_set_pwm_num_den() - internal routine to set valid values for pwm scaling 
+//
+// parameters:
+//   p_num_pwm_scale     - numerator for final pwm scaling
+//   p_den_pwm_scale     - denominator for final pwm scaling - should NOT be zero
+//
+void led_pin_pwm_int_set_pwm_num_den(uint16_t p_num_pwm_scale, uint16_t p_den_pwm_scale); // to keep the compiler happy
+void led_pin_pwm_int_set_pwm_num_den(uint16_t p_num_pwm_scale, uint16_t p_den_pwm_scale) {
+  if (0 == p_den_pwm_scale) {
+    Serial.printf("warning - init denominator for pwm scale specified as zero; both num and den changed to 1");
+    g_led_pin_pwm_num_pwm_scale = g_led_pin_pwm_den_pwm_scale = 1;
+  } else {
+    g_led_pin_pwm_num_pwm_scale = p_num_pwm_scale;
+    g_led_pin_pwm_den_pwm_scale = p_den_pwm_scale;
+  }
+} // end led_pin_pwm_int_set_pwm_num_den()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// led_pin_pwm_set_pwm_scale() - set valid global values for pwm scaling during operation
+//
+// parameters:
+//   p_num_pwm_scale     - numerator for final pwm scaling
+//   p_den_pwm_scale     - denominator for final pwm scaling - should NOT be zero
+//
+void led_pin_pwm_set_pwm_scale(uint16_t p_num_pwm_scale, uint16_t p_den_pwm_scale) {
+  // set the values safely
+  led_pin_pwm_int_set_pwm_num_den(p_num_pwm_scale, p_den_pwm_scale);
+
+  // apply the scaling now; don't wait for next tick
+  for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
+    led_pin_pwm_int_ledcWrite(g_pwm_pin_info[pin_idx].pin_num, g_pwm_pin_info[pin_idx].curr_pwm_val);
+  }
+} // end led_pin_pwm_set_pwm_scale()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_init_step_times() - calculates the scaled times for this step in the pattern
@@ -127,7 +177,7 @@ void led_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_
   }
   my_pin_info->scale_factor = p_scale_factor;
   led_pin_pwm_init_step_times(p_pin_idx);
-  ledcWrite(my_pin_info->pin_num, my_pin_info->curr_pwm_val);
+  led_pin_pwm_int_ledcWrite(my_pin_info->pin_num, my_pin_info->curr_pwm_val);
   my_pin_info->prev_pwm_val = my_pin_info->curr_pwm_val;
 } // end led_pin_pwm_init_ptrn()
 
@@ -146,15 +196,12 @@ void led_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_
 int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint16_t p_num_pwm_scale, uint16_t p_den_pwm_scale, uint16_t p_serial_debugging) {
   int16_t ret_val = 0; // 0 is no error
 
-  if (0 == p_den_pwm_scale) {
-    Serial.printf("warning - init denominator for pwm scale specified as zero; both num and den changed to 1");
-    g_led_pin_pwm_num_pwm_scale = g_led_pin_pwm_den_pwm_scale = 1;
-  } else {
-    g_led_pin_pwm_num_pwm_scale = p_num_pwm_scale;
-    g_led_pin_pwm_den_pwm_scale = p_den_pwm_scale;
-  }
+  // set the numerator/denominator for final pwm scaling
+  led_pin_pwm_int_set_pwm_num_den(p_num_pwm_scale, p_den_pwm_scale);
 
+  // set whether to do serial debug
   g_led_pin_pwm_dbg_step = p_serial_debugging;
+
   // connect to Banjo Player LED eyes and initially turn off
   for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
     // connect a pin to a channel at a pwm value frequency, and a PWM resolution (1 - 16 bits)
@@ -162,7 +209,7 @@ int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint
       Serial.printf("ERROR - could not attach pin %d to LEDC library", g_pwm_pin_info[pin_idx].pin_num);
       ret_val = 1; // 0 is no error
     } else {
-      ledcWrite(g_pwm_pin_info[pin_idx].pin_num, 0); // initially set to off
+      led_pin_pwm_int_ledcWrite(g_pwm_pin_info[pin_idx].pin_num, 0); // initially set to off
     }
   } // end connect all pins to Banjo Player LED eyes
 
@@ -205,7 +252,7 @@ void led_pins_pwm() {
       }
       // write the pwm value for this step change
       if (my_pin_info->prev_pwm_val != my_pin_info->curr_pwm_val) {
-        ledcWrite(my_pin_info->pin_num, my_pin_info->curr_pwm_val);
+        led_pin_pwm_int_ledcWrite(my_pin_info->pin_num, my_pin_info->curr_pwm_val);
       }
       // end if step change happened
     } else if (my_pin_info->scaledtm_next_tick <= time_scaled_now) {
@@ -220,7 +267,7 @@ void led_pins_pwm() {
       }
       my_pin_info->curr_pwm_val = tmp_pwm;
       if (my_pin_info->prev_pwm_val != my_pin_info->curr_pwm_val) {
-        ledcWrite(my_pin_info->pin_num, my_pin_info->curr_pwm_val);
+        led_pin_pwm_int_ledcWrite(my_pin_info->pin_num, my_pin_info->curr_pwm_val);
       }
     } // end if tick change happened
     my_pin_info->prev_pwm_val = my_pin_info->curr_pwm_val;

@@ -1,4 +1,4 @@
-# DoPinsPwmTemplate - Learning to Use LEDC PWM
+# LEDPinsPwmTemplate - Learning to Use LEDC PWM
 
 ## Intro
 

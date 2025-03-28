@@ -96,16 +96,15 @@ void led_pin_pwm_init_step_times(int p_pin_idx);
 // led_pin_pwm_init_ptrn() - initialize a pwm_pin_info entry for a particular pattern
 //    Called once each time a new pattern is set for a particular p_pin_idx in g_pwm_pin_info
 //
-// Things that are required when calling
-//    p_pin_idx  - must be a valid pin idx in g_pwm_pin_info
-//    p_ptrn_ptr - must point to an array of steps, with at least (1+p_idx_start_step) steps in the array
-// Things that can be adjusted when calling this for a new pattern
-//    p_idx_start_step - usually 0, occasionally 1, I don't know why it would be > 1
-//    p_scale_factor   - = TIME_SCALE_EQUAL means use the pattern millisec counts as-is
+// parameters (* means optional, has default as shown in declaration):
+//    p_pin_idx        - must be a valid pin idx in g_pwm_pin_info
+//    p_ptrn_ptr       - must point to an array of steps, with at least (1+p_idx_start_step) steps in the array
+// *  p_idx_start_step - usually 0, occasionally 1, I don't know why it would be > 1
+// *  p_scale_factor   - = TIME_SCALE_EQUAL means use the pattern millisec counts as-is
 //                       > TIME_SCALE_EQUAL means go faster than pattern by factor (p_scale_factor/TIME_SCALE_EQUAL)
 //                       < TIME_SCALE_EQUAL means go slower than pattern by factor (p_scale_factor/TIME_SCALE_EQUAL)
 //                       = 0 (special case) means stay on step p_idx_start_step forever and never tick
-//    p_pwm_val_init   - = LED_PINS_PWM_NO_CHANGE means leave curr_pwm_val alone, do not change it from current value
+// *  p_pwm_val_init   - = LED_PINS_PWM_NO_CHANGE means leave curr_pwm_val alone, do not change it from current value
 //                       = LED_PINS_PWM_USE_PTRN  means store the pattern start_set_pwm into curr_pwm_val
 //                       = other         means store the parameter p_pwm_val_init into curr_pwm_val
 //
@@ -114,14 +113,16 @@ void led_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pins_pwm_init() - initialize pwm pins and set value to zero
 //
-// parameters:
-//   p_pwm_freq         - Frequency to use in Hertz. Usually between 500 and 5,000
-//   p_pwm_val_num_bits - Number of bits for value. Usually between 8 and 14
-//                        If this is  8 then pwm_val would be between 0 and 255
-//                        If this is 12 then pwm_val would be between 0 and 4095
-//   p_serial_debugging - zero for no serial debugging, 1 for serial debugging
+// parameters (* means optional, has default as shown in declaration):
+//   p_pwm_freq          - Frequency to use in Hertz. Usually between 500 and 5,000
+//   p_pwm_val_num_bits  - Number of bits for value. Usually between 8 and 14
+//                         If this is  8 then pwm_val would be between 0 and 255
+//                         If this is 12 then pwm_val would be between 0 and 4095
+// * p_num_pwm_scale     - numerator for final pwm scaling
+// * p_den_pwm_scale     - denominator for final pwm scaling - should NOT be zero
+// * p_serial_debugging  - zero for no serial debugging, 1 for serial debugging
 //
-int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint16_t p_serial_debugging);
+int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint16_t p_num_pwm_scale = 1, uint16_t p_den_pwm_scale = 1, uint16_t p_serial_debugging = 0);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pins_pwm() - do calculations and set values for pwm for all pins based on g_pwm_pin_info

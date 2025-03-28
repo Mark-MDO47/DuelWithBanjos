@@ -62,7 +62,7 @@ void setup() {
   Serial.println(""); // print a blank line in case there is some junk from power-on
   Serial.println("starting LEDPinsPwmTemplate");
 
-  if (led_pins_pwm_init(LED_PINS_PWM_FREQ, LED_PINS_PWM_VAL_NUM_BITS, 0)) {
+  if (led_pins_pwm_init(LED_PINS_PWM_FREQ, LED_PINS_PWM_VAL_NUM_BITS)) {
     while (1) ;
   } // end if error in initialization
 

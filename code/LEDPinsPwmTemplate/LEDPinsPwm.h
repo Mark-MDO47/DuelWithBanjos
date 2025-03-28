@@ -28,9 +28,9 @@
  */
 
 
-#ifndef DO_PINS_PWM_H
+#ifndef LED_PINS_PWM_H
 
-#define DO_PINS_PWM_H 1
+#define LED_PINS_PWM_H 1
 
 #include "Arduino.h"
 
@@ -41,27 +41,27 @@
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// modifiable constants for do_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
+// modifiable constants for led_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
 //
-#define DO_PINS_PWM_NUM_PINS 4        // number of LED pins to control
-#define DO_PINS_PWM_FREQ 500          // Arduino Uno is ~490 Hz. ESP32 example uses 5,000Hz
-#define DO_PINS_PWM_VAL_NUM_BITS 8    // Use same resolution as Uno (8 bits, 0-255) but ESP32 can go up to 16 bits (some versions less)
+#define LED_PINS_PWM_NUM_PINS 4        // number of LED pins to control
+#define LED_PINS_PWM_FREQ 500          // Arduino Uno is ~490 Hz. ESP32 example uses 5,000Hz
+#define LED_PINS_PWM_VAL_NUM_BITS 8    // Use same resolution as Uno (8 bits, 0-255) but ESP32 can go up to 16 bits (some versions less)
 #define TIME_SCALE_EQUAL 64           // pwm_pin_info factors for time_ entries: millisec = (time_<whatever> / TIME_SCALE_EQUAL)
                                       // this allows a relatively smooth scaling of time by setting
                                       // 2^32millisec / 64 is about 18 hours, so that will exceed any gig time for the banjo players
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// constants for do_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
+// constants for led_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
 //
-#define DO_PINS_PWM_NO_CHANGE 0xFFFF  // no change to current pwm value when init pattern (.start_set_pwm or init function)
-#define DO_PINS_PWM_USE_PTRN  0xFFFE  // use pwm value from pattern step when init pattern (init function only)
-#define DO_PINS_PWM_MAX_VALUE ((1 << DO_PINS_PWM_VAL_NUM_BITS)-1) // max pwm value (255 if DO_PINS_PWM_VAL_NUM_BITS is 8)
+#define LED_PINS_PWM_NO_CHANGE 0xFFFF  // no change to current pwm value when init pattern (.start_set_pwm or init function)
+#define LED_PINS_PWM_USE_PTRN  0xFFFE  // use pwm value from pattern step when init pattern (init function only)
+#define LED_PINS_PWM_MAX_VALUE ((1 << LED_PINS_PWM_VAL_NUM_BITS)-1) // max pwm value (255 if LED_PINS_PWM_VAL_NUM_BITS is 8)
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// structure typedefs for do_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
+// structure typedefs for led_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
 typedef struct {
-  uint16_t  start_set_pwm; // if not DO_PINS_PWM_NO_CHANGE, set pwm value to this
+  uint16_t  start_set_pwm; // if not LED_PINS_PWM_NO_CHANGE, set pwm value to this
   int16_t   step_incr;     // if # >= 0, increment step counter by #; if # < 0 go to step "-# - 1"
   uint16_t  step_time;     // how long (millisec B4 scaling) until this step is complete
   uint16_t  tick_time;     // how long (millisec B4 scaling) between each tick
@@ -72,28 +72,28 @@ typedef struct {
   uint16_t pin_num;             // pin number executing this pattern
   pwm_led_ptrn_step * ptrn_step_ptr; // pointer to array of pwm_led_ptrn_step (steps)
   uint16_t idx_curr_step;       // index into array of steps for current step
-  uint16_t curr_pwm_val;        // current pwm intensity from 0 to DO_PINS_PWM_MAX_VALUE
-  uint16_t prev_pwm_val;        // previous pwm intensity from 0 to DO_PINS_PWM_MAX_VALUE
+  uint16_t curr_pwm_val;        // current pwm intensity from 0 to LED_PINS_PWM_MAX_VALUE
+  uint16_t prev_pwm_val;        // previous pwm intensity from 0 to LED_PINS_PWM_MAX_VALUE
   uint32_t scale_factor;        // to stretch time. scale_factor == TIME_SCALE_EQUAL means no stretch
   uint32_t scaledtm_tick_incr;  // time (tick_time * TIME_SCALE_EQUAL) to increment scaledtm_next_tick
   uint32_t scaledtm_next_tick;  // time (millisec * TIME_SCALE_EQUAL) to start next tick
   uint32_t scaledtm_next_step;  // time (millisec * TIME_SCALE_EQUAL) to go to next step
 } pwm_pin_info;
 
-extern pwm_pin_info g_pwm_pin_info[DO_PINS_PWM_NUM_PINS];
+extern pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS];
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// do_pin_pwm_init_step_times() - calculates the scaled times for this step in the pattern
+// led_pin_pwm_init_step_times() - calculates the scaled times for this step in the pattern
 //    Called once each time a new step in a pattern is entered for a particular pin
 //
 // Things that are required when calling
 //    p_pin_idx  - must be a valid pin idx in g_pwm_pin_info
 //    also g_pwm_pin_info should be set up except for the scalled times
 //
-void do_pin_pwm_init_step_times(int p_pin_idx);
+void led_pin_pwm_init_step_times(int p_pin_idx);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// do_pin_pwm_init_ptrn() - initialize a pwm_pin_info entry for a particular pattern
+// led_pin_pwm_init_ptrn() - initialize a pwm_pin_info entry for a particular pattern
 //    Called once each time a new pattern is set for a particular p_pin_idx in g_pwm_pin_info
 //
 // Things that are required when calling
@@ -105,14 +105,14 @@ void do_pin_pwm_init_step_times(int p_pin_idx);
 //                       > TIME_SCALE_EQUAL means go faster than pattern by factor (p_scale_factor/TIME_SCALE_EQUAL)
 //                       < TIME_SCALE_EQUAL means go slower than pattern by factor (p_scale_factor/TIME_SCALE_EQUAL)
 //                       = 0 (special case) means stay on step p_idx_start_step forever and never tick
-//    p_pwm_val_init   - = DO_PINS_PWM_NO_CHANGE means leave curr_pwm_val alone, do not change it from current value
-//                       = DO_PINS_PWM_USE_PTRN  means store the pattern start_set_pwm into curr_pwm_val
+//    p_pwm_val_init   - = LED_PINS_PWM_NO_CHANGE means leave curr_pwm_val alone, do not change it from current value
+//                       = LED_PINS_PWM_USE_PTRN  means store the pattern start_set_pwm into curr_pwm_val
 //                       = other         means store the parameter p_pwm_val_init into curr_pwm_val
 //
-void do_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_t p_idx_start_step = 0, uint32_t p_scale_factor=TIME_SCALE_EQUAL, uint16_t p_pwm_val_init=DO_PINS_PWM_USE_PTRN);
+void led_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_t p_idx_start_step = 0, uint32_t p_scale_factor=TIME_SCALE_EQUAL, uint16_t p_pwm_val_init=LED_PINS_PWM_USE_PTRN);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// do_pins_pwm_init() - initialize pwm pins and set value to zero
+// led_pins_pwm_init() - initialize pwm pins and set value to zero
 //
 // parameters:
 //   p_pwm_freq         - Frequency to use in Hertz. Usually between 500 and 5,000
@@ -121,13 +121,13 @@ void do_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_t
 //                        If this is 12 then pwm_val would be between 0 and 4095
 //   p_serial_debugging - zero for no serial debugging, 1 for serial debugging
 //
-int16_t do_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint16_t p_serial_debugging);
+int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint16_t p_serial_debugging);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// do_pins_pwm() - do calculations and set values for pwm for all pins based on g_pwm_pin_info
+// led_pins_pwm() - do calculations and set values for pwm for all pins based on g_pwm_pin_info
 //
-// should have called do_pins_pwm_init() and each g_pwm_pin_info[pin_idx] should have called do_pin_pwm_init_ptrn()
+// should have called led_pins_pwm_init() and each g_pwm_pin_info[pin_idx] should have called led_pin_pwm_init_ptrn()
 //
-void do_pins_pwm();
+void led_pins_pwm();
 
-#endif // DO_PINS_PWM_H
+#endif // LED_PINS_PWM_H

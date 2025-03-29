@@ -50,6 +50,10 @@ pwm_led_ptrn_step pwm_ptrn_open_eye[] = {
   { .start_set_pwm=LED_PINS_PWM_NO_CHANGE, .step_incr=-1, .step_time=1000, .tick_time=5, .tick_pwm=-7}
 };
 
+pwm_led_ptrn_step pwm_ptrn_blink[] = { 
+  { .start_set_pwm=0,                      .step_incr=1,  .step_time=450, .tick_time=5, .tick_pwm= 0},
+  { .start_set_pwm=LED_PINS_PWM_MAX_VALUE, .step_incr=-1, .step_time=450, .tick_time=5, .tick_pwm= 0}
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setup()
@@ -72,27 +76,40 @@ void setup() {
 // loop()
 void loop() {
   static uint32_t first_time = 1;
-  static uint32_t time_msec_first_loop;
-  static uint16_t prev_ten_sec = 1;
+  static uint32_t time_msec_first_loop = 0;
+  static uint16_t prev_ten_sec = 65535;
+  static pwm_led_ptrn_step* prev_ptrn_ptr = (pwm_led_ptrn_step *) 0;
 
   uint32_t time_msec_this_loop = millis();
   uint16_t ten_secs = (time_msec_this_loop-time_msec_first_loop) / 10000;
 
-  if (0 != first_time) {
-    time_msec_first_loop = millis();
-    for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
-      led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_open_eye, 0, TIME_SCALE_EQUAL + pin_idx*2, 0);
-    } // end for each pin_idx
-    first_time = 0;
-  } // end if start next pattern time scale
+  // this if statement should be entered once every 10 seconds and the first time loop() is executed
+  if  ((0 != first_time) || (ten_secs != prev_ten_sec)) {
+    if (0 != first_time) {
+      time_msec_first_loop = millis();
+      ten_secs = (time_msec_this_loop-time_msec_first_loop) / 10000; // probably same answer but not if setup() takes too long
+    }
+    
+    // this section executes every 10 seconds
 
-  led_pins_pwm();
+    // it is optional to adjust global scaling while operating LEDs but we demonstrate it here
+    // pwm global scaling is 1/1, 1/2, 1/3, 1/4, ... 1/(n)
+    led_pin_pwm_set_pwm_scale(1,1+ten_secs);
+    prev_ten_sec = ten_secs;
+
+    // it is optional to change LED pattern while operating LEDs but we demonstrate it here
+    // pattern changes every 10 seconds
+    if (pwm_ptrn_open_eye != prev_ptrn_ptr) prev_ptrn_ptr = pwm_ptrn_open_eye;
+    else                                    prev_ptrn_ptr = pwm_ptrn_blink;
+    for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
+      led_pin_pwm_init_ptrn(pin_idx, prev_ptrn_ptr, 0, TIME_SCALE_EQUAL + pin_idx*2, 0);
+    } // end for each pin_idx
+    
+    first_time = 0; // first_time only once
+  } // end if once every 10 seconds
+
+  led_pins_pwm(); // if needed, adjust brightness of LED
   delay(1);
 
-  if ((ten_secs > 1) && (ten_secs != prev_ten_sec)) {
-    Serial.printf("Scaling PWM to %d/%d\n",1,ten_secs);
-    led_pin_pwm_set_pwm_scale(1,ten_secs);
-    prev_ten_sec = ten_secs;
-  }
 
 } // end loop()

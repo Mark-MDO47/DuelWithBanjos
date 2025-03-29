@@ -10,10 +10,10 @@
   * [Typedef for Pattern Step](#typedef-for-pattern-step "Typedef for Pattern Step")
   * [Typedef for Pins Controlled by LEDPinsPwmTemplate](#typedef-for-pins-controlled-by-ledpinspwmtemplate "Typedef for Pins Controlled by LEDPinsPwmTemplate")
 * [Function Declarations](#function-declarations "Function Declarations")
-  * [led_pins_pwm_init](#led_pins_pwm_init "led_pins_pwm_init")
-  * [led_pin_pwm_init_ptrn](#led_pin_pwm_init_ptrn "led_pin_pwm_init_ptrn")
-  * [led_pins_pwm - do the work](#led_pins_pwm-\--do-the-work "led_pins_pwm - do the work")
-  * [led_pin_pwm_set_pwm_scale](#led_pin_pwm_set_pwm_scale "led_pin_pwm_set_pwm_scale")
+  * [led_pins_pwm_init - in setup do hardware initialization](#led_pins_pwm_init-\--in-setup-do-hardware-initialization "led_pins_pwm_init - in setup do hardware initialization")
+  * [led_pin_pwm_init_ptrn - in loop or setup start a pattern for a particular pin](#led_pin_pwm_init_ptrn-\--in-loop-or-setup-start-a-pattern-for-a-particular-pin "led_pin_pwm_init_ptrn - in loop or setup start a pattern for a particular pin")
+  * [led_pins_pwm - in loop calculate PWM values and if changed output to hardware](#led_pins_pwm-\--in-loop-calculate-pwm-values-and-if-changed-output-to-hardware "led_pins_pwm - in loop calculate PWM values and if changed output to hardware")
+  * [led_pin_pwm_set_pwm_scale - in loop or setup set global scale factor for PWM value](#led_pin_pwm_set_pwm_scale-\--in-loop-or-setup-set-global-scale-factor-for-pwm-value "led_pin_pwm_set_pwm_scale - in loop or setup set global scale factor for PWM value")
 
 ## Intro
 [Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>

@@ -21,7 +21,7 @@ This code is a vehicle for me to come up  with a general way to use LEDC PWM. I 
 
 LEDPinsPwmTemplate.ino is a near-minimum implementation of use of LEDPinsPwm. It has the following required parts:
 - **#include "LEDPinsPwm.h"**
-  - **optional**: after this include you can redefine LED_PINS_PWM_NUM_PINS inside your *.ino. I may have to think about the other "modifiable" constants mentioned in LEDPinsPwm.h
+  - **optional**: you can edit LEDPinsPwm.h to change "modifiable" constants as outlined in that file. For instance, you can redefine LED_PINS_PWM_NUM_PINS to something other than 4.
 - make the table **pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS]** to point to the pins you will be having LEDPinsPwm control. You must use this name and it must be global scope.
 - make at least one **pwm_led_ptrn_step pattern**. This would be an array of pwm_led_ptrn_step, even if there is only one entry. These patterns can have any name you want; they will be referenced later in calls to led_pin_pwm_init_ptrn().
 - in **setup()**, call **Serial.begin()**

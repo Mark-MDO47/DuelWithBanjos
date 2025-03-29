@@ -1,6 +1,19 @@
 # LEDPinsPwmTemplate - Learning to Use LEDC PWM
 
 **Table Of Contents**
+* [Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")
+* [Intro](#intro "Intro")
+* [Constants](#constants "Constants")
+  * [Modifiable Constants](#modifiable-constants "Modifiable Constants")
+  * [Do Not Change These Constants](#do-not-change-these-constants "Do Not Change These Constants")
+* [Data Structures](#data-structures "Data Structures")
+  * [Typedef for Pattern Step](#typedef-for-pattern-step "Typedef for Pattern Step")
+  * [Typedef for Pins Controlled by LEDPinsPwmTemplate](#typedef-for-pins-controlled-by-ledpinspwmtemplate "Typedef for Pins Controlled by LEDPinsPwmTemplate")
+* [Function Declarations](#function-declarations "Function Declarations")
+  * [led_pins_pwm_init](#led_pins_pwm_init "led_pins_pwm_init")
+  * [led_pin_pwm_init_ptrn](#led_pin_pwm_init_ptrn "led_pin_pwm_init_ptrn")
+  * [led_pins_pwm - do the work](#led_pins_pwm-\--do-the-work "led_pins_pwm - do the work")
+  * [led_pin_pwm_set_pwm_scale](#led_pin_pwm_set_pwm_scale "led_pin_pwm_set_pwm_scale")
 
 ## Intro
 

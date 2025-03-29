@@ -16,13 +16,14 @@
   * [led_pin_pwm_set_pwm_scale](#led_pin_pwm_set_pwm_scale "led_pin_pwm_set_pwm_scale")
 
 ## Intro
-
-This code is a vehicle for me to come up  with a general way to use LEDC PWM. I wanted to have a data structure for a time-sequence pattern that could be applied to a pin.
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+This code is a vehicle for me to come up  with a general way to use LEDC PWM. I wanted to have a data structure for a time-sequence pattern that could be applied to a set of pins.
 
 ## Constants
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 
 ### Modifiable Constants
-
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // modifiable constants for led_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
@@ -36,7 +37,7 @@ This code is a vehicle for me to come up  with a general way to use LEDC PWM. I 
 ```
 
 ### Do Not Change These Constants
-
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // constants for led_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
@@ -49,7 +50,7 @@ This code is a vehicle for me to come up  with a general way to use LEDC PWM. I 
 ## Data Structures
 
 ### Typedef for Pattern Step
-
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // structure typedefs for led_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
@@ -63,7 +64,7 @@ typedef struct {
 ```
 
 ### Typedef for Pins Controlled by LEDPinsPwmTemplate
-
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 ```C
 typedef struct {
   uint16_t pin_num;             // pin number executing this pattern
@@ -84,9 +85,10 @@ extern pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS];
 ```
 
 ## Function Declarations
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 
 ### led_pins_pwm_init
-
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pins_pwm_init() - initialize pwm pins and set value to zero
@@ -104,7 +106,7 @@ int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint
 ```
 
 ### led_pin_pwm_init_ptrn
-
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_init_ptrn() - initialize a pwm_pin_info entry for a particular pattern
@@ -126,7 +128,7 @@ void led_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_
 ```
 
 ### led_pins_pwm - do the work
-
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pins_pwm() - do calculations and output values for pwm for all pins based on g_pwm_pin_info
@@ -137,7 +139,7 @@ void led_pins_pwm();
 ```
 
 ### led_pin_pwm_set_pwm_scale
-
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_set_pwm_scale() - set valid global values for pwm scaling during operation

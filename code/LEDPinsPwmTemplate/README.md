@@ -87,7 +87,7 @@ extern pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS];
 ## Function Declarations
 [Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 
-### led_pins_pwm_init
+### led_pins_pwm_init - in setup do hardware initialization
 [Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ extern pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS];
 int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint16_t p_num_pwm_scale = 1, uint16_t p_den_pwm_scale = 1, uint16_t p_serial_debugging = 0);
 ```
 
-### led_pin_pwm_init_ptrn
+### led_pin_pwm_init_ptrn - in loop or setup start a pattern for a particular pin
 [Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +127,7 @@ int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint
 void led_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_t p_idx_start_step = 0, uint32_t p_scale_factor=TIME_SCALE_EQUAL, uint16_t p_pwm_val_init=LED_PINS_PWM_USE_PTRN);
 ```
 
-### led_pins_pwm - do the work
+### led_pins_pwm - in loop calculate PWM values and if changed output to hardware
 [Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ void led_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_
 void led_pins_pwm();
 ```
 
-### led_pin_pwm_set_pwm_scale
+### led_pin_pwm_set_pwm_scale - in loop or setup set global scale factor for PWM value 
 [Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

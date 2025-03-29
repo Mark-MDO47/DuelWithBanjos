@@ -19,6 +19,18 @@
 [Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 This code is a vehicle for me to come up  with a general way to use LEDC PWM. I wanted to have a data structure for a time-sequence pattern that could be applied to a set of pins.
 
+LEDPinsPwmTemplate.ino is a near-minimum implementation of use of LEDPinsPwm. It has the following required parts:
+- **#include "LEDPinsPwm.h"**
+  - **optional**: after this include you can redefine LED_PINS_PWM_NUM_PINS inside your *.ino. I may have to think about the other "modifiable" constants mentioned in LEDPinsPwm.h
+- make the table **pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS]** to point to the pins you will be having LEDPinsPwm control. You must use this name and it must be global scope.
+- make at least one **pwm_led_ptrn_step pattern**. This would be an array of pwm_led_ptrn_step, even if there is only one entry. These patterns can have any name you want; they will be referenced later in calls to led_pin_pwm_init_ptrn().
+- in **setup()**, call **Serial.begin()**
+- in **setup()**, call **led_pins_pwm_init()** to connect to the hardware pins to control.
+- in **loop()** (preferred) or **setup()**, call **led_pin_pwm_init_ptrn()** to set a pattern for each pin in **g_pwm_pin_info[]**. Only do this when initially setting or changing patterns for a pin.
+- in **loop()**, call **led_pins_pwm()** to perform the patterns on the pins over time.
+  - **optional**: later on you can call **led_pin_pwm_init_ptrn()** to set a new pattern for a pin or restart the existing pattern for a pin.
+  - **optional**: later on you can call **led_pin_pwm_set_pwm_scale()** to set a global scale factor for the PWM values.
+
 ## Constants
 [Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 

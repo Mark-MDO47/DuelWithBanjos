@@ -18,12 +18,13 @@
    limitations under the License.
  */
 
-// The idea is to play the song Dueling Banjos repeatedly on the speaker.
-// Alternatively we can play banjo Christmas music or even turn the music off.
+// The idea is to play a song such as "Dueling Banjos" repeatedly on the speaker.
+//    Alternatively we can play banjo Christmas music or even turn the music off.
+//    Actually any sort of music or sound would be possible.
 // Additionally we will control and fade the banjo player LED eyes.
 
 // We will use UniRemote to control our activities - see https://github.com/Mark-MDO47/UniRemote
-//    Because UniRemote uses ESP-NOW, this must run on an ESP32.
+//    Because UniRemote uses ESP-NOW, DuelWithBanjos must run on an ESP32.
 //    We will use an inexpensive ESP-WROOM-32 and this guides us on selection of UART and GPIO pins
 //       https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
 //       https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf
@@ -31,17 +32,21 @@
 // connections:
 //
 // YX5200/DFPlayer Sound Player
-//   ESP32 Dev Module pin D-16     Arduino RX; YX5200 TX - 9600 Baud
-//   ESP32 Dev Module pin D-17     Arduino TX; YX5200 RX - 9600 Baud
-//   ESP32 Dev Module pin D-23      YX5200 BUSY; HIGH when audio finishes
+//   ESP32 Dev Module pin D-16   DPIN_HWSRL_RX   Arduino RX; YX5200 TX - 9600 Baud
+//   ESP32 Dev Module pin D-17   DPIN_HWSRL_TX   Arduino TX; YX5200 RX - 9600 Baud
+//   ESP32 Dev Module pin D-23   DPIN_AUDIO_BUSY YX5200 BUSY; HIGH when audio finishes
 //
 // LED PWM
-//   ESP32 Dev Module pin D-18     right player eye 1
-//   ESP32 Dev Module pin D-19     right player eye 2
-//   ESP32 Dev Module pin D-32     left  player eye 1
-//   ESP32 Dev Module pin D-33     left  player eye 2
+//   ESP32 Dev Module pin D-18   left  splayer eye 1
+//   ESP32 Dev Module pin D-19   left  player eye 2
+//   ESP32 Dev Module pin D-32   right player eye 1
+//   ESP32 Dev Module pin D-33   right player eye 2
 
-// Attributions for the sound are on the MicroSD card containing the sound.
+// Attributions for the sounds are on the MicroSD card containing the sounds.
+// The music is either purchased or else performed/recorded by me.
+// Purchased music at this time is as follows:
+//    Dueling Banjos, Curtis McPeake 2009, https://www.amazon.com/Dueling-Banjos-CURTIS-OTHERS-MCPEAKE/dp/B0001MZ854
+//    Todd Taylor's Banjo Christmas, Todd Taylor 2015, https://www.amazon.com/dp/1574243217
 
 // See https://github.com/Mark-MDO47/AudioPlayer-YX5200 for details on using the YX5200/DFPlayer.
 //   I usually install a copy of the DFRobot.com DFPlayer code when using it, since I did a lot
@@ -57,7 +62,10 @@
 
 #include "HardwareSerial.h"       // to talk with the YX5200
 #include "DFRobotDFPlayerMini.h"  // to communicate with the YX5200 audio player
-#include "DuelWithBanjos_SOUNDNUM.h"
+#include "SoundNum.h"             // numbers for each sound
+
+#include "LEDPinsPwm.h"           // to control LED eyes with Pulse Width Modulation
+
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // definitions for YX5200/DFPlayer and ESP-WROOM-32 serial port 
@@ -82,12 +90,29 @@ uint32_t gTimerForceSoundActv = 0;  // SOUND_ACTIVE_PROTECT until millis() >= th
 #endif // #if DFPRINTDETAIL
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// constants for LEDC PWM library to control the LED Eyes of the Banjo Players
-#define PWM_NUM_PINS 4  // number of LED pins to control
-const int PWM_PIN_NUMBERS[4] = {18, 19, 32, 33};
-const int PWM_FREQ = 500;     // Arduino Uno is ~490 Hz. ESP32 example uses 5,000Hz
-const int PWM_RESOLUTION = 8; // Use same resolution as Uno (8 bits, 0-255) but ESP32 can go up to 16 bits (some versions less)
-const int PWM_MAX_DUTY_CYCLE = (int)(pow(2, PWM_RESOLUTION) - 1); // The max duty cycle value based on PWM resolution (will be 255 if resolution is 8 bits)
+// structures for LEDPinsPwm to control the LED Eyes of the Banjo Players
+
+// pin definitions - name must be must be g_pwm_pin_info, must be one row for each PWM LED output pin
+//
+pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS] = {
+  { .pin_num=18, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .prev_pwm_val = 0xFFFF, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_tick_incr = 0, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
+  { .pin_num=19, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .prev_pwm_val = 0xFFFF, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_tick_incr = 0, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
+  { .pin_num=32, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .prev_pwm_val = 0xFFFF, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_tick_incr = 0, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
+  { .pin_num=33, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .prev_pwm_val = 0xFFFF, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_tick_incr = 0, .scaledtm_next_tick=0, .scaledtm_next_step=0 }
+};
+
+// pwm LED pattern definitions - name can be anything, can be as many pattern definitions as desired,
+//         can have as many steps per pattern as desired
+//
+pwm_led_ptrn_step pwm_ptrn_open_eye[] = { 
+  { .start_set_pwm=0,                     .step_incr=1,  .step_time=1757, .tick_time=5, .tick_pwm= 2},
+  { .start_set_pwm=LED_PINS_PWM_NO_CHANGE, .step_incr=-1, .step_time=1000, .tick_time=5, .tick_pwm=-7}
+};
+pwm_led_ptrn_step pwm_ptrn_blink[] = { 
+  { .start_set_pwm=0,                      .step_incr=1,  .step_time=450, .tick_time=5, .tick_pwm= 0},
+  { .start_set_pwm=LED_PINS_PWM_MAX_VALUE, .step_incr=-1, .step_time=450, .tick_time=5, .tick_pwm= 0}
+};
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #if DFPRINTDETAIL
@@ -243,37 +268,46 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
+  delay(3000);
   Serial.println(""); // print a blank line in case there is some junk from power-on
+  Serial.println("starting DuelWithBanjos");
 
   // connect to Banjo Player LED eyes and initially turn off
-  for (int pin_idx = 0; pin_idx < PWM_NUM_PINS; pin_idx += 1) {
-    // connect a pin to a channel at a PWM duty cycle frequency, and a PWM resolution (1 - 16 bits)
-    if (!ledcAttach(PWM_PIN_NUMBERS[pin_idx], PWM_FREQ, PWM_RESOLUTION)) {
-      Serial.println("ERROR - could not attach pin to LEDC library");
-    }
-    ledcWrite(PWM_PIN_NUMBERS[pin_idx], 0); // initially set to off
-  } // end connect all pins to Banjo Player LED eyes
+  Serial.println("\nInitialize LEDPinsPwm");
+  if (led_pins_pwm_init(LED_PINS_PWM_FREQ, LED_PINS_PWM_VAL_NUM_BITS)) {
+    while (1) ;
+  } // end if error in initialization
+  for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
+    led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_blink, 0, TIME_SCALE_EQUAL + pin_idx*2, 0);
+  } // end for each pin_idx
 
   // initialize the YX5200 DFPlayer audio player
+  Serial.println("\nInitialize YX5200");
   DFsetup();
 
-  Serial.println("DuelWithBanjos init complete...");
+  Serial.println("\nDuelWithBanjos init complete...");
 
-  // play the INTRO sound to completion, then allow normal loop() processing
+  // start the INTRO sound, then allow normal loop() processing
   DFstartSound(SOUNDNUM_DuelingBanjos, SOUND_DEFAULT_VOL);
+/*
   while (!DFcheckSoundDone()) {
     delay(10); // wait for the INTRO sound to finish
   } // end while
   Serial.println("Intro Sound Complete");
+*/
 } // end setup()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // loop()
 void loop() {
+  EVERY_N_MILLISECONDS( 5 ) { 
+    led_pins_pwm(); // if needed, adjust brightness of LED
+  } // end EVERY_N_MILLISECONDS 5
+
   EVERY_N_MILLISECONDS( 50 ) { 
     if (DFcheckSoundDone()) {
       // restart sound
       DFstartSound(SOUNDNUM_DuelingBanjos, SOUND_DEFAULT_VOL);
     } // end if DFcheckSoundDone
-  } // end EVERY_N_MILLISECONDS
+  } // end EVERY_N_MILLISECONDS 50
 } // end loop()

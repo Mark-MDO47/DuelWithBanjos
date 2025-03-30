@@ -146,7 +146,7 @@ void led_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_
 int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint16_t p_num_pwm_scale = 1, uint16_t p_den_pwm_scale = 1, uint16_t p_serial_debugging = 0);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// led_pins_pwm() - do calculations and set values for pwm for all pins based on g_pwm_pin_info
+// led_pins_pwm() - do calculations and output values for pwm for all pins based on g_pwm_pin_info
 //
 // should have called led_pins_pwm_init() and each g_pwm_pin_info[pin_idx] should have called led_pin_pwm_init_ptrn()
 //

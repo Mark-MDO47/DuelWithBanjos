@@ -1,5 +1,7 @@
 # Duel With Banjos
 
+<img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/banjo_players_1024_768.jpg" width="500" alt="My Banjo Players">
+
 **Table Of Contents**
 * [Top](#duel-with-banjos "Top")
 * [The Banjo Players](#the-banjo-players "The Banjo Players")

@@ -6,6 +6,7 @@
 * [Top](#duel-with-banjos "Top")
 * [The Banjo Players](#the-banjo-players "The Banjo Players")
 * [YX5200 Audio Player](#yx5200-audio-player "YX5200 Audio Player")
+  * [The Music](#the-music "The Music")
   * [LICENSE for DFRobot code](#license-for-dfrobot-code "LICENSE for DFRobot code")
 * [ESP32 LEDC PWM - LED Dimmer Control](#esp32-ledc-pwm-\--led-dimmer-control "ESP32 LEDC PWM - LED Dimmer Control")
 * [UniRemote and ESP-NOW](#uniremote-and-esp\-now "UniRemote and ESP-NOW")

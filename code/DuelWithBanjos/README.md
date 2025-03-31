@@ -26,6 +26,11 @@ I am providing sound for my banjo players using the YX5200 Audio Player, which i
 
 ![alt text](https://github.com/Mark-MDO47/RubberBandGun/blob/master/PartsInfo/YX5200_MP3player.png "Top view pin arrangement on YX5200 module")
 
+### LICENSE for DFRobot code
+[Top](#duel-with-banjos "Top")<br>
+The DFRobot code (see https://www.dfrobot.com/) is not under the Apache License 2.0<br>
+The license for the DFRobot code is copied into the file LICENSE_for_DFRobot_code.txt
+
 ## ESP32 LEDC PWM - LED Dimmer Control
 [Top](#duel-with-banjos "Top")<br>
 I am using the Espressif ESP32 Pulse Width Modulation (PWM) LED control to make the LED eyes do something interesting. This capability is similar to that available on Arduinos such as the Arduino Uno, but is specifically tailored to the ESP32. Be sure to use the new "pin-oriented" calling sequence instead of the earlier "channel-oriented" calling sequence.
@@ -45,8 +50,3 @@ This means I include the *.cpp and *.h from UniRemoteRcvrTemplate
 ## ESP32
 [Top](#duel-with-banjos "Top")<br>
 Both the LEDC library and the UniRemote ESP-NOW usage mean that the processor for this project will be an ESP32. I will use some variant of the original ESP32 Devkit V1 ESP-WROOM-32 because they are inexpensive and I have several of them hanging around my mad scientist laboratory just waiting to be put to use.
-
-## LICENSE for DFRobot code
-[Top](#duel-with-banjos "Top")<br>
-The DFRobot code (see https://www.dfrobot.com/) is not under the Apache License 2.0<br>
-The license for the DFRobot code is copied into the file LICENSE_for_DFRobot_code.txt

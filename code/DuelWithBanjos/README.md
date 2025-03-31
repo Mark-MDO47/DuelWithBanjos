@@ -28,6 +28,7 @@ I am providing sound for my banjo players using the YX5200 Audio Player, which i
 
 The music and sounds on the MicroSD card or either purchased by me or recorded/created by me. Attributions are present on the MicroSD card. The sound files are not included in this repository in respect of the copyright of the owners.
 
+### The Music
 Currently the music includes
 - Dueling Banjos by Curtis Mcpeake from **Curtis Mcpeake Plays Dueling Banjos & Other Bluegrass Favorites**
 - Several selections from Todd Taylor's **Todd Taylor's Banjo Christmas**

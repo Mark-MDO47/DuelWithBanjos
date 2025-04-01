@@ -272,6 +272,14 @@ void setup() {
   Serial.println(""); // print a blank line in case there is some junk from power-on
   Serial.println("starting DuelWithBanjos");
 
+  // init UniRemoteRcvr - inits WiFi mode to WIFI_STA and inits ESP-NOW
+  esp_err_t status_init_uni_remote_rcvr = uni_remote_rcvr_init();
+  if (status_init_uni_remote_rcvr != ESP_OK) { // (== UNI_REMOTE_RCVR_OK)
+    // handle error status
+    Serial.println("Error Initializing uni_remote_rcvr!");
+    // while (1) ; // don't need to hang; can still play music
+  }
+
   // connect to Banjo Player LED eyes and initially turn off
   Serial.println("\nInitialize LEDPinsPwm");
   if (led_pins_pwm_init(LED_PINS_PWM_FREQ, LED_PINS_PWM_VAL_NUM_BITS)) {
@@ -300,6 +308,32 @@ void setup() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // loop()
 void loop() {
+  static char my_message[ESP_NOW_MAX_DATA_LEN];     // received message
+  static uint8_t sender_mac_addr[ESP_NOW_ETH_ALEN]; // sender MAC address
+  static uint32_t my_message_num = 0;               // increments for each msg received unless UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED
+  uint16_t rcvd_len = 0; // the length of the message/command. If zero, no message.
+
+  // get any message received. If 0 == rcvd_len, no message.
+  esp_err_t msg_status = uni_remote_rcvr_get_msg(&rcvd_len, &my_message[0], &sender_mac_addr[0], &my_message_num);
+
+#ifdef HANDLE_CERTAIN_UNLIKELY_ERRORS
+  // we can get an error even if no message
+  if (msg_status != UNI_REMOTE_RCVR_OK) { // (== ESP_OK)
+    // handle error status here
+
+    // these error codes come from set/clear flags; clear so can detect next time
+    if ((UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED == msg_status) || (UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG == msg_status)) {
+      uni_remote_rcvr_clear_extended_status_flags();
+    }
+  }
+#endif // HANDLE_CERTAIN_UNLIKELY_ERRORS
+
+  // we can get a message with or without an error; see above uni_remote_rcvr_clear_extended_status_flags()
+  // If 0 == rcvd_len, no message.
+  if (rcvd_len > 0) {
+    // process command FIXME TODO
+  }
+
   EVERY_N_MILLISECONDS( 5 ) { 
     led_pins_pwm(); // if needed, adjust brightness of LED
   } // end EVERY_N_MILLISECONDS 5

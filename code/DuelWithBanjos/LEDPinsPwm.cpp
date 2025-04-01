@@ -36,7 +36,7 @@ static uint32_t g_led_pin_pwm_den_pwm_scale = 1; // should never be zero! denomi
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_int_dbg_step() - internal routine for debugging, display steps at important steps
 //
-void led_pin_pwm_int_dbg_step(int p_pin_idx); // to keep the compiler happy
+// void led_pin_pwm_int_dbg_step(int p_pin_idx); // to keep the compiler happy
 void led_pin_pwm_int_dbg_step(int p_pin_idx) {
   static int first_time = 1;
 

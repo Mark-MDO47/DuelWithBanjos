@@ -288,6 +288,7 @@ void setup() {
   for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
     led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_blink, 0, TIME_SCALE_EQUAL + pin_idx*2, 0);
   } // end for each pin_idx
+  led_pin_pwm_set_pwm_scale(1,5);
 
   // initialize the YX5200 DFPlayer audio player
   Serial.println("\nInitialize YX5200");
@@ -344,4 +345,10 @@ void loop() {
       DFstartSound(SOUNDNUM_DuelingBanjos, SOUND_DEFAULT_VOL);
     } // end if DFcheckSoundDone
   } // end EVERY_N_MILLISECONDS 50
+
+  EVERY_N_MILLISECONDS( 60000 ) {
+    for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
+      led_pin_pwm_int_dbg_step(pin_idx);
+    }
+  }
 } // end loop()

@@ -152,4 +152,11 @@ int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint
 //
 void led_pins_pwm();
 
+// FIXME TODO DELETEME
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// led_pin_pwm_int_dbg_step() - internal routine for debugging, display steps at important steps
+//
+void led_pin_pwm_int_dbg_step(int p_pin_idx); // to keep the compiler happy
+// FIXME TODO DELETEME
+
 #endif // LED_PINS_PWM_H

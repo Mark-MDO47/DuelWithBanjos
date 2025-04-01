@@ -94,18 +94,19 @@ void loop() {
 
     // it is optional to adjust global scaling while operating LEDs but we demonstrate it here
     // pwm global scaling is 1/1, 1/2, 1/3, 1/4, ... 1/(n)
-    led_pin_pwm_set_pwm_scale(1,1+ten_secs);
-    prev_ten_sec = ten_secs;
+    // led_pin_pwm_set_pwm_scale(1,1+ten_secs);
+    led_pin_pwm_set_pwm_scale(1,5);
 
     // it is optional to change LED pattern while operating LEDs but we demonstrate it here
     // pattern changes every 10 seconds
     if (pwm_ptrn_open_eye != prev_ptrn_ptr) prev_ptrn_ptr = pwm_ptrn_open_eye;
     else                                    prev_ptrn_ptr = pwm_ptrn_blink;
     for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
-      led_pin_pwm_init_ptrn(pin_idx, prev_ptrn_ptr, 0, TIME_SCALE_EQUAL + pin_idx*2, 0);
+      led_pin_pwm_init_ptrn(pin_idx, prev_ptrn_ptr, 0, TIME_SCALE_EQUAL /* + pin_idx*2 */, 0);
     } // end for each pin_idx
     
     first_time = 0; // first_time only once
+    prev_ten_sec = ten_secs;
   } // end if once every 10 seconds
 
   led_pins_pwm(); // if needed, adjust brightness of LED

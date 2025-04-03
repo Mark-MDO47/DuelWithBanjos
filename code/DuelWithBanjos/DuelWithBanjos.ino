@@ -307,7 +307,107 @@ void setup() {
 } // end setup()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// do_cmd_volume(), do_cmd_music(), do_cmd_eyes() - stub versions
+//
+uint16_t do_cmd_volume(char* cmd, char* param) {
+    Serial.printf("do_cmd_volume %s %s\n", cmd, param);
+    return(0);
+} // end do_cmd_volume()
+uint16_t do_cmd_music(char* cmd, char* param) {
+    Serial.printf("do_cmd_music %s %s\n", cmd, param);
+    return(0);
+} // end do_cmd_music()
+uint16_t do_cmd_eyes(char* cmd, char* param) {
+    Serial.printf("do_cmd_eyes %s %s\n", cmd, param);
+    return(0);
+} // end do_cmd_eyes()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// do_esp_now_command()
+//       returns: nothing
+//   process command if we understand it; call with my_message ALL UPPERCASE
+//
+//   "BANJO" is <CMD_VERIFIER> only at the start of the line before first comand
+//     this just helps identify command destination on screen in UniRemote
+//   each command is " ; <command> <param>"
+//     do not place ";" at the end of the line
+//   Example: "BANJO ; EYES:PATTERN TOGETHER/SINELON ; MUSIC:SONG DUEL-BANJO"
+//
+//       <CMD_VERIFIER>: "BANJO"
+//       <command>: "EYES:PATTERN" <param>: "TOGETHER/SINELON"
+//       <command>: "MUSIC:SONG"   <param>: "DUEL-BANJO"
+//
+// BANJO ; VOLUME:UP #
+// BANJO ; VOLUME:DOWN #
+// BANJO ; VOLUME:SET #
+//
+// BANJO ; MUSIC:SONG <name>   = (<name> = DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS)
+// BANJO ; MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN ALL)
+// BANJO ; MUSIC:OFF  <ignore> = (<ignore> = anything; I use OFF)
+//
+// BANJO ; EYES:PATTERN <coord>/<ptrn> = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<ptrn> = BLINK OPEN SINELON OFF)
+// BANJO ; EYES:CYCLE <coord>          = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF)
+//
+typedef struct {
+  const char * cmd;
+  uint16_t cmd_idx;
+} esp_now_cmd_t;
+esp_now_cmd_t esp_now_cmds[] = {
+  {.cmd = "VOLUME:UP",    .cmd_idx = 0x0000 },
+  {.cmd = "VOLUME:DOWN",  .cmd_idx = 0x0001 },
+  {.cmd = "VOLUME:SET",   .cmd_idx = 0x0002 },
+  {.cmd = "MUSIC:SONG",   .cmd_idx = 0x0100 },
+  {.cmd = "MUSIC:TYPE",   .cmd_idx = 0x0101 },
+  {.cmd = "MUSIC:OFF",    .cmd_idx = 0x0102 },
+  {.cmd = "EYES:PATTERN", .cmd_idx = 0x0200 },
+  {.cmd = "EYES:CYCLE",   .cmd_idx = 0x0201 }
+};
+#define CMD_VERIFIER "BANJO"
+
+typedef uint16_t(*do_cmd_type_t)(char*, char*);
+
+do_cmd_type_t esp_now_cmd_ptrs[] = { &do_cmd_volume, &do_cmd_music, &do_cmd_eyes };
+
+uint16_t do_esp_now_command(uint16_t rcvd_len, char* my_message) {
+    // all commands to banjo players start with "BANJO" a.k.a. CMD_VERIFIER
+    uint16_t ret_val = 1; // error unless complete
+    char delimiters[] = " ";
+    char* token;
+    char* param_token;
+
+    static char tmp_msg[ESP_NOW_MAX_DATA_LEN];
+    strncpy(tmp_msg, my_message, ESP_NOW_MAX_DATA_LEN);
+    token = strtok(tmp_msg, delimiters);
+    if ((token == NULL) || (!strstr(token, CMD_VERIFIER))) { Serial.printf("ERROR ESP-NOW CMD_VERIFIER %s not %s\n",token, CMD_VERIFIER);  return(1); }
+    Serial.printf("CMD_VERIFIER: |%s| seen: |%s|\n", token, CMD_VERIFIER);
+
+    while (1) {
+        token = strtok(NULL, delimiters);
+        if ((token == NULL) || (!strstr(token, ";"))) { ret_val = 0; break; }
+        token = strtok(NULL, delimiters);
+        if ((token == NULL) || (!strstr(token, ":"))) break;
+        param_token = strtok(NULL, delimiters);
+        if (param_token == NULL) break;
+        Serial.printf("cmd: |%s| param |%s|\n", token, param_token);
+        int not_found = 1;
+        for (int i = 0; (i < NUMOF(esp_now_cmds)) && not_found; i += 1) {
+            if (!strcmp(token, esp_now_cmds[i].cmd)) {
+                Serial.printf("  found %s %s cmd_idx:0x%04x\n", token, param_token, esp_now_cmds[i].cmd_idx);
+                uint16_t cmd_type = (esp_now_cmds[i].cmd_idx >> 8) & 0xFF;
+                uint16_t cmd_idx  = esp_now_cmds[i].cmd_idx & 0xFF;
+                esp_now_cmd_ptrs[cmd_type](token, param_token);
+                not_found = 0;
+            }
+        }
+        if (not_found) { Serial.printf("ERROR ESP-NOW cmd %s not in list\n", token); return(1); }
+    }
+    if (0 == ret_val) { Serial.printf("ESP-NOW command done: %s\n", my_message); }
+    return(ret_val);
+} // end do_esp_now_command()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // loop()
+//
 void loop() {
   static char my_message[ESP_NOW_MAX_DATA_LEN];     // received message
   static uint8_t sender_mac_addr[ESP_NOW_ETH_ALEN]; // sender MAC address
@@ -332,11 +432,12 @@ void loop() {
   // we can get a message with or without an error; see above uni_remote_rcvr_clear_extended_status_flags()
   // If 0 == rcvd_len, no message.
   if (rcvd_len > 0) {
-    // process command FIXME TODO
+    // process command
+    do_esp_now_command(rcvd_len, strupr(my_message));
   }
 
   EVERY_N_MILLISECONDS( 5 ) { 
-    led_pins_pwm(); // if needed, adjust brightness of LED
+    led_pins_pwm(); // if needed, output brightness of LED
   } // end EVERY_N_MILLISECONDS 5
 
   EVERY_N_MILLISECONDS( 50 ) { 

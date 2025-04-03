@@ -345,8 +345,9 @@ uint16_t do_cmd_eyes(char* cmd, char* param) {
 // BANJO ; MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN ALL)
 // BANJO ; MUSIC:OFF  <ignore> = (<ignore> = anything; I use OFF)
 //
-// BANJO ; EYES:PATTERN <coord>/<ptrn> = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<ptrn> = BLINK OPEN SINELON OFF)
-// BANJO ; EYES:CYCLE <coord>          = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF)
+// BANJO ; EYES:PATTERN <coord>/<tscale>/<ptrn> = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64)  (<ptrn> = BLINK OPEN SINELON OFF)
+// BANJO ; EYES:CYCLE <coord>/<tscale>          = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64) 
+// BANJO ; EYES:BRIGHT <num>/<den>              = (<num> = numerator of fraction) (<den> = denominator of fraction) (NOTE: 0 <= num/den <= 1, den != 0)
 //
 typedef struct {
   const char * cmd;
@@ -360,7 +361,8 @@ esp_now_cmd_t esp_now_cmds[] = {
   {.cmd = "MUSIC:TYPE",   .cmd_idx = 0x0101 },
   {.cmd = "MUSIC:OFF",    .cmd_idx = 0x0102 },
   {.cmd = "EYES:PATTERN", .cmd_idx = 0x0200 },
-  {.cmd = "EYES:CYCLE",   .cmd_idx = 0x0201 }
+  {.cmd = "EYES:CYCLE",   .cmd_idx = 0x0201 },
+  {.cmd = "EYES:BRIGHT",  .cmd_idx = 0x0202 }
 };
 #define CMD_VERIFIER "BANJO"
 
@@ -412,6 +414,7 @@ void loop() {
   static char my_message[ESP_NOW_MAX_DATA_LEN];     // received message
   static uint8_t sender_mac_addr[ESP_NOW_ETH_ALEN]; // sender MAC address
   static uint32_t my_message_num = 0;               // increments for each msg received unless UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED
+  static uint16_t count_60sec = 0;
   uint16_t rcvd_len = 0; // the length of the message/command. If zero, no message.
 
   // get any message received. If 0 == rcvd_len, no message.
@@ -448,6 +451,14 @@ void loop() {
   } // end EVERY_N_MILLISECONDS 50
 
   EVERY_N_MILLISECONDS( 60000 ) {
+    count_60sec ^= 1;
+    for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
+      if (count_60sec)
+        led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_open_eye, 0, TIME_SCALE_EQUAL + pin_idx*2, 0);
+      else
+        led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_blink, 0, TIME_SCALE_EQUAL + pin_idx*2, 0);
+    } // end for each pin_idx
+
     for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
       led_pin_pwm_int_dbg_step(pin_idx);
     }

@@ -286,7 +286,7 @@ void setup() {
     while (1) ;
   } // end if error in initialization
   for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
-    led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_blink, 0, TIME_SCALE_EQUAL + pin_idx*2, 0);
+    led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_blink, 0, TIME_SCALE_EQUAL /* + pin_idx*2 */, 0);
   } // end for each pin_idx
   led_pin_pwm_set_pwm_scale(1,5);
 
@@ -331,7 +331,7 @@ uint16_t do_cmd_eyes(char* cmd, char* param) {
 //     this just helps identify command destination on screen in UniRemote
 //   each command is " ; <command> <param>"
 //     do not place ";" at the end of the line
-//   Example: "BANJO ; EYES:PATTERN TOGETHER/SINELON ; MUSIC:SONG DUEL-BANJO"
+//   Example: "BANJO ; EYES:PATTERN TOGETHER/64/SINELON ; MUSIC:SONG DUEL-BANJO"
 //
 //       <CMD_VERIFIER>: "BANJO"
 //       <command>: "EYES:PATTERN" <param>: "TOGETHER/SINELON"
@@ -414,7 +414,7 @@ void loop() {
   static char my_message[ESP_NOW_MAX_DATA_LEN];     // received message
   static uint8_t sender_mac_addr[ESP_NOW_ETH_ALEN]; // sender MAC address
   static uint32_t my_message_num = 0;               // increments for each msg received unless UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED
-  static uint16_t count_60sec = 0;
+  static uint16_t count_eyes = 0;
   uint16_t rcvd_len = 0; // the length of the message/command. If zero, no message.
 
   // get any message received. If 0 == rcvd_len, no message.
@@ -436,9 +436,9 @@ void loop() {
   // If 0 == rcvd_len, no message.
   if (rcvd_len > 0) {
     // process command
+    Serial.printf("Got a message |%s|\n",my_message);
     do_esp_now_command(rcvd_len, strupr(my_message));
   }
-
   EVERY_N_MILLISECONDS( 5 ) { 
     led_pins_pwm(); // if needed, output brightness of LED
   } // end EVERY_N_MILLISECONDS 5
@@ -450,13 +450,17 @@ void loop() {
     } // end if DFcheckSoundDone
   } // end EVERY_N_MILLISECONDS 50
 
-  EVERY_N_MILLISECONDS( 60000 ) {
-    count_60sec ^= 1;
+  EVERY_N_MILLISECONDS( 20000 ) {
+    count_eyes ^= 1;
     for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
-      if (count_60sec)
-        led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_open_eye, 0, TIME_SCALE_EQUAL + pin_idx*2, 0);
-      else
-        led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_blink, 0, TIME_SCALE_EQUAL + pin_idx*2, 0);
+      if (count_eyes ^ (pin_idx%2)) {
+        led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_open_eye, 0, TIME_SCALE_EQUAL, 0);
+        Serial.printf("  pin_id=%d count_eyes=%d ^=%d msec=%ld open_eye\n", pin_idx, count_eyes, count_eyes ^ (pin_idx%2),millis());
+      }
+      else {
+        led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_blink, 0, TIME_SCALE_EQUAL, 0);
+        Serial.printf("  pin_id=%d count_eyes=%d ^=%d msec=%ld blink\n", pin_idx, count_eyes, count_eyes ^ (pin_idx%2),millis());
+      }
     } // end for each pin_idx
 
     for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {

@@ -60,7 +60,7 @@ void led_pin_pwm_int_dbg_step(int p_pin_idx) {
       Serial.printf("\tstart_set_pwm\tstep_incr\tstep_time\ttick_time\ttick_pwm\n");
     }
 
-    Serial.printf("\t%d\t%d\t%d\t%ld", /* g_millis, */ my_pin_info->pin_num, my_pin_info->idx_curr_step, my_pin_info->curr_pwm_val, my_pin_info->prev_pwm_val, my_pin_info->scale_factor);
+    Serial.printf("\t%d\t%d\t%d\t%d\t%ld", my_pin_info->pin_num, my_pin_info->idx_curr_step, my_pin_info->curr_pwm_val, my_pin_info->prev_pwm_val, my_pin_info->scale_factor);
     Serial.printf("\t%ld\t%ld\t%ld", my_pin_info->scaledtm_tick_incr, my_pin_info->scaledtm_next_tick, my_pin_info->scaledtm_next_step);
     Serial.printf("\txxx\t%d", my_pin_info->idx_curr_step);
     Serial.printf("\t%d\t%d\t%d\t%d\t%d\n", my_step_ptr->start_set_pwm, my_step_ptr->step_incr, my_step_ptr->step_time, my_step_ptr->tick_time, my_step_ptr->tick_pwm);
@@ -170,7 +170,7 @@ void led_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_
 
   pwm_pin_info* my_pin_info = &g_pwm_pin_info[p_pin_idx];
 
-  my_pin_info->ptrn_step_ptr = &p_ptrn_ptr[p_idx_start_step]; // initializing pattern
+  my_pin_info->ptrn_step_ptr = &p_ptrn_ptr[0]; // initializing pattern
   my_pin_info->idx_curr_step = p_idx_start_step;
   pwm_led_ptrn_step * my_step_ptr = &my_pin_info->ptrn_step_ptr[my_pin_info->idx_curr_step];
   if (LED_PINS_PWM_NO_CHANGE != p_pwm_val_init) {

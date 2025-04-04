@@ -27,7 +27,7 @@ I am providing sound for my banjo players using the YX5200 Audio Player, which i
 
 ![alt text](https://github.com/Mark-MDO47/RubberBandGun/blob/master/PartsInfo/YX5200_MP3player.png "Top view pin arrangement on YX5200 module")
 
-The music and sounds on the MicroSD card or either purchased by me or recorded/created by me. Attributions are present on the MicroSD card. The sound files are not included in this repository in respect of the copyright of the owners.
+The music and sounds on the MicroSD card are either purchased by me or recorded/created by me. Attributions are present on the MicroSD card. The sound files are not included in this repository in respect of the copyright of the owners.
 
 ### The Music
 Currently the music includes

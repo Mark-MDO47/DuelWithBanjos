@@ -23,6 +23,8 @@ The ones I have each have a 3V power supply and two very bright red LED eyes. Th
 ## YX5200 Audio Player
 [Top](#duel-with-banjos "Top")<br>
 I am providing sound for my banjo players using the YX5200 Audio Player, which is widely available from many sources. A MicroSD card is used to store the sound files.
+
+There are some tricks to using this device in a way that many of the variants work. You may be interested to look in my repo here:
 - https://github.com/Mark-MDO47/AudioPlayer-YX5200
 
 ![alt text](https://github.com/Mark-MDO47/RubberBandGun/blob/master/PartsInfo/YX5200_MP3player.png "Top view pin arrangement on YX5200 module")

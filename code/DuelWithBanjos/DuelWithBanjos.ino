@@ -105,12 +105,14 @@ pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS] = {
 //         can have as many steps per pattern as desired
 //
 pwm_led_ptrn_step g_pwm_ptrn_open_eye[] = { 
-  { .start_set_pwm=0,                     .step_incr=1,  .step_time=1757, .tick_time=5, .tick_pwm= 2},
-  { .start_set_pwm=LED_PINS_PWM_NO_CHANGE, .step_incr=-1, .step_time=1000, .tick_time=5, .tick_pwm=-7}
+  { .start_set_pwm=0,                      .step_incr=1,  .step_time=1400, .tick_time=5, .tick_pwm= 0},
+  { .start_set_pwm=0,                      .step_incr=1,  .step_time=1757, .tick_time=5, .tick_pwm= 2},
+  { .start_set_pwm=LED_PINS_PWM_NO_CHANGE, .step_incr=-2, .step_time=1000, .tick_time=5, .tick_pwm=-7}
 };
 pwm_led_ptrn_step g_pwm_ptrn_blink[] = { 
+  { .start_set_pwm=LED_PINS_PWM_MAX_VALUE, .step_incr=1,  .step_time=450, .tick_time=5, .tick_pwm= 0},
   { .start_set_pwm=0,                      .step_incr=1,  .step_time=450, .tick_time=5, .tick_pwm= 0},
-  { .start_set_pwm=LED_PINS_PWM_MAX_VALUE, .step_incr=-1, .step_time=450, .tick_time=5, .tick_pwm= 0}
+  { .start_set_pwm=LED_PINS_PWM_MAX_VALUE, .step_incr=-2, .step_time=450, .tick_time=5, .tick_pwm= 0}
 };
 
 pwm_led_ptrn_step g_pwm_ptrn_sinelon0[] = { 
@@ -360,7 +362,7 @@ uint16_t do_cmd_music(char* p_cmd, char* p_param) {
 } // end do_cmd_music()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// do_cmd_eyes() - stub version
+// do_cmd_eyes() - EYES:xxx command
 //       returns: 0 if no error
 //   process EYES: command if we understand it; call with p_cmd and p_param ALL UPPERCASE
 //
@@ -369,11 +371,22 @@ uint16_t do_cmd_music(char* p_cmd, char* p_param) {
 // EYES:BRIGHT  <num>/<den>             = (<num> = numerator of fraction) (<den> = denominator of fraction) (NOTE: 0 <= num/den <= 1, den != 0)
 //
 uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
+
+#define EYES_COORD_TOGETHER 0x0000
+#define EYES_COORD_OPPOSITE 0x0001
+#define EYES_COORD_SEPARATE 0x0002
+#define NUM_EYES_COORD 3
+
   char delimiters[] = "/ \t";
   char* param1;
   char* param2;
   char* param3;
   static char tmp_msg[ESP_NOW_MAX_DATA_LEN];
+  static uint16_t start_idx_coord[NUM_EYES_COORD][LED_PINS_PWM_NUM_PINS] = {
+    { 0, 0, 0, 0 }, // TOGETHER
+    { 0, 1, 0, 1 }, // OPPOSITE
+    { 0, 1, 1, 0 }  // SEPARATE
+  };
 
   strncpy(tmp_msg, p_param, ESP_NOW_MAX_DATA_LEN);
   param1 = strtok(tmp_msg, delimiters);
@@ -386,10 +399,32 @@ uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
     // <coord>/<tscale>/<ptrn> FIXME TODO implement coord
     param3 = strtok(NULL, delimiters);
     if (param3 == NULL) { Serial.printf("ERROR ESP-NOW cmd %s %s bad parameter 3\n", p_cmd, p_param);  return(1); }
+
+    // get numeric version of <coord>
+    uint16_t coord_num = 0;
+    if (NULL != strstr("OPPOSITE", param1))            coord_num = EYES_COORD_OPPOSITE;
+    else if (NULL != strstr("SEPARATE", param1))       coord_num = EYES_COORD_SEPARATE;
+    else /* if (NULL != strstr("TOGETHER", param1)) */ coord_num = EYES_COORD_TOGETHER;
+
+    // get tscale - expected between 0 through about 80
     uint16_t tscale = atoi(param2);
+
+    // handle the patterns
     if (NULL != strstr("BLINK", param3)) {
+      for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
+        led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_blink, start_idx_coord[coord_num][pin_idx], tscale, LED_PINS_PWM_USE_PTRN);
+      } // end for each pin_idx
     } else if (NULL != strstr("OPEN", param3)) {
+      for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
+        led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_open_eye, start_idx_coord[coord_num][pin_idx], tscale, LED_PINS_PWM_USE_PTRN);
+      } // end for each pin_idx
     } else if (NULL != strstr("BL-OPN", param3)) {
+      for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
+        if (pin_idx % 2)
+          led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_blink, start_idx_coord[coord_num][pin_idx], tscale, LED_PINS_PWM_USE_PTRN);
+        else
+          led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_open_eye, start_idx_coord[coord_num][pin_idx], tscale, LED_PINS_PWM_USE_PTRN);
+      } // end for each pin_idx
     } else if (NULL != strstr("SINELON", param3)) {
       for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
         led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_sinelon_ptrs[pin_idx], 0, tscale, LED_PINS_PWM_USE_PTRN);

@@ -86,6 +86,13 @@ typedef struct {
 extern pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS];
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// led_pin_pwm_set_dbg_enable() - routine for debugging
+//
+//   p_enable - nonzero to enable led_pin_pwm debug prints; zero to disable
+//
+void led_pin_pwm_set_dbg_enable(uint16_t p_enable);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_set_pwm_scale() - set valid global values for pwm scaling during operation
 //
 // parameters:

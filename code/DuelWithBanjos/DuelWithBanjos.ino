@@ -313,7 +313,7 @@ void setup() {
     while (1) ;
   } // end if error in initialization
   for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
-    led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_blink, 0, TIME_SCALE_EQUAL /* + pin_idx*2 */, 0);
+    led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_blink, 0, TIME_SCALE_EQUAL, 0);
   } // end for each pin_idx
   led_pin_pwm_set_pwm_scale(1,5);
 
@@ -420,10 +420,11 @@ uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
       } // end for each pin_idx
     } else if (NULL != strstr("BL-OPN", param3)) {
       for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
-        if (pin_idx % 2)
+        if (pin_idx % 2) {
           led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_blink, start_idx_coord[coord_num][pin_idx], tscale, LED_PINS_PWM_USE_PTRN);
-        else
+        } else {
           led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_open_eye, start_idx_coord[coord_num][pin_idx], tscale, LED_PINS_PWM_USE_PTRN);
+        }
       } // end for each pin_idx
     } else if (NULL != strstr("SINELON", param3)) {
       for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {

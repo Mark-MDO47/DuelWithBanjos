@@ -34,6 +34,15 @@ static uint32_t g_led_pin_pwm_num_pwm_scale = 1; // zero turns off LEDs. numerat
 static uint32_t g_led_pin_pwm_den_pwm_scale = 1; // should never be zero! denominator for pwm scaling
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// led_pin_pwm_set_dbg_enable() - routine for debugging
+//
+//   p_enable - nonzero to enable led_pin_pwm debug prints; zero to disable
+//
+void led_pin_pwm_set_dbg_enable(uint16_t p_enable) {
+  g_led_pin_pwm_dbg_step = p_enable;
+} // end led_pin_pwm_set_dbg_enable()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_int_dbg_step() - internal routine for debugging, display steps at important steps
 //
 // void led_pin_pwm_int_dbg_step(int p_pin_idx); // to keep the compiler happy
@@ -51,7 +60,7 @@ void led_pin_pwm_int_dbg_step(int p_pin_idx) {
       Serial.printf("\tstart_set_pwm\tstep_incr\tstep_time\ttick_time\ttick_pwm\n");
     }
 
-    Serial.printf("\t%d\t%d\t%d\t%ld", /* g_millis, */ my_pin_info->pin_num, my_pin_info->idx_curr_step, my_pin_info->curr_pwm_val, my_pin_info->prev_pwm_val, my_pin_info->scale_factor);
+    Serial.printf("\t%d\t%d\t%d\t%d\t%ld", my_pin_info->pin_num, my_pin_info->idx_curr_step, my_pin_info->curr_pwm_val, my_pin_info->prev_pwm_val, my_pin_info->scale_factor);
     Serial.printf("\t%ld\t%ld\t%ld", my_pin_info->scaledtm_tick_incr, my_pin_info->scaledtm_next_tick, my_pin_info->scaledtm_next_step);
     Serial.printf("\txxx\t%d", my_pin_info->idx_curr_step);
     Serial.printf("\t%d\t%d\t%d\t%d\t%d\n", my_step_ptr->start_set_pwm, my_step_ptr->step_incr, my_step_ptr->step_time, my_step_ptr->tick_time, my_step_ptr->tick_pwm);
@@ -161,7 +170,7 @@ void led_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_
 
   pwm_pin_info* my_pin_info = &g_pwm_pin_info[p_pin_idx];
 
-  my_pin_info->ptrn_step_ptr = &p_ptrn_ptr[p_idx_start_step]; // initializing pattern
+  my_pin_info->ptrn_step_ptr = &p_ptrn_ptr[0]; // initializing pattern
   my_pin_info->idx_curr_step = p_idx_start_step;
   pwm_led_ptrn_step * my_step_ptr = &my_pin_info->ptrn_step_ptr[my_pin_info->idx_curr_step];
   if (LED_PINS_PWM_NO_CHANGE != p_pwm_val_init) {
@@ -219,7 +228,7 @@ int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pins_pwm() - do calculations and set values for pwm for all pins based on g_pwm_pin_info
 //
-// should have called led_pins_pwm_init() and each g_pwm_pin_info[pin_idx] should have called led_pin_pwm_init_ptrn()
+// should have already called led_pins_pwm_init() and each g_pwm_pin_info[pin_idx] should have called led_pin_pwm_init_ptrn()
 //
 void led_pins_pwm() {
   uint32_t time_msec_now = millis();

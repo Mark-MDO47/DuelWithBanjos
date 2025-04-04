@@ -18,12 +18,18 @@ I think they might be similar to this one:
 
 The plan is to make them
 - respond to controls from my UniRemote remote controller via ESP-NOW
+  - https://github.com/Mark-MDO47/UniRemote
 - play music using a YX5200 Audio Player which reads sound files from a MicroSD card
+  - https://github.com/Mark-MDO47/AudioPlayer-YX5200
 - blink LED "eyes" using Pulse Width Modulation (PWM)
+  - https://github.com/Mark-MDO47/DuelWithBanjos/tree/master/code/LEDPinsPwmTemplate
+
+Latest code can be found here
+- https://github.com/Mark-MDO47/DuelWithBanjos/tree/master/code/DuelWithBanjos
 
 ## Schematic
 [Top](#duelwithbanjos "Top")<br>
-This is the schematic of the interesting part of the design, including the ESP32 module, sound control, and LED control.
+This is the schematic of the interesting part of the design, including the ESP32 module, sound control, and LED control.<br>
 <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/KiCad/Duel_schematic_01.png" width="800" alt="Schematic of ESP32 module, sound control, and LED control">
 
 The ESP32 of course has I/O at 3.3V but the YX5200 uses 5V. I use resistor networks to drop the voltages from 5V to 3.3V and a SN74HCT125N quadruple bus buffer to raise voltages from 3.3V to 5V.

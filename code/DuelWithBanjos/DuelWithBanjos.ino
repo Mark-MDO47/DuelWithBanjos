@@ -104,15 +104,40 @@ pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS] = {
 // pwm LED pattern definitions - name can be anything, can be as many pattern definitions as desired,
 //         can have as many steps per pattern as desired
 //
-pwm_led_ptrn_step pwm_ptrn_open_eye[] = { 
+pwm_led_ptrn_step g_pwm_ptrn_open_eye[] = { 
   { .start_set_pwm=0,                     .step_incr=1,  .step_time=1757, .tick_time=5, .tick_pwm= 2},
   { .start_set_pwm=LED_PINS_PWM_NO_CHANGE, .step_incr=-1, .step_time=1000, .tick_time=5, .tick_pwm=-7}
 };
-pwm_led_ptrn_step pwm_ptrn_blink[] = { 
+pwm_led_ptrn_step g_pwm_ptrn_blink[] = { 
   { .start_set_pwm=0,                      .step_incr=1,  .step_time=450, .tick_time=5, .tick_pwm= 0},
   { .start_set_pwm=LED_PINS_PWM_MAX_VALUE, .step_incr=-1, .step_time=450, .tick_time=5, .tick_pwm= 0}
 };
 
+pwm_led_ptrn_step g_pwm_ptrn_sinelon0[] = { 
+  { .start_set_pwm=0,                      .step_incr=2,  .step_time=500, .tick_time=5, .tick_pwm= 3},
+  { .start_set_pwm=0,                      .step_incr=1,  .step_time=500, .tick_time=5, .tick_pwm= 3},
+  { .start_set_pwm=LED_PINS_PWM_NO_CHANGE, .step_incr=-2, .step_time=500, .tick_time=5, .tick_pwm=-3}
+};
+pwm_led_ptrn_step g_pwm_ptrn_sinelon1[] = { 
+  { .start_set_pwm=0,                      .step_incr=2,  .step_time=250, .tick_time=5, .tick_pwm= 0},
+  { .start_set_pwm=0,                      .step_incr=1,  .step_time=500, .tick_time=5, .tick_pwm= 3},
+  { .start_set_pwm=LED_PINS_PWM_NO_CHANGE, .step_incr=-2, .step_time=500, .tick_time=5, .tick_pwm=-3}
+};
+pwm_led_ptrn_step g_pwm_ptrn_sinelon2[] = {
+  { .start_set_pwm=0,                      .step_incr=2,  .step_time=500, .tick_time=5, .tick_pwm= 0},
+  { .start_set_pwm=0,                      .step_incr=1,  .step_time=500, .tick_time=5, .tick_pwm= 3},
+  { .start_set_pwm=LED_PINS_PWM_NO_CHANGE, .step_incr=-2, .step_time=500, .tick_time=5, .tick_pwm=-3}
+};
+pwm_led_ptrn_step g_pwm_ptrn_sinelon3[] = {
+  { .start_set_pwm=0,                      .step_incr=2,  .step_time=750, .tick_time=5, .tick_pwm= 0},
+  { .start_set_pwm=0,                      .step_incr=1,  .step_time=500, .tick_time=5, .tick_pwm= 3},
+  { .start_set_pwm=LED_PINS_PWM_NO_CHANGE, .step_incr=-2, .step_time=500, .tick_time=5, .tick_pwm=-3}
+};
+pwm_led_ptrn_step* g_pwm_ptrn_sinelon_ptrs[LED_PINS_PWM_NUM_PINS] = {g_pwm_ptrn_sinelon0, g_pwm_ptrn_sinelon1, g_pwm_ptrn_sinelon2, g_pwm_ptrn_sinelon3};
+
+pwm_led_ptrn_step g_pwm_ptrn_off[] = {
+  { .start_set_pwm=0,                      .step_incr=-1, .step_time=750, .tick_time=5, .tick_pwm= 0}
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #if DFPRINTDETAIL
@@ -286,7 +311,7 @@ void setup() {
     while (1) ;
   } // end if error in initialization
   for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
-    led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_blink, 0, TIME_SCALE_EQUAL /* + pin_idx*2 */, 0);
+    led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_blink, 0, TIME_SCALE_EQUAL /* + pin_idx*2 */, 0);
   } // end for each pin_idx
   led_pin_pwm_set_pwm_scale(1,5);
 
@@ -307,19 +332,77 @@ void setup() {
 } // end setup()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// do_cmd_volume(), do_cmd_music(), do_cmd_eyes() - stub versions
+// do_cmd_volume() - stub versions
+//       returns: 0 if no error
+//   process VOLUME: command if we understand it; call with p_cmd and p_param ALL UPPERCASE
 //
-uint16_t do_cmd_volume(char* cmd, char* param) {
-    Serial.printf("do_cmd_volume %s %s\n", cmd, param);
+// VOLUME:UP #
+// VOLUME:DOWN #
+// VOLUME:SET #
+//
+uint16_t do_cmd_volume(char* p_cmd, char* p_param) {
+    Serial.printf("do_cmd_volume %s %s\n", p_cmd, p_param);
     return(0);
 } // end do_cmd_volume()
-uint16_t do_cmd_music(char* cmd, char* param) {
-    Serial.printf("do_cmd_music %s %s\n", cmd, param);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// do_cmd_music() - stub versions
+//       returns: 0 if no error
+//   process MUSIC: command if we understand it; call with p_cmd and p_param ALL UPPERCASE
+//
+// MUSIC:SONG <name>   = (<name> = DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS)
+// MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN ALL)
+// MUSIC:OFF  <ignore> = (<ignore> = anything; I use OFF)
+//
+uint16_t do_cmd_music(char* p_cmd, char* p_param) {
+    Serial.printf("do_cmd_music %s %s\n", p_cmd, p_param);
     return(0);
 } // end do_cmd_music()
-uint16_t do_cmd_eyes(char* cmd, char* param) {
-    Serial.printf("do_cmd_eyes %s %s\n", cmd, param);
-    return(0);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// do_cmd_eyes() - stub version
+//       returns: 0 if no error
+//   process EYES: command if we understand it; call with p_cmd and p_param ALL UPPERCASE
+//
+// EYES:PATTERN <coord>/<tscale>/<ptrn> = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64)  (<ptrn> = BLINK OPEN BL-OPN SINELON OFF)
+// EYES:CYCLE   <coord>/<tscale>        = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64) 
+// EYES:BRIGHT  <num>/<den>             = (<num> = numerator of fraction) (<den> = denominator of fraction) (NOTE: 0 <= num/den <= 1, den != 0)
+//
+uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
+  char delimiters[] = "/ \t";
+  char* param1;
+  char* param2;
+  char* param3;
+  static char tmp_msg[ESP_NOW_MAX_DATA_LEN];
+
+  strncpy(tmp_msg, p_param, ESP_NOW_MAX_DATA_LEN);
+  param1 = strtok(tmp_msg, delimiters);
+  if (param1 == NULL) { Serial.printf("ERROR ESP-NOW cmd %s %s bad parameter 1\n", p_cmd, p_param);  return(1); }
+  param2 = strtok(NULL, delimiters);
+  if (param2 == NULL) { Serial.printf("ERROR ESP-NOW cmd %s %s bad parameter 2\n", p_cmd, p_param);  return(1); }
+
+  Serial.printf("do_cmd_eyes %s %s\n", p_cmd, p_param);
+  if (NULL != strstr("EYES:PATTERN", p_cmd)) {
+    // <coord>/<tscale>/<ptrn> FIXME TODO implement coord
+    param3 = strtok(NULL, delimiters);
+    if (param3 == NULL) { Serial.printf("ERROR ESP-NOW cmd %s %s bad parameter 3\n", p_cmd, p_param);  return(1); }
+    uint16_t tscale = atoi(param2);
+    if (NULL != strstr("BLINK", param3)) {
+    } else if (NULL != strstr("OPEN", param3)) {
+    } else if (NULL != strstr("BL-OPN", param3)) {
+    } else if (NULL != strstr("SINELON", param3)) {
+      for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
+        led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_sinelon_ptrs[pin_idx], 0, tscale, LED_PINS_PWM_USE_PTRN);
+      } // end for each pin_idx
+    } else if (NULL != strstr("OFF", param3)) {
+      for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
+        led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_off, 0, TIME_SCALE_EQUAL, LED_PINS_PWM_USE_PTRN);
+      } // end for each pin_idx
+    } else { Serial.printf("ERROR ESP-NOW cmd %s %s no such pattern\n", p_cmd, p_param);  return(1); }
+  } else if (NULL != strstr("EYES:CYCLE", p_cmd)) {
+  } else if (NULL != strstr("EYES:BRIGHT", p_cmd)) {
+  } else { Serial.printf("ERROR ESP-NOW cmd %s %s no such command\n", p_cmd, p_param);  return(1); }
+  return(0);
 } // end do_cmd_eyes()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,9 +428,9 @@ uint16_t do_cmd_eyes(char* cmd, char* param) {
 // BANJO ; MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN ALL)
 // BANJO ; MUSIC:OFF  <ignore> = (<ignore> = anything; I use OFF)
 //
-// BANJO ; EYES:PATTERN <coord>/<tscale>/<ptrn> = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64)  (<ptrn> = BLINK OPEN SINELON OFF)
-// BANJO ; EYES:CYCLE <coord>/<tscale>          = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64) 
-// BANJO ; EYES:BRIGHT <num>/<den>              = (<num> = numerator of fraction) (<den> = denominator of fraction) (NOTE: 0 <= num/den <= 1, den != 0)
+// BANJO ; EYES:PATTERN <coord>/<tscale>/<ptrn> = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64)  (<ptrn> = BLINK OPEN BL-OPN SINELON OFF)
+// BANJO ; EYES:CYCLE   <coord>/<tscale>        = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64) 
+// BANJO ; EYES:BRIGHT  <num>/<den>             = (<num> = numerator of fraction) (<den> = denominator of fraction) (NOTE: 0 <= num/den <= 1, den != 0)
 //
 typedef struct {
   const char * cmd;
@@ -371,40 +454,41 @@ typedef uint16_t(*do_cmd_type_t)(char*, char*);
 do_cmd_type_t esp_now_cmd_ptrs[] = { &do_cmd_volume, &do_cmd_music, &do_cmd_eyes };
 
 uint16_t do_esp_now_command(uint16_t rcvd_len, char* my_message) {
-    // all commands to banjo players start with "BANJO" a.k.a. CMD_VERIFIER
-    uint16_t ret_val = 1; // error unless complete
-    char delimiters[] = " ";
-    char* token;
-    char* param_token;
+  // all commands to banjo players start with "BANJO" a.k.a. CMD_VERIFIER
+  uint16_t ret_val = 1; // error unless complete
+  char delimiters[] = " ";
+  char* token;
+  char* param_token;
 
-    static char tmp_msg[ESP_NOW_MAX_DATA_LEN];
-    strncpy(tmp_msg, my_message, ESP_NOW_MAX_DATA_LEN);
-    token = strtok(tmp_msg, delimiters);
-    if ((token == NULL) || (!strstr(token, CMD_VERIFIER))) { Serial.printf("ERROR ESP-NOW CMD_VERIFIER %s not %s\n",token, CMD_VERIFIER);  return(1); }
-    Serial.printf("CMD_VERIFIER: |%s| seen: |%s|\n", token, CMD_VERIFIER);
+  static char tmp_msg[ESP_NOW_MAX_DATA_LEN];
+  strncpy(tmp_msg, my_message, ESP_NOW_MAX_DATA_LEN);
+  token = strtok(tmp_msg, delimiters);
+  if (token == NULL) { Serial.printf("ERROR ESP-NOW CMD_VERIFIER missing, not %s\n", CMD_VERIFIER);  return(1); }
+  else if (NULL == strstr(token, CMD_VERIFIER)) { Serial.printf("ERROR ESP-NOW CMD_VERIFIER %s not %s\n", token, CMD_VERIFIER);  return(1); }
+  Serial.printf("CMD_VERIFIER: |%s| seen: |%s|\n", token, CMD_VERIFIER);
 
-    while (1) {
-        token = strtok(NULL, delimiters);
-        if ((token == NULL) || (!strstr(token, ";"))) { ret_val = 0; break; }
-        token = strtok(NULL, delimiters);
-        if ((token == NULL) || (!strstr(token, ":"))) break;
-        param_token = strtok(NULL, delimiters);
-        if (param_token == NULL) break;
-        Serial.printf("cmd: |%s| param |%s|\n", token, param_token);
-        int not_found = 1;
-        for (int i = 0; (i < NUMOF(esp_now_cmds)) && not_found; i += 1) {
-            if (!strcmp(token, esp_now_cmds[i].cmd)) {
-                Serial.printf("  found %s %s cmd_idx:0x%04x\n", token, param_token, esp_now_cmds[i].cmd_idx);
-                uint16_t cmd_type = (esp_now_cmds[i].cmd_idx >> 8) & 0xFF;
-                uint16_t cmd_idx  = esp_now_cmds[i].cmd_idx & 0xFF;
-                esp_now_cmd_ptrs[cmd_type](token, param_token);
-                not_found = 0;
-            }
-        }
-        if (not_found) { Serial.printf("ERROR ESP-NOW cmd %s not in list\n", token); return(1); }
+  while (1) {
+    token = strtok(NULL, delimiters);
+    if ((token == NULL) || (NULL == strstr(token, ";"))) { ret_val = 0; break; }
+    token = strtok(NULL, delimiters);
+    if ((token == NULL) || (NULL == strstr(token, ":"))) break;
+    param_token = strtok(NULL, delimiters);
+    if (param_token == NULL) break;
+    Serial.printf("cmd: |%s| param |%s|\n", token, param_token);
+    int not_found = 1;
+    for (int i = 0; (i < NUMOF(esp_now_cmds)) && not_found; i += 1) {
+      if (!strcmp(token, esp_now_cmds[i].cmd)) {
+        Serial.printf("  found %s %s cmd_idx:0x%04x\n", token, param_token, esp_now_cmds[i].cmd_idx);
+        uint16_t cmd_type = (esp_now_cmds[i].cmd_idx >> 8) & 0xFF;
+        uint16_t cmd_idx  = esp_now_cmds[i].cmd_idx & 0xFF;
+        esp_now_cmd_ptrs[cmd_type](token, param_token);
+        not_found = 0;
+      }
     }
-    if (0 == ret_val) { Serial.printf("ESP-NOW command done: %s\n", my_message); }
-    return(ret_val);
+    if (not_found) { Serial.printf("ERROR ESP-NOW cmd %s not in list\n", token); return(1); }
+  }
+  if (0 == ret_val) { Serial.printf("ESP-NOW command done: %s\n", my_message); }
+  return(ret_val);
 } // end do_esp_now_command()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -436,7 +520,6 @@ void loop() {
   // If 0 == rcvd_len, no message.
   if (rcvd_len > 0) {
     // process command
-    Serial.printf("Got a message |%s|\n",my_message);
     do_esp_now_command(rcvd_len, strupr(my_message));
   }
   EVERY_N_MILLISECONDS( 5 ) { 
@@ -450,15 +533,16 @@ void loop() {
     } // end if DFcheckSoundDone
   } // end EVERY_N_MILLISECONDS 50
 
+/*
   EVERY_N_MILLISECONDS( 20000 ) {
     count_eyes ^= 1;
     for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
       if (count_eyes ^ (pin_idx%2)) {
-        led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_open_eye, 0, TIME_SCALE_EQUAL, 0);
+        led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_open_eye, 0, TIME_SCALE_EQUAL, 0);
         Serial.printf("  pin_id=%d count_eyes=%d ^=%d msec=%ld open_eye\n", pin_idx, count_eyes, count_eyes ^ (pin_idx%2),millis());
       }
       else {
-        led_pin_pwm_init_ptrn(pin_idx, pwm_ptrn_blink, 0, TIME_SCALE_EQUAL, 0);
+        led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_blink, 0, TIME_SCALE_EQUAL, 0);
         Serial.printf("  pin_id=%d count_eyes=%d ^=%d msec=%ld blink\n", pin_idx, count_eyes, count_eyes ^ (pin_idx%2),millis());
       }
     } // end for each pin_idx
@@ -467,4 +551,5 @@ void loop() {
       led_pin_pwm_int_dbg_step(pin_idx);
     }
   }
+ */
 } // end loop()

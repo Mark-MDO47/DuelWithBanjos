@@ -34,9 +34,18 @@ static uint32_t g_led_pin_pwm_num_pwm_scale = 1; // zero turns off LEDs. numerat
 static uint32_t g_led_pin_pwm_den_pwm_scale = 1; // should never be zero! denominator for pwm scaling
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// led_pin_pwm_set_dbg_enable() - routine for debugging
+//
+//   p_enable - nonzero to enable led_pin_pwm debug prints; zero to disable
+//
+void led_pin_pwm_set_dbg_enable(uint16_t p_enable) {
+  g_led_pin_pwm_dbg_step = p_enable;
+} // end led_pin_pwm_set_dbg_enable()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_int_dbg_step() - internal routine for debugging, display steps at important steps
 //
-void led_pin_pwm_int_dbg_step(int p_pin_idx); // to keep the compiler happy
+// void led_pin_pwm_int_dbg_step(int p_pin_idx); // to keep the compiler happy
 void led_pin_pwm_int_dbg_step(int p_pin_idx) {
   static int first_time = 1;
 
@@ -219,7 +228,7 @@ int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pins_pwm() - do calculations and set values for pwm for all pins based on g_pwm_pin_info
 //
-// should have called led_pins_pwm_init() and each g_pwm_pin_info[pin_idx] should have called led_pin_pwm_init_ptrn()
+// should have already called led_pins_pwm_init() and each g_pwm_pin_info[pin_idx] should have called led_pin_pwm_init_ptrn()
 //
 void led_pins_pwm() {
   uint32_t time_msec_now = millis();

@@ -8,6 +8,7 @@ Just for fun - tiny scarecrow skeletons playing banjo music, placed under the co
 * [Top](#duelwithbanjos "Top")
 * [Introduction](#introduction "Introduction")
 * [Schematic](#schematic "Schematic")
+* [Code](#code "Code")
 * [License](#license "License")
 
 ## Introduction
@@ -35,6 +36,11 @@ This is the schematic of the interesting part of the design, including the ESP32
 The ESP32 of course has I/O at 3.3V but the YX5200 uses 5V. I use resistor networks to drop the voltages from 5V to 3.3V and a SN74HCT125N quadruple bus buffer to raise voltages from 3.3V to 5V.
 
 The 1K resistor in the path to the YX5200 RX line prevents coupling of digital noise into the sound output.
+
+## Code
+[Top](#duelwithbanjos "Top")<br>
+The code is starting to take shape; you can find it here
+- https://github.com/Mark-MDO47/DuelWithBanjos/tree/master/code/DuelWithBanjos
 
 ## License
 [Top](#duelwithbanjos "Top")<br>

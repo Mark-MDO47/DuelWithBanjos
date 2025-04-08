@@ -47,6 +47,9 @@ I am using the Espressif ESP32 Pulse Width Modulation (PWM) LED control to make 
 - https://docs.espressif.com/projects/esp-idf/en/v5.4/esp32/api-reference/peripherals/ledc.html
 - https://github.com/espressif/arduino-esp32/blob/master/docs/en/migration_guides/2.x_to_3.0.rst#ledc
 
+You can see my method (still being refined) for having the LEDC PWM patterns play themselves here
+- https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/code/LEDPinsPwmTemplate/README.md
+
 ## UniRemote and ESP-NOW
 [Top](#duel-with-banjos "Top")<br>
 I am using UniRemote and its ESP-NOW WiFi capability as the remote control for this project
@@ -56,6 +59,7 @@ I am using UniRemote and its ESP-NOW WiFi capability as the remote control for t
 
 This means I include the *.cpp and *.h from UniRemoteRcvrTemplate
 - https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteRcvrTemplate
+- https://github.com/Mark-MDO47/UniRemote/blob/master/code/UniRemoteRcvrTemplate/README.md
 
 ## ESP32
 [Top](#duel-with-banjos "Top")<br>

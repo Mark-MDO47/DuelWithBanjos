@@ -1,4 +1,4 @@
-# LEDPinsPwmTemplate - Learning to Use LEDC PWM
+# LEDPinsPwmTemplate - My Method to Use LEDC PWM
 
 **Table Of Contents**
 * [Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")
@@ -33,6 +33,10 @@ LEDPinsPwmTemplate.ino is a near-minimum implementation of use of LEDPinsPwm. It
 - in **loop()**, call **led_pins_pwm()** to perform the patterns on the pins over time.
   - **optional**: later on you can call **led_pin_pwm_init_ptrn()** to set a new pattern for a pin or restart the existing pattern for a pin.
   - **optional**: later on you can call **led_pin_pwm_set_pwm_scale()** to set a global scale factor for the PWM values.
+
+### The Simplest Pattern for Using LEDPinsPwm
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+
 
 ## Constants
 [Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>

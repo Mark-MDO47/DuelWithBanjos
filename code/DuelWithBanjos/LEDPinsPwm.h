@@ -87,18 +87,6 @@ typedef struct {
 extern pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS];
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// led_pin_pwm_set_dbg_enable() - routine for debugging
-//
-//   p_enable - nonzero to enable led_pin_pwm debug prints; zero to disable
-//
-void led_pin_pwm_set_dbg_enable(uint16_t p_enable);
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-// led_pin_pwm_int_dbg_step() - internal routine for debugging, display steps at important steps
-//
-void led_pin_pwm_int_dbg_step(int p_pin_idx); // to keep the compiler happy
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_set_pwm_scale() - set valid global values for pwm scaling during operation
 //
 // parameters:
@@ -117,14 +105,18 @@ void led_pin_pwm_set_pwm_scale(uint16_t p_num_pwm_scale, uint16_t p_den_pwm_scal
 void led_pin_pwm_set_pwm_scale(uint16_t p_num_pwm_scale, uint16_t p_den_pwm_scale);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// led_pin_pwm_init_step_times() - calculates the scaled times for this step in the pattern
-//    Called once each time a new step in a pattern is entered for a particular pin
+// led_pins_pwm_init() - initialize pwm pins and set value to zero
 //
-// Things that are required when calling
-//    p_pin_idx  - must be a valid pin idx in g_pwm_pin_info
-//    also g_pwm_pin_info should be set up except for the scalled times
+// parameters (* means optional, has default as shown in declaration):
+//   p_pwm_freq          - Frequency to use in Hertz. Usually between 500 and 5,000
+//   p_pwm_val_num_bits  - Number of bits for value. Usually between 8 and 14
+//                         If this is  8 then pwm_val would be between 0 and 255
+//                         If this is 12 then pwm_val would be between 0 and 4095
+// * p_num_pwm_scale     - numerator for final pwm scaling
+// * p_den_pwm_scale     - denominator for final pwm scaling - should NOT be zero
+// * p_serial_debugging  - zero for no serial debugging, 1 for serial debugging
 //
-void led_pin_pwm_init_step_times(int p_pin_idx);
+int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint16_t p_num_pwm_scale = 1, uint16_t p_den_pwm_scale = 1, uint16_t p_serial_debugging = 0);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_init_ptrn() - initialize a pwm_pin_info entry for a particular pattern
@@ -145,24 +137,32 @@ void led_pin_pwm_init_step_times(int p_pin_idx);
 void led_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_t p_idx_start_step = 0, uint32_t p_scale_factor=TIME_SCALE_EQUAL, uint16_t p_pwm_val_init=LED_PINS_PWM_USE_PTRN);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// led_pins_pwm_init() - initialize pwm pins and set value to zero
-//
-// parameters (* means optional, has default as shown in declaration):
-//   p_pwm_freq          - Frequency to use in Hertz. Usually between 500 and 5,000
-//   p_pwm_val_num_bits  - Number of bits for value. Usually between 8 and 14
-//                         If this is  8 then pwm_val would be between 0 and 255
-//                         If this is 12 then pwm_val would be between 0 and 4095
-// * p_num_pwm_scale     - numerator for final pwm scaling
-// * p_den_pwm_scale     - denominator for final pwm scaling - should NOT be zero
-// * p_serial_debugging  - zero for no serial debugging, 1 for serial debugging
-//
-int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint16_t p_num_pwm_scale = 1, uint16_t p_den_pwm_scale = 1, uint16_t p_serial_debugging = 0);
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pins_pwm() - do calculations and output values for pwm for all pins based on g_pwm_pin_info
 //
 // should have called led_pins_pwm_init() and each g_pwm_pin_info[pin_idx] should have called led_pin_pwm_init_ptrn()
 //
 void led_pins_pwm();
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// led_pin_pwm_set_dbg_enable() - routine for debugging
+//
+//   p_enable - nonzero to enable led_pin_pwm debug prints; zero to disable
+//
+void led_pin_pwm_set_dbg_enable(uint16_t p_enable);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// led_pin_pwm_int_dbg_step() - internal routine for debugging, display steps at important steps
+//
+void led_pin_pwm_int_dbg_step(int p_pin_idx); // to keep the compiler happy
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// led_pin_pwm_init_step_times() - calculates the scaled times for this step in the pattern
+//    Internal routine. Called once each time a new step in a pattern is entered for a particular pin
+//
+// Things that are required when calling
+//    p_pin_idx  - must be a valid pin idx in g_pwm_pin_info
+//    also g_pwm_pin_info should be set up except for the scalled times
+//
+void led_pin_pwm_init_step_times(int p_pin_idx);
 
 #endif // LED_PINS_PWM_H

@@ -37,10 +37,10 @@
 //   ESP32 Dev Module pin D-23   DPIN_AUDIO_BUSY YX5200 BUSY; HIGH when audio finishes
 //
 // LED PWM
-//   ESP32 Dev Module pin D-18   left  splayer eye 1
-//   ESP32 Dev Module pin D-19   left  player eye 2
-//   ESP32 Dev Module pin D-32   right player eye 1
-//   ESP32 Dev Module pin D-33   right player eye 2
+//   ESP32 Dev Module pin D-18   left  player left eye  (green)
+//   ESP32 Dev Module pin D-19   left  player right eye (red)
+//   ESP32 Dev Module pin D-32   right player left eye  (green)
+//   ESP32 Dev Module pin D-33   right player right eye (red)
 
 // Attributions for the sounds are on the MicroSD card containing the sounds.
 // The music is either purchased or else performed/recorded by me.
@@ -94,6 +94,11 @@ uint32_t gTimerForceSoundActv = 0;  // SOUND_ACTIVE_PROTECT until millis() >= th
 
 // pin definitions - name must be must be g_pwm_pin_info, must be one row for each PWM LED output pin
 //
+// [0] = left  skeleton, left eye
+// [1] = left  skeleton, right eye
+// [2] = right skeleton, left eye
+// [3] = right skeleton, right eye
+//
 pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS] = {
   { .pin_num=18, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .prev_pwm_val = 0xFFFF, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_tick_incr = 0, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
   { .pin_num=19, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .prev_pwm_val = 0xFFFF, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_tick_incr = 0, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
@@ -140,6 +145,8 @@ pwm_led_ptrn_step* g_pwm_ptrn_sinelon_ptrs[LED_PINS_PWM_NUM_PINS] = {g_pwm_ptrn_
 pwm_led_ptrn_step g_pwm_ptrn_off[] = {
   { .start_set_pwm=0,                      .step_incr=-1, .step_time=750, .tick_time=5, .tick_pwm= 0}
 };
+
+uint32_t g_eyes_bright; // MS-16bits is <num>, LS-16bits is <den> for led_pin_pwm_set_pwm_scale()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #if DFPRINTDETAIL
@@ -315,7 +322,7 @@ void setup() {
   for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
     led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_blink, 0, TIME_SCALE_EQUAL, 0);
   } // end for each pin_idx
-  led_pin_pwm_set_pwm_scale(1,5);
+  led_pin_pwm_set_pwm_scale(0x00010005); // 1/5 power
 
   // initialize the YX5200 DFPlayer audio player
   Serial.println("\nInitialize YX5200");
@@ -366,9 +373,10 @@ uint16_t do_cmd_music(char* p_cmd, char* p_param) {
 //       returns: 0 if no error
 //   process EYES: command if we understand it; call with p_cmd and p_param ALL UPPERCASE
 //
-// EYES:PATTERN <coord>/<tscale>/<ptrn> = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64)  (<ptrn> = BLINK OPEN BL-OPN SINELON OFF)
-// EYES:CYCLE   <coord>/<tscale>        = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64) 
-// EYES:BRIGHT  <num>/<den>             = (<num> = numerator of fraction) (<den> = denominator of fraction) (NOTE: 0 <= num/den <= 1, den != 0)
+// EYES:PATTERN <coord>/<tscale>/<ptrn>     = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64)  (<ptrn> = BLINK OPEN BL-OPN SINELON OFF)
+// EYES:CYCLE   <coord>/<tscale>            = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64) 
+// EYES:BRIGHT  <num>/<den>                 = (<num> = numerator of fraction) (<den> = denominator of fraction) (NOTE: 0 <= num/den <= 1, den != 0)
+// EYES:MVPINS  <pin1>/<pin2>/<pin3>/<pin4> = (<pin# = DIO pin number (ex: 18) for pin_idx=#)
 //
 uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
 
@@ -381,6 +389,7 @@ uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
   char* param1;
   char* param2;
   char* param3;
+  char* param4;
   static char tmp_msg[ESP_NOW_MAX_DATA_LEN];
   static uint16_t start_idx_coord[NUM_EYES_COORD][LED_PINS_PWM_NUM_PINS] = {
     { 0, 0, 0, 0 }, // TOGETHER
@@ -437,6 +446,12 @@ uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
     } else { Serial.printf("ERROR ESP-NOW cmd %s %s no such pattern\n", p_cmd, p_param);  return(1); }
   } else if (NULL != strstr("EYES:CYCLE", p_cmd)) {
   } else if (NULL != strstr("EYES:BRIGHT", p_cmd)) {
+    led_pin_pwm_set_pwm_scale(param1<<16 | param2); // param1/param2 power
+  } else if (NULL != strstr("EYES:MVPINS", p_cmd)) {
+    param3 = strtok(NULL, delimiters);
+    if (param3 == NULL) { Serial.printf("ERROR ESP-NOW cmd %s %s bad parameter 3\n", p_cmd, p_param);  return(1); }
+    param4 = strtok(NULL, delimiters);
+    if (param4 == NULL) { Serial.printf("ERROR ESP-NOW cmd %s %s bad parameter 4\n", p_cmd, p_param);  return(1); }
   } else { Serial.printf("ERROR ESP-NOW cmd %s %s no such command\n", p_cmd, p_param);  return(1); }
   return(0);
 } // end do_cmd_eyes()
@@ -467,6 +482,7 @@ uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
 // BANJO ; EYES:PATTERN <coord>/<tscale>/<ptrn> = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64)  (<ptrn> = BLINK OPEN BL-OPN SINELON OFF)
 // BANJO ; EYES:CYCLE   <coord>/<tscale>        = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64) 
 // BANJO ; EYES:BRIGHT  <num>/<den>             = (<num> = numerator of fraction) (<den> = denominator of fraction) (NOTE: 0 <= num/den <= 1, den != 0)
+// EYES:MVPINS  <pin1>/<pin2>/<pin3>/<pin4>     = (<pin# = DIO pin number (ex: 18) for pin_idx=#)
 //
 typedef struct {
   const char * cmd;
@@ -481,7 +497,8 @@ esp_now_cmd_t esp_now_cmds[] = {
   {.cmd = "MUSIC:OFF",    .cmd_idx = 0x0102 },
   {.cmd = "EYES:PATTERN", .cmd_idx = 0x0200 },
   {.cmd = "EYES:CYCLE",   .cmd_idx = 0x0201 },
-  {.cmd = "EYES:BRIGHT",  .cmd_idx = 0x0202 }
+  {.cmd = "EYES:BRIGHT",  .cmd_idx = 0x0202 },
+  {.cmd = "EYES:MVPINS",  .cmd_idx = 0x0203 }
 };
 #define CMD_VERIFIER "BANJO"
 
@@ -496,7 +513,7 @@ uint16_t do_esp_now_command(uint16_t rcvd_len, char* my_message) {
   char* token;
   char* param_token;
 
-  static char tmp_msg[ESP_NOW_MAX_DATA_LEN];
+  static char tmp_msg[ESP_NOW_MAX_DATA_LEN+1];
   strncpy(tmp_msg, my_message, ESP_NOW_MAX_DATA_LEN);
   token = strtok(tmp_msg, delimiters);
   if (token == NULL) { Serial.printf("ERROR ESP-NOW CMD_VERIFIER missing, not %s\n", CMD_VERIFIER);  return(1); }

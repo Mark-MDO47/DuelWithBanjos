@@ -93,15 +93,17 @@ void loop() {
     // this section executes every 10 seconds
 
     // it is optional to adjust global scaling while operating LEDs but we demonstrate it here
-    // pwm global scaling is 1/1, 1/2, 1/3, 1/4, ... 1/(n)
+    led_pin_pwm_set_pwm_scale(1,5); // this is a good max brightness in my breadboard setup; could have been done is setup()
+    // commented out below is a way to adjust the brightness to fade away
+    //    this would set pwm global scaling to 1/1, 1/2, 1/3, 1/4, ... 1/(n)
     // led_pin_pwm_set_pwm_scale(1,1+ten_secs);
-    led_pin_pwm_set_pwm_scale(1,5);
 
     // it is optional to change LED pattern while operating LEDs but we demonstrate it here
     // pattern changes every 10 seconds
     if (pwm_ptrn_open_eye != prev_ptrn_ptr) prev_ptrn_ptr = pwm_ptrn_open_eye;
     else                                    prev_ptrn_ptr = pwm_ptrn_blink;
     for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
+      // commented out time scale manipulation would make pins operate on different time scales
       led_pin_pwm_init_ptrn(pin_idx, prev_ptrn_ptr, 0, TIME_SCALE_EQUAL /* + pin_idx*2 */, 0);
     } // end for each pin_idx
     

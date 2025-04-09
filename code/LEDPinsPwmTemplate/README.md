@@ -163,3 +163,25 @@ void led_pins_pwm();
 void led_pin_pwm_set_pwm_scale(uint16_t p_num_pwm_scale, uint16_t p_den_pwm_scale);
 ```
 
+## Debugging Functions
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+
+### led_pin_pwm_set_dbg_enable - enable or disable debugging output
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+```C
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// we need the user to prepare this struct for us
+//
+extern pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS];
+```
+
+### led_pin_pwm_set_dbg_enable - display debug info on state of pin
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+```C
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// led_pin_pwm_set_dbg_enable() - routine for debugging
+//
+//   p_enable - nonzero to enable led_pin_pwm debug prints; zero to disable
+//
+void led_pin_pwm_set_dbg_enable(uint16_t p_enable);
+```

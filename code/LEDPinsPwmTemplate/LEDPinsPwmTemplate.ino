@@ -95,10 +95,10 @@ void loop() {
     // this section executes every 10 seconds
 
     // it is optional to adjust global scaling while operating LEDs but we demonstrate it here
-    led_pin_pwm_set_pwm_scale(1,5); // this is a good max brightness in my breadboard setup; could have been done is setup()
+    led_pin_pwm_set_pwm_scale(0x00010005); // this is a good max brightness in my breadboard setup; could have been done is setup()
     // commented out below is a way to adjust the brightness to fade away
     //    this would set pwm global scaling to 1/1, 1/2, 1/3, 1/4, ... 1/(n)
-    // led_pin_pwm_set_pwm_scale(1,1+ten_secs);
+    // led_pin_pwm_set_pwm_scale(((uint32_t)(0x00010000))1 | ((uint32_t)ten_secs));
 
     // it is optional to change LED pattern while operating LEDs but we demonstrate it here
     // pattern changes every 10 seconds

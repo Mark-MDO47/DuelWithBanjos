@@ -3,7 +3,6 @@
 **Table Of Contents**
 * [Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")
 * [Intro](#intro "Intro")
-  * [The Simplest Pattern for Using LEDPinsPwm](#the-simplest-pattern-for-using-ledpinspwm "The Simplest Pattern for Using LEDPinsPwm")
 * [Constants](#constants "Constants")
   * [Modifiable Constants](#modifiable-constants "Modifiable Constants")
   * [Do Not Change These Constants](#do-not-change-these-constants "Do Not Change These Constants")

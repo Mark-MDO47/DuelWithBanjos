@@ -46,7 +46,7 @@ pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS] = {
 //         can have as many steps per pattern as desired
 //
 pwm_led_ptrn_step pwm_ptrn_open_eye[] = { 
-  { .start_set_pwm=0,                     .step_incr=1,  .step_time=1757, .tick_time=5, .tick_pwm= 2},
+  { .start_set_pwm=0,                      .step_incr=1,  .step_time=1757, .tick_time=5, .tick_pwm= 2},
   { .start_set_pwm=LED_PINS_PWM_NO_CHANGE, .step_incr=-1, .step_time=1000, .tick_time=5, .tick_pwm=-7}
 };
 

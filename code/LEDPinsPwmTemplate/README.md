@@ -20,7 +20,7 @@
   * [led_pin_pwm_int_dbg_step - display debug info on state of pin and steps structures](#led_pin_pwm_int_dbg_step-\--display-debug-info-on-state-of-pin-and-steps-structures "led_pin_pwm_int_dbg_step - display debug info on state of pin and steps structures")
 
 ## Intro
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 This code is a vehicle for me to come up  with a general way to use LEDC PWM. I wanted to have a data structure for a time-sequence pattern that could be applied to a set of pins.
 
 LEDPinsPwmTemplate.ino is a near-minimum implementation of use of LEDPinsPwm. It has the following required parts:
@@ -36,14 +36,14 @@ LEDPinsPwmTemplate.ino is a near-minimum implementation of use of LEDPinsPwm. It
   - **optional**: later on you can call **led_pin_pwm_set_pwm_scale()** to set a global scale factor for the PWM values.
 
 ### The Simplest Pattern for Using LEDPinsPwm
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 
 
 ## Constants
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 
 ### Modifiable Constants
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // modifiable constants for led_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
@@ -57,7 +57,7 @@ LEDPinsPwmTemplate.ino is a near-minimum implementation of use of LEDPinsPwm. It
 ```
 
 ### Do Not Change These Constants
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // constants for led_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
@@ -70,7 +70,7 @@ LEDPinsPwmTemplate.ino is a near-minimum implementation of use of LEDPinsPwm. It
 ## Data Structures
 
 ### Typedef for Pattern Step
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // structure typedefs for led_pins_pwm LEDC PWM library to control the LED Eyes of the Banjo Players
@@ -84,7 +84,7 @@ typedef struct {
 ```
 
 ### Typedef for Pins Controlled by LEDPinsPwmTemplate
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 ```C
 typedef struct {
   uint16_t pin_num;             // pin number executing this pattern
@@ -105,10 +105,10 @@ extern pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS];
 ```
 
 ## Function Declarations
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 
 ### led_pins_pwm_init - in setup do hardware initialization
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pins_pwm_init() - initialize pwm pins and set value to zero
@@ -126,7 +126,7 @@ int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint
 ```
 
 ### led_pin_pwm_init_ptrn - in loop or setup start a pattern for a particular pin
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_init_ptrn() - initialize a pwm_pin_info entry for a particular pattern
@@ -148,7 +148,7 @@ void led_pin_pwm_init_ptrn(int p_pin_idx, pwm_led_ptrn_step* p_ptrn_ptr, uint16_
 ```
 
 ### led_pins_pwm - in loop calculate PWM values and if changed output to hardware
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pins_pwm() - do calculations and output values for pwm for all pins based on g_pwm_pin_info
@@ -159,7 +159,7 @@ void led_pins_pwm();
 ```
 
 ### led_pin_pwm_set_pwm_scale - in loop or setup set global scale factor for PWM value 
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_set_pwm_scale() - set valid global values for pwm scaling during operation
@@ -172,10 +172,10 @@ void led_pin_pwm_set_pwm_scale(uint16_t p_num_pwm_scale, uint16_t p_den_pwm_scal
 ```
 
 ## Debugging Functions
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 
 ### led_pin_pwm_set_dbg_enable - enable or disable debugging output
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_set_dbg_enable() - routine for debugging
@@ -186,7 +186,7 @@ void led_pin_pwm_set_dbg_enable(uint16_t p_enable);
 ```
 
 ### led_pin_pwm_int_dbg_step - display debug info on state of pin and steps structures
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+[Top](#ledpinspwmtemplate-\--my-method-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_int_dbg_step() - internal routine for debugging, display steps at important steps

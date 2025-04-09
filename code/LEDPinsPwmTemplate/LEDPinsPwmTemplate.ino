@@ -55,6 +55,8 @@ pwm_led_ptrn_step pwm_ptrn_blink[] = {
   { .start_set_pwm=LED_PINS_PWM_MAX_VALUE, .step_incr=-1, .step_time=450, .tick_time=5, .tick_pwm= 0}
 };
 
+uint32_t g_eyes_bright; // MS-16bits is <num>, LS-16bits is <den> for last call to led_pin_pwm_set_pwm_scale()
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setup()
 void setup() {

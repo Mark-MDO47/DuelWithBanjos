@@ -97,15 +97,6 @@ extern uint32_t g_eyes_bright; // MS-16bits is <num>, LS-16bits is <den> for las
 void led_pin_pwm_set_pwm_scale(uint32_t p_pwm_scale);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// led_pin_pwm_set_pwm_scale() - set valid global values for pwm scaling during operation
-//
-// parameters:
-//   p_num_pwm_scale     - numerator for final pwm scaling
-//   p_den_pwm_scale     - denominator for final pwm scaling - should NOT be zero
-//
-void led_pin_pwm_set_pwm_scale(uint16_t p_num_pwm_scale, uint16_t p_den_pwm_scale);
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pins_pwm_init() - initialize pwm pins and set value to zero
 //
 // parameters (* means optional, has default as shown in declaration):

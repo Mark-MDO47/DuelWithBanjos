@@ -446,7 +446,7 @@ uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
     } else { Serial.printf("ERROR ESP-NOW cmd %s %s no such pattern\n", p_cmd, p_param);  return(1); }
   } else if (NULL != strstr("EYES:CYCLE", p_cmd)) {
   } else if (NULL != strstr("EYES:BRIGHT", p_cmd)) {
-    led_pin_pwm_set_pwm_scale(param1<<16 | param2); // param1/param2 power
+    led_pin_pwm_set_pwm_scale(((uint32_t)atoi(param1))<<16 | ((uint32_t)atoi(param2))); // param1/param2 power
   } else if (NULL != strstr("EYES:MVPINS", p_cmd)) {
     param3 = strtok(NULL, delimiters);
     if (param3 == NULL) { Serial.printf("ERROR ESP-NOW cmd %s %s bad parameter 3\n", p_cmd, p_param);  return(1); }

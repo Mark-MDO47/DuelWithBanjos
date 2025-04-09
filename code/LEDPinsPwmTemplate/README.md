@@ -173,18 +173,18 @@ void led_pin_pwm_set_pwm_scale(uint16_t p_num_pwm_scale, uint16_t p_den_pwm_scal
 [Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
 ```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// we need the user to prepare this struct for us
-//
-extern pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS];
-```
-
-### led_pin_pwm_set_dbg_enable - display debug info on state of pin
-[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
-```C
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_set_dbg_enable() - routine for debugging
 //
 //   p_enable - nonzero to enable led_pin_pwm debug prints; zero to disable
 //
 void led_pin_pwm_set_dbg_enable(uint16_t p_enable);
+```
+
+### led_pin_pwm_int_dbg_step - display debug info on state of pin and steps structures
+[Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>
+```C
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// led_pin_pwm_int_dbg_step() - internal routine for debugging, display steps at important steps
+//
+void led_pin_pwm_int_dbg_step(int p_pin_idx); // to keep the compiler happy
 ```

@@ -14,6 +14,9 @@
   * [led_pin_pwm_init_ptrn - in loop or setup start a pattern for a particular pin](#led_pin_pwm_init_ptrn-\--in-loop-or-setup-start-a-pattern-for-a-particular-pin "led_pin_pwm_init_ptrn - in loop or setup start a pattern for a particular pin")
   * [led_pins_pwm - in loop calculate PWM values and if changed output to hardware](#led_pins_pwm-\--in-loop-calculate-pwm-values-and-if-changed-output-to-hardware "led_pins_pwm - in loop calculate PWM values and if changed output to hardware")
   * [led_pin_pwm_set_pwm_scale - in loop or setup set global scale factor for PWM value](#led_pin_pwm_set_pwm_scale-\--in-loop-or-setup-set-global-scale-factor-for-pwm-value "led_pin_pwm_set_pwm_scale - in loop or setup set global scale factor for PWM value")
+* [Debugging Functions](#debugging-functions "Debugging Functions")
+  * [led_pin_pwm_set_dbg_enable - enable or disable debugging output](#led_pin_pwm_set_dbg_enable-\--enable-or-disable-debugging-output "led_pin_pwm_set_dbg_enable - enable or disable debugging output")
+  * [led_pin_pwm_set_dbg_enable - display debug info on state of pin](#led_pin_pwm_set_dbg_enable-\--display-debug-info-on-state-of-pin "led_pin_pwm_set_dbg_enable - display debug info on state of pin")
 
 ## Intro
 [Top](#ledpinspwmtemplate-\--learning-to-use-ledc-pwm "Top")<br>

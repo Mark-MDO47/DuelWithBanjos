@@ -33,6 +33,7 @@
 #define LED_PINS_PWM_H 1
 
 #include "Arduino.h"
+// #include <esp32-hal-ledc.h> // did not seem to help
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // generally useful definitions
@@ -91,6 +92,11 @@ extern pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS];
 //   p_enable - nonzero to enable led_pin_pwm debug prints; zero to disable
 //
 void led_pin_pwm_set_dbg_enable(uint16_t p_enable);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// led_pin_pwm_int_dbg_step() - internal routine for debugging, display steps at important steps
+//
+void led_pin_pwm_int_dbg_step(int p_pin_idx); // to keep the compiler happy
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // led_pin_pwm_set_pwm_scale() - set valid global values for pwm scaling during operation
@@ -158,12 +164,5 @@ int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint
 // should have called led_pins_pwm_init() and each g_pwm_pin_info[pin_idx] should have called led_pin_pwm_init_ptrn()
 //
 void led_pins_pwm();
-
-// FIXME TODO DELETEME
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-// led_pin_pwm_int_dbg_step() - internal routine for debugging, display steps at important steps
-//
-void led_pin_pwm_int_dbg_step(int p_pin_idx); // to keep the compiler happy
-// FIXME TODO DELETEME
 
 #endif // LED_PINS_PWM_H

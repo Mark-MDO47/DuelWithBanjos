@@ -25,9 +25,6 @@ The plan is to make them
 - blink LED "eyes" using Pulse Width Modulation (PWM)
   - https://github.com/Mark-MDO47/DuelWithBanjos/tree/master/code/LEDPinsPwmTemplate
 
-Latest code can be found here
-- https://github.com/Mark-MDO47/DuelWithBanjos/tree/master/code/DuelWithBanjos
-
 ## Schematic
 [Top](#duelwithbanjos "Top")<br>
 This is the schematic of the interesting part of the design, including the ESP32 module, sound control, and LED control.<br>

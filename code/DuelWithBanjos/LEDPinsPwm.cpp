@@ -106,13 +106,19 @@ void led_pin_pwm_int_set_pwm_num_den(uint16_t p_num_pwm_scale, uint16_t p_den_pw
 // led_pin_pwm_set_pwm_scale() - set valid global values for pwm scaling during operation
 //
 // parameters:
-//   MS-16bits p_pwm_scale     - numerator for final pwm scaling
-//   LS-16bits p_pwm_scale     - denominator for final pwm scaling - should NOT be zero
+//   MS-16bits p_pwm_scale  - numerator for final pwm scaling
+//   LS-16bits p_pwm_scale  - denominator for final pwm scaling - should NOT be zero
+//
+// If consistency checks are OK (no zero denominator), sets the global brightness and
+//   saves p_pwm_scale into external g_eyes_bright so the caller can easily implement
+//   commands such as "brighter" or "dimmer" since the current brightness is available.
 //
 void led_pin_pwm_set_pwm_scale(uint32_t p_pwm_scale) {
   // set the values safely and save in user space
+  //    g_led_pin_pwm_num_pwm_scale and g_led_pin_pwm_den_pwm_scale set to actual brightness
+  //    both of above numbers are uint32_t
   led_pin_pwm_int_set_pwm_num_den((uint16_t)((p_pwm_scale>>16)&0xFFFF), (uint16_t)(p_pwm_scale&0xFFFF));
-  g_eyes_bright = p_pwm_scale;
+  g_eyes_bright = ((g_led_pin_pwm_num_pwm_scale<<16)&0xFFFF00000) | (g_led_pin_pwm_den_pwm_scale&0x0000FFFF);
 
   // apply the scaling now; don't wait for next tick
   for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {

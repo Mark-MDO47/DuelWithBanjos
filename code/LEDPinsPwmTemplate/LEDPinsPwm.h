@@ -93,6 +93,10 @@ extern pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS];
 //   MS-16bits p_pwm_scale  - numerator for final pwm scaling
 //   LS-16bits p_pwm_scale  - denominator for final pwm scaling - should NOT be zero
 //
+// If consistency checks are OK (no zero denominator), sets the global brightness and
+//   saves p_pwm_scale into external g_eyes_bright so the caller can easily implement
+//   commands such as "brighter" or "dimmer" since the current brightness is available.
+//
 extern uint32_t g_eyes_bright; // MS-16bits is <num>, LS-16bits is <den> for last call to led_pin_pwm_set_pwm_scale()
 void led_pin_pwm_set_pwm_scale(uint32_t p_pwm_scale);
 

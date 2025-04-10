@@ -50,7 +50,7 @@ Work In Progress...
 | ESP32 | 1 @ ESP32 Devkit V1 ESP-WROOM-32 | https://www.amazon.com/Hosyond-ESP-WROOM-32-Development-Microcontroller-Compatible/dp/B0C7C2HQ7P/ref=sr_1_4 | $3.50 |
 | YX5200 | 1 @ Sound Module with MicroSD (TF) card socket | https://www.amazon.com/Organizer-YX5200-DFPlayer-Supporting-Arduino/dp/B07XXYQBNS/ref=sr_1_1 | $2.00 |
 | SN74HCT125N | 1 @ Non-inverting 5.5V buffer 14-pin DIP | https://www.digikey.com/en/products/detail/texas-instruments/SN74HCT125N/376860 | $0.63 |
-| JST SM 2.5mm | 2 @ pair JST SM 2.5mm Male/Female connectors and cables | https://www.amazon.com/mxuteuk-Connectors-Connector-Adapter-Electrical/dp/B0DHKC3ZSF/ref=sr_1_2?th=1 | $0.45 |
+| JST SM 2.5mm | 2 @ pair JST SM 2.5mm 3-pin Male/Female connectors and cables | https://www.amazon.com/mxuteuk-Connectors-Connector-Adapter-Electrical/dp/B0DHKC3ZSF/ref=sr_1_2?th=1 | $0.45 |
 | resistors | 4 @ 200-Ohm 1/4 watt through-hole resistors | https://www.digikey.com/en/products/filter/through-hole-resistors/53?s=N4IgTCBcDaIE4FMDOBLJAXA9nEBdAvkA | $0.10 |
 | resistors | 1 @ 1.0-KOhm 1/4 watt through-hole resistors | https://www.digikey.com/en/products/detail/stackpole-electronics-inc/CF14JT1K00/1741314 | $0.10 |
 | resistors | 2 @ 3.3-KOhm 1/4 watt through-hole resistors | https://www.digikey.com/en/products/detail/stackpole-electronics-inc/CF14JT3K30/1741376 | $0.10 |

@@ -9,6 +9,7 @@ Just for fun - tiny scarecrow skeletons playing banjo music, placed under the co
 * [Introduction](#introduction "Introduction")
 * [Schematic](#schematic "Schematic")
 * [Code](#code "Code")
+* [Parts List](#parts-list "Parts List")
 * [License](#license "License")
 
 ## Introduction

@@ -28,7 +28,7 @@ LEDPinsPwmTemplate.ino is a near-minimum implementation of use of LEDPinsPwm. It
 - **#include "LEDPinsPwm.h"**
   - **optional**: you can edit LEDPinsPwm.h to change "modifiable" constants as outlined in that file. For instance, you can redefine LED_PINS_PWM_NUM_PINS to something other than 4.
 - make the table **pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS]** to point to the pins you will be having LEDPinsPwm control. You must use this name and it must be global scope.
-- provide storage for uint32_t **g_eyes_bright**. MS-16bits is <num>, LS-16bits is <den> for last call to led_pin_pwm_set_pwm_scale()
+- provide storage for uint32_t **g_eyes_bright**. MS-16bits is numerator, LS-16bits is denominator for last call to led_pin_pwm_set_pwm_scale()
 - make at least one **pwm_led_ptrn_step pattern**. This would be an array of pwm_led_ptrn_step, even if there is only one entry. These patterns can have any name you want; they will be referenced later
 - in calls to led_pin_pwm_init_ptrn().
 - in **setup()**, call **Serial.begin()** so that you can see error output and/or debug output in the serial monitor.

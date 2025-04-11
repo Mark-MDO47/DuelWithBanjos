@@ -40,7 +40,7 @@ The 1K resistor in the path to the YX5200 RX line prevents coupling of digital n
 The code is starting to take shape; you can find it here
 - https://github.com/Mark-MDO47/DuelWithBanjos/tree/master/code/DuelWithBanjos
 
-I wanted my PWM LED control to be automatic in between commands but also to respond to commands. I made some code to do this. Once everything is initialized, you only need to call led_pins_pwm() periodically from loop() to have the LED eyes follow the requrested time pattern.
+I wanted my PWM LED control to be automatic in between commands but also to respond to commands. I made some code to do this. Once everything is initialized, you only need to call **led_pins_pwm()** periodically from loop() to have the LED eyes follow the requrested time pattern.
 - https://github.com/Mark-MDO47/DuelWithBanjos/tree/master/code/LEDPinsPwmTemplate
 
 ## Parts List

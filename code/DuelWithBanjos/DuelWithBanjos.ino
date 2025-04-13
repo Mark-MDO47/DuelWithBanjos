@@ -40,7 +40,7 @@
 //   ESP32 Dev Module pin D-18   left  player left eye  (green)
 //   ESP32 Dev Module pin D-19   left  player right eye (red)
 //   ESP32 Dev Module pin D-32   right player left eye  (green)
-//   ESP32 Dev Module pin D-33   right player right eye (red)
+//   ESP32 Dev Module pin D-26   right player right eye (red) (33 exceeded my soldering capability)
 
 // Attributions for the sounds are on the MicroSD card containing the sounds.
 // The music is either purchased or else performed/recorded by me.

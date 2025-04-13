@@ -6,7 +6,7 @@
 	(paper "USLetter")
 	(title_block
 		(title "DuelWithBanjos")
-		(date "2025-04-10")
+		(date "2025-04-13")
 		(rev "Rev 0.9")
 		(company "https://github.com/Mark-MDO47")
 	)
@@ -37005,6 +37005,16 @@
 	)
 	(wire
 		(pts
+			(xy 83.82 80.01) (xy 83.82 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8a12cf37-3fca-4930-98e7-ef843ab3f56d")
+	)
+	(wire
+		(pts
 			(xy 187.96 53.34) (xy 187.96 57.15)
 		)
 		(stroke
@@ -37165,6 +37175,16 @@
 	)
 	(wire
 		(pts
+			(xy 86.36 87.63) (xy 83.82 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b5d9ede9-fc18-4c3f-b3bc-7ad1971edd02")
+	)
+	(wire
+		(pts
 			(xy 36.83 118.11) (xy 36.83 153.67)
 		)
 		(stroke
@@ -37172,16 +37192,6 @@
 			(type default)
 		)
 		(uuid "bd169489-b1a2-4427-9add-9b76824963e5")
-	)
-	(wire
-		(pts
-			(xy 83.82 80.01) (xy 86.36 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bd84a384-f578-46c2-8bd0-9b4d36da8d7c")
 	)
 	(wire
 		(pts

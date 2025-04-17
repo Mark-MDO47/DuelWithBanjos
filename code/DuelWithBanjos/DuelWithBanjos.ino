@@ -89,6 +89,63 @@ uint32_t gTimerForceSoundActv = 0;  // SOUND_ACTIVE_PROTECT until millis() >= th
   #define DFprintDetail(type, value) // nothing at all
 #endif // #if DFPRINTDETAIL
 
+typedef struct {
+  char*    song_name; // points to name of song to play
+  uint16_t soundnum;  // number of sound
+} music_song_to_soundnum_t;
+static music_song_to_soundnum_t music_song_to_soundnum[] = {
+  { .song_name = (char*)"DUEL-BANJO",      .soundnum = SOUNDNUM_DuelingBanjos },
+  { .song_name = (char*)"DECK-HALLS",      .soundnum = SOUNDNUM_DeckTheDuelingHalls },
+  { .song_name = (char*)"WHAT-CHILD",      .soundnum = SOUNDNUM_WhatChildIsThis },
+  { .song_name = (char*)"MERRY-GENTLEMEN", .soundnum = SOUNDNUM_GodRestYe },
+  { .song_name = (char*)"TOWN-BETHLEHEM",  .soundnum = SOUNDNUM_OLittleTownOf },
+  { .song_name = (char*)"KING-WENCESLAS",  .soundnum = SOUNDNUM_GoodKingWenceslas }
+  // FIXME TODO add Chopin
+};
+typedef struct {
+  char*     type_name;
+  uint16_t* list_array;
+  uint16_t  num_in_list;
+} music_type_to_music_list_t;
+
+uint16_t music_type_array_duel[] = { SOUNDNUM_DuelingBanjos };
+uint16_t music_type_array_christmas[] = {
+  SOUNDNUM_DeckTheDuelingHalls,
+  SOUNDNUM_WhatChildIsThis,
+  SOUNDNUM_GodRestYe,
+  SOUNDNUM_OLittleTownOf,
+  SOUNDNUM_GoodKingWenceslas
+};
+uint16_t music_type_array_chopin[] = {}; // TODO FIXME add Chopin
+uint16_t music_type_array_all[] = {
+  SOUNDNUM_DuelingBanjos,
+  SOUNDNUM_DeckTheDuelingHalls,
+  SOUNDNUM_WhatChildIsThis,
+  SOUNDNUM_GodRestYe,
+  SOUNDNUM_OLittleTownOf,
+  SOUNDNUM_GoodKingWenceslas
+};
+
+music_type_to_music_list_t music_type_to_music_list_duel      = { .type_name=(char*)"DUEL",      .list_array=&music_type_array_duel[0],      .num_in_list = NUMOF(music_type_array_duel) };
+music_type_to_music_list_t music_type_to_music_list_christmas = { .type_name=(char*)"CHRISTMAS", .list_array=&music_type_array_christmas[0], .num_in_list = NUMOF(music_type_array_christmas) };
+music_type_to_music_list_t music_type_to_music_list_chopin    = { .type_name=(char*)"CHOPIN",    .list_array=&music_type_array_chopin[0],    .num_in_list = NUMOF(music_type_array_chopin) };
+music_type_to_music_list_t music_type_to_music_list_all       = { .type_name=(char*)"ALL",       .list_array=&music_type_array_all[0],       .num_in_list = NUMOF(music_type_array_all) };
+
+music_type_to_music_list_t* music_type_to_music_list_array[] = {
+  &music_type_to_music_list_duel,
+  &music_type_to_music_list_christmas,
+  // &music_type_to_music_list_chopin, FIXME TODO ADD CHOPIN
+  &music_type_to_music_list_all
+};
+
+#define MUSIC_MODE_SINGLE_SONG  0
+#define MUSIC_MODE_TYPE_OF_SONG 1
+// #define MUSIC_MODE_OFF          2   this is implemented by using SOUNDNUM_silence
+uint16_t g_music_mode = MUSIC_MODE_SINGLE_SONG;
+uint16_t g_music_soundnum_single_song = SOUNDNUM_DuelingBanjos; // only used if MUSIC_MODE_SINGLE_SONG
+music_type_to_music_list_t* g_music_type_list;                  // only used if MUSIC_MODE_TYPE_OF_SONG
+uint16_t g_music_type_list_idx_playing_now;                         // only used if MUSIC_MODE_TYPE_OF_SONG
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // structures for LEDPinsPwm to control the LED Eyes of the Banjo Players
 
@@ -103,7 +160,7 @@ pwm_pin_info g_pwm_pin_info[LED_PINS_PWM_NUM_PINS] = {
   { .pin_num=18, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .prev_pwm_val = 0xFFFF, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_tick_incr = 0, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
   { .pin_num=19, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .prev_pwm_val = 0xFFFF, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_tick_incr = 0, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
   { .pin_num=32, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .prev_pwm_val = 0xFFFF, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_tick_incr = 0, .scaledtm_next_tick=0, .scaledtm_next_step=0 },
-  { .pin_num=33, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .prev_pwm_val = 0xFFFF, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_tick_incr = 0, .scaledtm_next_tick=0, .scaledtm_next_step=0 }
+  { .pin_num=26, .ptrn_step_ptr = (pwm_led_ptrn_step *)0, .idx_curr_step=0, .curr_pwm_val=0, .prev_pwm_val = 0xFFFF, .scale_factor=TIME_SCALE_EQUAL, .scaledtm_tick_incr = 0, .scaledtm_next_tick=0, .scaledtm_next_step=0 }
 };
 
 // pwm LED pattern definitions - name can be anything, can be as many pattern definitions as desired,
@@ -331,7 +388,9 @@ void setup() {
   Serial.println("\nDuelWithBanjos init complete...");
 
   // start the INTRO sound, then allow normal loop() processing
-  DFstartSound(SOUNDNUM_DuelingBanjos, SOUND_DEFAULT_VOL);
+  g_music_mode = MUSIC_MODE_SINGLE_SONG;
+  g_music_soundnum_single_song = SOUNDNUM_DuelingBanjos;
+  DFstartSound(g_music_soundnum_single_song, SOUND_DEFAULT_VOL);
 /*
   while (!DFcheckSoundDone()) {
     delay(10); // wait for the INTRO sound to finish
@@ -355,7 +414,7 @@ uint16_t do_cmd_volume(char* p_cmd, char* p_param) {
 } // end do_cmd_volume()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// do_cmd_music() - stub versions
+// do_cmd_music() - MUSIC:xxx command
 //       returns: 0 if no error
 //   process MUSIC: command if we understand it; call with p_cmd and p_param ALL UPPERCASE
 //
@@ -364,8 +423,9 @@ uint16_t do_cmd_volume(char* p_cmd, char* p_param) {
 // MUSIC:OFF  <ignore> = (<ignore> = anything; I use OFF)
 //
 uint16_t do_cmd_music(char* p_cmd, char* p_param) {
-    Serial.printf("do_cmd_music %s %s\n", p_cmd, p_param);
-    return(0);
+  if (NULL != strstr("MUSIC:SONG", p_cmd)) {
+  }
+  return(0);
 } // end do_cmd_music()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -445,6 +505,9 @@ uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
       } // end for each pin_idx
     } else { Serial.printf("ERROR ESP-NOW cmd %s %s no such pattern\n", p_cmd, p_param);  return(1); }
   } else if (NULL != strstr("EYES:CYCLE", p_cmd)) {
+    // FIXME TODO EYES:CYCLE
+    Serial.printf("ERROR ESP-NOW cmd %s %s not yet implemented\n", p_cmd, p_param);
+    return(1);
   } else if (NULL != strstr("EYES:BRIGHT", p_cmd)) {
     led_pin_pwm_set_pwm_scale(((uint32_t)atoi(param1))<<16 | ((uint32_t)atoi(param2))); // param1/param2 power
   } else if (NULL != strstr("EYES:MVPINS", p_cmd)) {
@@ -452,6 +515,9 @@ uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
     if (param3 == NULL) { Serial.printf("ERROR ESP-NOW cmd %s %s bad parameter 3\n", p_cmd, p_param);  return(1); }
     param4 = strtok(NULL, delimiters);
     if (param4 == NULL) { Serial.printf("ERROR ESP-NOW cmd %s %s bad parameter 4\n", p_cmd, p_param);  return(1); }
+    // FIXME TODO EYES:MVPINS - maybe not important anymore...
+    Serial.printf("ERROR ESP-NOW cmd %s %s not yet implemented\n", p_cmd, p_param);
+    return(1);
   } else { Serial.printf("ERROR ESP-NOW cmd %s %s no such command\n", p_cmd, p_param);  return(1); }
   return(0);
 } // end do_cmd_eyes()
@@ -581,9 +647,17 @@ void loop() {
 
   EVERY_N_MILLISECONDS( 50 ) { 
     if (DFcheckSoundDone()) {
-      // restart sound
-      DFstartSound(SOUNDNUM_DuelingBanjos, SOUND_DEFAULT_VOL);
-    } // end if DFcheckSoundDone
+      if (MUSIC_MODE_TYPE_OF_SONG == g_music_mode) {
+        // loop through array of songs
+        uint16_t tmp = g_music_type_list_idx_playing_now + 1;
+        if (tmp >= g_music_type_list->num_in_list) tmp = 0;
+        g_music_type_list_idx_playing_now = tmp;
+        DFstartSound(g_music_type_list->list_array[g_music_type_list_idx_playing_now], SOUND_DEFAULT_VOL);
+      } else /* if (MUSIC_MODE_SINGLE_SONG == g_music_mode) */ {
+        // restart sound
+        DFstartSound(g_music_soundnum_single_song, SOUND_DEFAULT_VOL);
+      }
+    }
   } // end EVERY_N_MILLISECONDS 50
 
 /*

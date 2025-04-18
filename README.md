@@ -54,7 +54,7 @@ Work In Progress...
 | YX5200 | 1 @ Sound Module with MicroSD (TF) card socket | https://www.amazon.com/Organizer-YX5200-DFPlayer-Supporting-Arduino/dp/B07XXYQBNS/ref=sr_1_1 | $2.00 |
 | SN74HCT125N | 1 @ Non-inverting 5.5V buffer 14-pin DIP | https://www.digikey.com/en/products/detail/texas-instruments/SN74HCT125N/376860 | $0.63 |
 | speaker |  Metal Shell Round Internal Magnet Speaker 2W 8 Ohm approx 1 inch | https://www.amazon.com/dp/B0177ABRQ6 | $2.80 |
-| JST SM 2.5mm | 2 @ pair JST SM 2.5mm 3-pin Male/Female connectors and cables | https://www.amazon.com/mxuteuk-Connectors-Connector-Adapter-Electrical/dp/B0DHKC3ZSF/ref=sr_1_2?th=1 | $0.45 |
+| JST SM 2.5mm | 2 @ pair JST SM 2.5mm 3-pin Male/Female connectors and cables for banjo players | https://www.amazon.com/mxuteuk-Connectors-Connector-Adapter-Electrical/dp/B0DHKC3ZSF/ref=sr_1_2?th=1 | $0.45 |
 | resistors | 4 @ 200-Ohm 1/4 watt through-hole resistors | https://www.digikey.com/en/products/filter/through-hole-resistors/53?s=N4IgTCBcDaIE4FMDOBLJAXA9nEBdAvkA | $0.10 |
 | resistors | 1 @ 1.0-KOhm 1/4 watt through-hole resistors | https://www.digikey.com/en/products/detail/stackpole-electronics-inc/CF14JT1K00/1741314 | $0.10 |
 | resistors | 2 @ 3.3-KOhm 1/4 watt through-hole resistors | https://www.digikey.com/en/products/detail/stackpole-electronics-inc/CF14JT3K30/1741376 | $0.10 |
@@ -63,7 +63,7 @@ Work In Progress...
 | UBEC 5V | 1 @ 5V/6V HOBBYWING 3A UBEC | https://www.aliexpress.us/item/3256805502614547.html | $1.50 |
 | 18650 Battery | 2 @ 3.7V 18650 & charger<br>URL has 4 batteries plus charger so price each is inflated | https://www.amazon.com/dp/B0CP6V26QX | $5.00 |
 | 18650 2-slot holder | 18650 Battery Holder 2 Slot 3.7V 18650 Battery | https://www.amazon.com/dp/B09LC13D9P | $2.60 |
-| JST SM 2.5mm | 1 @ pair JST SM 2.5mm 3-pin Male/Female connectors and cables | https://www.amazon.com/mxuteuk-Connectors-Connector-Adapter-Electrical/dp/B0DHKC3ZSF/ref=sr_1_2?th=1 | $0.45 |
+| JST SM 2.5mm | 1 @ pair JST SM 2.5mm 3-pin Male/Female connectors and cables for power connection | https://www.amazon.com/mxuteuk-Connectors-Connector-Adapter-Electrical/dp/B0DHKC3ZSF/ref=sr_1_2?th=1 | $0.45 |
 
 
 ## License

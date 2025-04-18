@@ -95,6 +95,7 @@ typedef struct {
 } music_song_to_soundnum_t;
 static music_song_to_soundnum_t g_music_song_to_soundnum[] = {
   { .song_name = (char*)"DUEL-BANJO",      .soundnum = SOUNDNUM_DuelingBanjos },
+  { .song_name = (char*)"SILENCE",         .soundnum = SOUNDNUM_silence },
   { .song_name = (char*)"DECK-HALLS",      .soundnum = SOUNDNUM_DeckTheDuelingHalls },
   { .song_name = (char*)"WHAT-CHILD",      .soundnum = SOUNDNUM_WhatChildIsThis },
   { .song_name = (char*)"MERRY-GENTLEMEN", .soundnum = SOUNDNUM_GodRestYe },
@@ -141,10 +142,11 @@ music_type_to_music_list_t* g_music_type_to_music_list_array[] = {
 #define MUSIC_MODE_SINGLE_SONG  0
 #define MUSIC_MODE_TYPE_OF_SONG 1
 // #define MUSIC_MODE_OFF          2   this is implemented by using SOUNDNUM_silence
+uint16_t g_music_song_to_soundnum_idx_playing_now;              // kept current in all modes
 uint16_t g_music_mode = MUSIC_MODE_SINGLE_SONG;
 uint16_t g_music_soundnum_single_song = SOUNDNUM_DuelingBanjos; // only used if MUSIC_MODE_SINGLE_SONG
 music_type_to_music_list_t* g_music_type_list;                  // only used if MUSIC_MODE_TYPE_OF_SONG
-uint16_t g_music_type_list_idx_playing_now;                         // only used if MUSIC_MODE_TYPE_OF_SONG
+uint16_t g_music_type_list_idx_playing_now;                     // only used if MUSIC_MODE_TYPE_OF_SONG
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // structures for LEDPinsPwm to control the LED Eyes of the Banjo Players
@@ -390,6 +392,7 @@ void setup() {
   // start the INTRO sound, then allow normal loop() processing
   g_music_mode = MUSIC_MODE_SINGLE_SONG;
   g_music_soundnum_single_song = SOUNDNUM_DuelingBanjos;
+  g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(SOUNDNUM_DuelingBanjos);
   DFstartSound(g_music_soundnum_single_song, SOUND_DEFAULT_VOL);
 /*
   while (!DFcheckSoundDone()) {
@@ -414,6 +417,23 @@ uint16_t do_cmd_volume(char* p_cmd, char* p_param) {
 } // end do_cmd_volume()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// find_music_idx_from_soundnum() - MUSIC:xxx utility
+//     returns 0xFFFF if not found, else idx within g_music_song_to_soundnum
+// 
+uint16_t find_music_idx_from_soundnum(uint16_t p_soundnum) {
+  uint16_t ret_idx = 0xFFFF;
+
+  for (uint16_t idx = 0; idx < NUMOF(g_music_song_to_soundnum); idx += 1) {
+    if (g_music_song_to_soundnum[idx].soundnum == p_soundnum) {
+      ret_idx = idx;
+      break;
+    }
+  }
+
+  return(ret_idx);
+} // end find_music_idx_from_soundnum()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // do_cmd_music() - MUSIC:xxx command
 //       returns: 0 if no error
 //   process MUSIC: command if we understand it; call with p_cmd and p_param ALL UPPERCASE
@@ -432,6 +452,7 @@ uint16_t do_cmd_music(char* p_cmd, char* p_param) {
         found = idx;
         g_music_mode = MUSIC_MODE_SINGLE_SONG;
         g_music_soundnum_single_song = g_music_song_to_soundnum[idx].soundnum;
+        g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(g_music_soundnum_single_song);
         DFstartSound(g_music_soundnum_single_song, SOUND_DEFAULT_VOL);
         break;
       }
@@ -443,6 +464,7 @@ uint16_t do_cmd_music(char* p_cmd, char* p_param) {
   } else if (NULL != strstr("MUSIC:OFF", p_cmd)) {
     g_music_mode = MUSIC_MODE_SINGLE_SONG;
     g_music_soundnum_single_song = SOUNDNUM_silence;
+    g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(SOUNDNUM_silence);
     DFstartSound(g_music_soundnum_single_song, SOUND_DEFAULT_VOL);
   } else if (NULL != strstr("MUSIC:TYPE", p_cmd)) {
     for (idx = 0; idx < NUMOF(g_music_type_to_music_list_array); idx += 1) {
@@ -451,7 +473,9 @@ uint16_t do_cmd_music(char* p_cmd, char* p_param) {
         g_music_mode = MUSIC_MODE_TYPE_OF_SONG;
         g_music_type_list = g_music_type_to_music_list_array[idx];
         g_music_type_list_idx_playing_now = 0;
-        DFstartSound(g_music_type_list->list_array[g_music_type_list_idx_playing_now], SOUND_DEFAULT_VOL);
+        uint16_t tmp_soundnum = g_music_type_list->list_array[g_music_type_list_idx_playing_now];
+        g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(tmp_soundnum);
+        DFstartSound(tmp_soundnum, SOUND_DEFAULT_VOL);
         break;
       }
     } // end for
@@ -688,12 +712,16 @@ void loop() {
     if (DFcheckSoundDone()) {
       if (MUSIC_MODE_TYPE_OF_SONG == g_music_mode) {
         // loop through array of songs
-        uint16_t tmp = g_music_type_list_idx_playing_now + 1;
-        if (tmp >= g_music_type_list->num_in_list) tmp = 0;
-        g_music_type_list_idx_playing_now = tmp;
-        DFstartSound(g_music_type_list->list_array[g_music_type_list_idx_playing_now], SOUND_DEFAULT_VOL);
+        uint16_t tmp_soundnum = 0xFFFF;
+        uint16_t tmp_idx = g_music_type_list_idx_playing_now + 1;
+        if (tmp_idx >= g_music_type_list->num_in_list) tmp_idx = 0;
+        g_music_type_list_idx_playing_now = tmp_idx;
+        tmp_soundnum = g_music_type_list->list_array[g_music_type_list_idx_playing_now];
+        g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(tmp_soundnum);
+        DFstartSound(tmp_soundnum, SOUND_DEFAULT_VOL);
       } else /* if (MUSIC_MODE_SINGLE_SONG == g_music_mode) */ {
         // restart sound
+        g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(g_music_soundnum_single_song);
         DFstartSound(g_music_soundnum_single_song, SOUND_DEFAULT_VOL);
       }
     }

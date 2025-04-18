@@ -438,9 +438,9 @@ uint16_t find_music_idx_from_soundnum(uint16_t p_soundnum) {
 //       returns: 0 if no error
 //   process MUSIC: command if we understand it; call with p_cmd and p_param ALL UPPERCASE
 //
-// MUSIC:SONG <name>   = (<name> = DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS)
+// MUSIC:SONG <name>   = (<name> = SILENCE DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS)
 // MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN ALL)
-// MUSIC:OFF  <ignore> = (<ignore> = anything; I use OFF)
+// MUSIC:NEXT <ignore> = start next song from ALL and set mode to MUSIC:SONG
 //
 uint16_t do_cmd_music(char* p_cmd, char* p_param) {
   uint16_t found = 0xFFFF;
@@ -461,11 +461,6 @@ uint16_t do_cmd_music(char* p_cmd, char* p_param) {
       Serial.printf("ERROR: unknown MUSIC SONG in command %s %s\n", p_cmd, p_param);
       return(1);
     }
-  } else if (NULL != strstr("MUSIC:OFF", p_cmd)) {
-    g_music_mode = MUSIC_MODE_SINGLE_SONG;
-    g_music_soundnum_single_song = SOUNDNUM_silence;
-    g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(SOUNDNUM_silence);
-    DFstartSound(g_music_soundnum_single_song, SOUND_DEFAULT_VOL);
   } else if (NULL != strstr("MUSIC:TYPE", p_cmd)) {
     for (idx = 0; idx < NUMOF(g_music_type_to_music_list_array); idx += 1) {
       if (NULL != strstr(p_param, g_music_type_to_music_list_array[idx]->type_name)) {
@@ -483,6 +478,15 @@ uint16_t do_cmd_music(char* p_cmd, char* p_param) {
       Serial.printf("ERROR: unknown MUSIC TYPE in command %s %s\n", p_cmd, p_param);
       return(1);
     }
+  } else if (NULL != strstr("MUSIC:NEXT", p_cmd)) {
+    // g_music_song_to_soundnum_idx_playing_now is ALWAYS up to date
+    uint16_t tmp_idx = g_music_song_to_soundnum_idx_playing_now + 1;
+    if (tmp_idx >= NUMOF(g_music_song_to_soundnum)) tmp_idx = 0;
+    uint16_t tmp_soundnum = g_music_song_to_soundnum[tmp_idx].soundnum;
+    g_music_mode = MUSIC_MODE_SINGLE_SONG;
+    g_music_soundnum_single_song = tmp_soundnum;
+    g_music_song_to_soundnum_idx_playing_now = tmp_idx;
+    DFstartSound(tmp_soundnum, SOUND_DEFAULT_VOL);
   } else {
     Serial.printf("ERROR: unknown MUSIC command %s %s\n", p_cmd, p_param);
     return(1);
@@ -604,9 +608,9 @@ uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
 // BANJO ; VOLUME:DOWN #
 // BANJO ; VOLUME:SET #
 //
-// BANJO ; MUSIC:SONG <name>   = (<name> = DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS)
+// BANJO ; MUSIC:SONG <name>   = (<name> = SILENCE DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS)
 // BANJO ; MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN ALL)
-// BANJO ; MUSIC:OFF  <ignore> = (<ignore> = anything; I use OFF)
+// BANJO ; MUSIC:NEXT <ignore> = start next song from ALL and set mode to MUSIC:SONG
 //
 // BANJO ; EYES:PATTERN <coord>/<tscale>/<ptrn> = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64)  (<ptrn> = BLINK OPEN BL-OPN SINELON OFF)
 // BANJO ; EYES:CYCLE   <coord>/<tscale>        = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64) 
@@ -623,7 +627,7 @@ esp_now_cmd_t esp_now_cmds[] = {
   {.cmd = "VOLUME:SET",   .cmd_idx = 0x0002 },
   {.cmd = "MUSIC:SONG",   .cmd_idx = 0x0100 },
   {.cmd = "MUSIC:TYPE",   .cmd_idx = 0x0101 },
-  {.cmd = "MUSIC:OFF",    .cmd_idx = 0x0102 },
+  {.cmd = "MUSIC:NEXT",   .cmd_idx = 0x0102 },
   {.cmd = "EYES:PATTERN", .cmd_idx = 0x0200 },
   {.cmd = "EYES:CYCLE",   .cmd_idx = 0x0201 },
   {.cmd = "EYES:BRIGHT",  .cmd_idx = 0x0202 },

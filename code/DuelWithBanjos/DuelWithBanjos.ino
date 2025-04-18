@@ -93,7 +93,7 @@ typedef struct {
   char*    song_name; // points to name of song to play
   uint16_t soundnum;  // number of sound
 } music_song_to_soundnum_t;
-static music_song_to_soundnum_t music_song_to_soundnum[] = {
+static music_song_to_soundnum_t g_music_song_to_soundnum[] = {
   { .song_name = (char*)"DUEL-BANJO",      .soundnum = SOUNDNUM_DuelingBanjos },
   { .song_name = (char*)"DECK-HALLS",      .soundnum = SOUNDNUM_DeckTheDuelingHalls },
   { .song_name = (char*)"WHAT-CHILD",      .soundnum = SOUNDNUM_WhatChildIsThis },
@@ -108,16 +108,16 @@ typedef struct {
   uint16_t  num_in_list;
 } music_type_to_music_list_t;
 
-uint16_t music_type_array_duel[] = { SOUNDNUM_DuelingBanjos };
-uint16_t music_type_array_christmas[] = {
+uint16_t g_music_type_array_duel[] = { SOUNDNUM_DuelingBanjos };
+uint16_t g_music_type_array_christmas[] = {
   SOUNDNUM_DeckTheDuelingHalls,
   SOUNDNUM_WhatChildIsThis,
   SOUNDNUM_GodRestYe,
   SOUNDNUM_OLittleTownOf,
   SOUNDNUM_GoodKingWenceslas
 };
-uint16_t music_type_array_chopin[] = {}; // TODO FIXME add Chopin
-uint16_t music_type_array_all[] = {
+uint16_t g_music_type_array_chopin[] = {}; // TODO FIXME add Chopin
+uint16_t g_music_type_array_all[] = {
   SOUNDNUM_DuelingBanjos,
   SOUNDNUM_DeckTheDuelingHalls,
   SOUNDNUM_WhatChildIsThis,
@@ -126,16 +126,16 @@ uint16_t music_type_array_all[] = {
   SOUNDNUM_GoodKingWenceslas
 };
 
-music_type_to_music_list_t music_type_to_music_list_duel      = { .type_name=(char*)"DUEL",      .list_array=&music_type_array_duel[0],      .num_in_list = NUMOF(music_type_array_duel) };
-music_type_to_music_list_t music_type_to_music_list_christmas = { .type_name=(char*)"CHRISTMAS", .list_array=&music_type_array_christmas[0], .num_in_list = NUMOF(music_type_array_christmas) };
-music_type_to_music_list_t music_type_to_music_list_chopin    = { .type_name=(char*)"CHOPIN",    .list_array=&music_type_array_chopin[0],    .num_in_list = NUMOF(music_type_array_chopin) };
-music_type_to_music_list_t music_type_to_music_list_all       = { .type_name=(char*)"ALL",       .list_array=&music_type_array_all[0],       .num_in_list = NUMOF(music_type_array_all) };
+music_type_to_music_list_t g_music_type_to_music_list_duel      = { .type_name=(char*)"DUEL",      .list_array=&g_music_type_array_duel[0],      .num_in_list = NUMOF(g_music_type_array_duel) };
+music_type_to_music_list_t g_music_type_to_music_list_christmas = { .type_name=(char*)"CHRISTMAS", .list_array=&g_music_type_array_christmas[0], .num_in_list = NUMOF(g_music_type_array_christmas) };
+music_type_to_music_list_t g_music_type_to_music_list_chopin    = { .type_name=(char*)"CHOPIN",    .list_array=&g_music_type_array_chopin[0],    .num_in_list = NUMOF(g_music_type_array_chopin) };
+music_type_to_music_list_t g_music_type_to_music_list_all       = { .type_name=(char*)"ALL",       .list_array=&g_music_type_array_all[0],       .num_in_list = NUMOF(g_music_type_array_all) };
 
-music_type_to_music_list_t* music_type_to_music_list_array[] = {
-  &music_type_to_music_list_duel,
-  &music_type_to_music_list_christmas,
-  // &music_type_to_music_list_chopin, FIXME TODO ADD CHOPIN
-  &music_type_to_music_list_all
+music_type_to_music_list_t* g_music_type_to_music_list_array[] = {
+  &g_music_type_to_music_list_duel,
+  &g_music_type_to_music_list_christmas,
+  // &g_music_type_to_music_list_chopin, FIXME TODO ADD CHOPIN
+  &g_music_type_to_music_list_all
 };
 
 #define MUSIC_MODE_SINGLE_SONG  0
@@ -423,8 +423,47 @@ uint16_t do_cmd_volume(char* p_cmd, char* p_param) {
 // MUSIC:OFF  <ignore> = (<ignore> = anything; I use OFF)
 //
 uint16_t do_cmd_music(char* p_cmd, char* p_param) {
+  uint16_t found = 0xFFFF;
+  uint16_t idx = 0;
+
   if (NULL != strstr("MUSIC:SONG", p_cmd)) {
+    for (idx = 0; idx < NUMOF(g_music_song_to_soundnum); idx += 1) {
+      if (NULL != strstr(p_param, g_music_song_to_soundnum[idx].song_name)) {
+        found = idx;
+        g_music_mode = MUSIC_MODE_SINGLE_SONG;
+        g_music_soundnum_single_song = g_music_song_to_soundnum[idx].soundnum;
+        DFstartSound(g_music_soundnum_single_song, SOUND_DEFAULT_VOL);
+        break;
+      }
+    } // end for
+    if (0xFFFF == found) {
+      Serial.printf("ERROR: unknown MUSIC SONG in command %s %s\n", p_cmd, p_param);
+      return(1);
+    }
+  } else if (NULL != strstr("MUSIC:OFF", p_cmd)) {
+    g_music_mode = MUSIC_MODE_SINGLE_SONG;
+    g_music_soundnum_single_song = SOUNDNUM_silence;
+    DFstartSound(g_music_soundnum_single_song, SOUND_DEFAULT_VOL);
+  } else if (NULL != strstr("MUSIC:TYPE", p_cmd)) {
+    for (idx = 0; idx < NUMOF(g_music_type_to_music_list_array); idx += 1) {
+      if (NULL != strstr(p_param, g_music_type_to_music_list_array[idx]->type_name)) {
+        found = idx;
+        g_music_mode = MUSIC_MODE_TYPE_OF_SONG;
+        g_music_type_list = g_music_type_to_music_list_array[idx];
+        g_music_type_list_idx_playing_now = 0;
+        DFstartSound(g_music_type_list->list_array[g_music_type_list_idx_playing_now], SOUND_DEFAULT_VOL);
+        break;
+      }
+    } // end for
+    if (0xFFFF == found) {
+      Serial.printf("ERROR: unknown MUSIC TYPE in command %s %s\n", p_cmd, p_param);
+      return(1);
+    }
+  } else {
+    Serial.printf("ERROR: unknown MUSIC command %s %s\n", p_cmd, p_param);
+    return(1);
   }
+  // if we get here, we understood the command
   return(0);
 } // end do_cmd_music()
 

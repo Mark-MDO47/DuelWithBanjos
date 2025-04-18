@@ -4,6 +4,8 @@ Just for fun - tiny scarecrow skeletons playing banjo music, placed under the co
 
 <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/banjo_players_1024_768.jpg" width="500" alt="My Banjo Players">
 
+<img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Duel_ProtoBoard.png" width="500" alt="My ProtoBoard Banjo Player electronics">
+
 **Table Of Contents**
 * [Top](#duelwithbanjos "Top")
 * [Introduction](#introduction "Introduction")

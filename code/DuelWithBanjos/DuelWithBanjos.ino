@@ -94,14 +94,19 @@ typedef struct {
   uint16_t soundnum;  // number of sound
 } music_song_to_soundnum_t;
 static music_song_to_soundnum_t g_music_song_to_soundnum[] = {
-  { .song_name = (char*)"DUEL-BANJO",      .soundnum = SOUNDNUM_DuelingBanjos },
-  { .song_name = (char*)"SILENCE",         .soundnum = SOUNDNUM_silence },
-  { .song_name = (char*)"DECK-HALLS",      .soundnum = SOUNDNUM_DeckTheDuelingHalls },
-  { .song_name = (char*)"WHAT-CHILD",      .soundnum = SOUNDNUM_WhatChildIsThis },
-  { .song_name = (char*)"MERRY-GENTLEMEN", .soundnum = SOUNDNUM_GodRestYe },
-  { .song_name = (char*)"TOWN-BETHLEHEM",  .soundnum = SOUNDNUM_OLittleTownOf },
-  { .song_name = (char*)"KING-WENCESLAS",  .soundnum = SOUNDNUM_GoodKingWenceslas }
-  // FIXME TODO add Chopin
+  { .song_name = (char*)"DUEL-BANJO",                 .soundnum = SOUNDNUM_DuelingBanjos },
+  { .song_name = (char*)"SILENCE",                    .soundnum = SOUNDNUM_silence },
+  { .song_name = (char*)"DECK-HALLS",                 .soundnum = SOUNDNUM_DeckTheDuelingHalls },
+  { .song_name = (char*)"WHAT-CHILD",                 .soundnum = SOUNDNUM_WhatChildIsThis },
+  { .song_name = (char*)"MERRY-GENTLEMEN",            .soundnum = SOUNDNUM_GodRestYe },
+  { .song_name = (char*)"TOWN-BETHLEHEM",             .soundnum = SOUNDNUM_OLittleTownOf },
+  { .song_name = (char*)"KING-WENCESLAS",             .soundnum = SOUNDNUM_GoodKingWenceslas },
+  { .song_name = (char*)"CHOPIN-ETUDE-TRISTESSE",     .soundnum = SOUNDNUM_Chopin_Etude_10_03 },
+  { .song_name = (char*)"CHOPIN-NOCTURNE-E-FLAT",     .soundnum = SOUNDNUM_Chopin_Noct_55_2 },
+  { .song_name = (char*)"CHOPIN-ETUDE-REVOLUTIONARY", .soundnum = SOUNDNUM_Chopin_Etude_10_12 },
+  { .song_name = (char*)"CHOPIN-NOCTURNE-D-FLAT",     .soundnum = SOUNDNUM_Chopin_Noct_27_2 },
+  { .song_name = (char*)"CHOPIN-NOCTURNE-G",          .soundnum = SOUNDNUM_Chopin_Noct_37_2 },
+  { .song_name = (char*)"CHOPIN-PRELUDE-RAINDROP",    .soundnum = SOUNDNUM_Chopin_Prelude_15 }
 };
 typedef struct {
   char*     type_name;
@@ -117,14 +122,27 @@ uint16_t g_music_type_array_christmas[] = {
   SOUNDNUM_OLittleTownOf,
   SOUNDNUM_GoodKingWenceslas
 };
-uint16_t g_music_type_array_chopin[] = {}; // TODO FIXME add Chopin
+uint16_t g_music_type_array_chopin[] = {
+  SOUNDNUM_Chopin_Etude_10_03,
+  SOUNDNUM_Chopin_Noct_55_2,
+  SOUNDNUM_Chopin_Etude_10_12,
+  SOUNDNUM_Chopin_Noct_27_2,
+  SOUNDNUM_Chopin_Noct_37_2,
+  SOUNDNUM_Chopin_Prelude_15
+};
 uint16_t g_music_type_array_all[] = {
   SOUNDNUM_DuelingBanjos,
   SOUNDNUM_DeckTheDuelingHalls,
   SOUNDNUM_WhatChildIsThis,
   SOUNDNUM_GodRestYe,
   SOUNDNUM_OLittleTownOf,
-  SOUNDNUM_GoodKingWenceslas
+  SOUNDNUM_GoodKingWenceslas,
+  SOUNDNUM_Chopin_Etude_10_03,
+  SOUNDNUM_Chopin_Noct_55_2,
+  SOUNDNUM_Chopin_Etude_10_12,
+  SOUNDNUM_Chopin_Noct_27_2,
+  SOUNDNUM_Chopin_Noct_37_2,
+  SOUNDNUM_Chopin_Prelude_15
 };
 
 music_type_to_music_list_t g_music_type_to_music_list_duel      = { .type_name=(char*)"DUEL",      .list_array=&g_music_type_array_duel[0],      .num_in_list = NUMOF(g_music_type_array_duel) };
@@ -135,7 +153,7 @@ music_type_to_music_list_t g_music_type_to_music_list_all       = { .type_name=(
 music_type_to_music_list_t* g_music_type_to_music_list_array[] = {
   &g_music_type_to_music_list_duel,
   &g_music_type_to_music_list_christmas,
-  // &g_music_type_to_music_list_chopin, FIXME TODO ADD CHOPIN
+  &g_music_type_to_music_list_chopin,
   &g_music_type_to_music_list_all
 };
 
@@ -438,7 +456,9 @@ uint16_t find_music_idx_from_soundnum(uint16_t p_soundnum) {
 //       returns: 0 if no error
 //   process MUSIC: command if we understand it; call with p_cmd and p_param ALL UPPERCASE
 //
-// MUSIC:SONG <name>   = (<name> = SILENCE DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS)
+// MUSIC:SONG <name>   = (<name> = SILENCE DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS \
+//                                 CHOPIN-ETUDE-TRISTESSE CHOPIN-NOCTURNE-E-FLAT CHOPIN-ETUDE-REVOLUTIONARY
+//                                 CHOPIN-NOCTURNE-D-FLAT CHOPIN-NOCTURNE-G CHOPIN-PRELUDE-RAINDROP)
 // MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN ALL)
 // MUSIC:NEXT <ignore> = start next song from ALL and set mode to MUSIC:SONG
 //
@@ -608,7 +628,9 @@ uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
 // BANJO ; VOLUME:DOWN #
 // BANJO ; VOLUME:SET #
 //
-// BANJO ; MUSIC:SONG <name>   = (<name> = SILENCE DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS)
+// BANJO ; MUSIC:SONG <name>   = (<name> = SILENCE DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS
+//                                         CHOPIN-ETUDE-TRISTESSE CHOPIN-NOCTURNE-E-FLAT CHOPIN-ETUDE-REVOLUTIONARY
+//                                         CHOPIN-NOCTURNE-D-FLAT CHOPIN-NOCTURNE-G CHOPIN-PRELUDE-RAINDROP)
 // BANJO ; MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN ALL)
 // BANJO ; MUSIC:NEXT <ignore> = start next song from ALL and set mode to MUSIC:SONG
 //

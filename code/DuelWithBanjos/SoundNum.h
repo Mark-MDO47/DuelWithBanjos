@@ -13,6 +13,12 @@
 #define SOUNDNUM_GodRestYe           5
 #define SOUNDNUM_OLittleTownOf       6
 #define SOUNDNUM_GoodKingWenceslas   7
+#define SOUNDNUM_Chopin_Etude_10_03  8
+#define SOUNDNUM_Chopin_Noct_55_2    9
+#define SOUNDNUM_Chopin_Etude_10_12  10
+#define SOUNDNUM_Chopin_Noct_27_2    11
+#define SOUNDNUM_Chopin_Noct_37_2    12
+#define SOUNDNUM_Chopin_Prelude_15   13
 
 #define SOUNDNUM_INVALID 254 // invalid soundnum
 

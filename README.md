@@ -39,11 +39,11 @@ The plan is to make them
 ## Schematic
 [Top](#duelwithbanjos "Top")<br>
 This is the schematic of the interesting part of the design, including the ESP32 module, sound control, and LED control.<br>
+- The ESP32 of course has I/O at 3.3V but the YX5200 uses 5V. I use resistor networks to drop the voltages from 5V to 3.3V and a SN74HCT125N quadruple bus buffer to raise voltages from 3.3V to 5V.
+- The 1K resistor in the path to the YX5200 RX line prevents coupling of digital noise into the sound output.
+- I had to move to pin D26 because of my horrible soldering.
 <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/KiCad/Duel_schematic_01.png" width="800" alt="Schematic of ESP32 module, sound control, and LED control">
 
-The ESP32 of course has I/O at 3.3V but the YX5200 uses 5V. I use resistor networks to drop the voltages from 5V to 3.3V and a SN74HCT125N quadruple bus buffer to raise voltages from 3.3V to 5V.
-
-The 1K resistor in the path to the YX5200 RX line prevents coupling of digital noise into the sound output.
 
 ## Code
 [Top](#duelwithbanjos "Top")<br>

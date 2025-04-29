@@ -15,7 +15,10 @@ In this implementation, it will probably hang if it cannot connect to the specif
 My two little Banjo Players. We will program the Banjo Player ESP32 in the box Over-The-Air<br>
 <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/banjo_players_after.jpg" width="500" alt="My Banjo Players">
 
-The UniRemoteCYD and the card with the OTA:WEB command card for the Banjo Players. This command causes the Banjo Players to connect to the WiFi Router and start the login page website for Over-The-Air loading.<br>
+From the Arduino IDE, export the sketch you want to upload as **compiled binary**.<br>
+<img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Sketch_ExportCompiledBinary.png" width="500" alt="Export sketch as compiled binary">
+
+The UniRemoteCYD and the card with the OTA:WEB command card for the Banjo Players. The OTA:WEB command causes the Banjo Players to connect to the WiFi Router and start the login page website for Over-The-Air loading.<br>
 <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/OTA_WEB_CMD_UniRemoteCYD.jpg" width="500" alt="UniRemoteCYD and OTA:WEB command card">
 
 Before sending the OTA:WEB command, the Banjo Players have not connected to the WiFi router. A browser cannot find the website for OTA loading. <br>
@@ -23,14 +26,27 @@ Before sending the OTA:WEB command, the Banjo Players have not connected to the 
 | --- |
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site01_B4_OTA_WEB_CMD_CannotBeReached.png" width="300" alt="Before sending the OTA:WEB command the website is not available."> |
 
-### After Sending OTA-WEB Command
+### Send OTA-WEB Command
 After  sending the OTA:WEB command, the Banjo Players connect to the WiFi router and start the OTA loading website login page. Refreshing the browser will show the page.<br>
 | Browser Webpage |
 | --- |
-| <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site02_After_OTA_WEB.png" width="500" alt="After sending the OTA:WEB command the website is available."> |
+| <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site02_After_OTA_WEB.png" width="300" alt="After sending the OTA:WEB command the website is available."> |
 
-### After Entering Login Credentials
+### Enter Login Credentials
 After entering login credentials, the OTA upload page appears.<br>
 | Browser Webpage |
 | --- |
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site03_AfterLogin.png" width="300" alt="After entering login credentials, the OTA upload page appears."> |
+
+### Click on Choose File
+After clicking on the Choose File button, a standard open-file dialog box opens. Choose the **"*.bin"** file you want to upload.<br>
+| Browser Webpage |
+| --- |
+| <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site04_ChoosingFileToLoad.png" width="500" alt="After clicking the choose-file button, a file brower opens."> |
+
+### Time to Click on the UPDATE Button
+The chosen file is displayed. Now click on the **UPDATE** button to start the upload.
+| Browser Webpage |
+| --- |
+| <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site05_ReadyToLoadFile.png" width="300" alt="Now ready to click on the UPDATE button."> |
+

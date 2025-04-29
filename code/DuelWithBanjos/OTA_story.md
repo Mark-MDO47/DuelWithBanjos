@@ -12,7 +12,7 @@ In this implementation, it will probably hang if it cannot connect to the specif
 ## The Story
 
 ### The Setup
-My two little Banjo Players. We will program the Banjo Player ESP32 in the box Over-The-Air<br>
+My two little Banjo Players. We will re-program Over-The-Air the Banjo Player ESP32 (in the box).<br>
 <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/banjo_players_after.jpg" width="500" alt="My Banjo Players">
 
 From the Arduino IDE, export the sketch you want to upload as **compiled binary**.<br>

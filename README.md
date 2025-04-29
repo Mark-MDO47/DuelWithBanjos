@@ -41,6 +41,8 @@ The plan is to make them
   - https://github.com/Mark-MDO47/AudioPlayer-YX5200
 - blink LED "eyes" using Pulse Width Modulation (PWM)
   - https://github.com/Mark-MDO47/DuelWithBanjos/tree/master/code/LEDPinsPwmTemplate
+- support Over-The-Air (OTA) re-programming
+  - https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/code/DuelWithBanjos/OTA_story.md
 
 ## Schematic
 [Top](#duelwithbanjos "Top")<br>

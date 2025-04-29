@@ -45,8 +45,23 @@ After clicking on the Choose File button, a standard open-file dialog box opens.
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site04_ChoosingFileToLoad.png" width="500" alt="After clicking the choose-file button, a file brower opens."> |
 
 ### Time to Click on the UPDATE Button
-The chosen file is displayed. Now click on the **UPDATE** button to start the upload.
+The chosen file is displayed. Now click on the **UPDATE** button to start the upload.<br>
 | Browser Webpage |
 | --- |
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site05_ReadyToLoadFile.png" width="300" alt="Now ready to click on the UPDATE button."> |
 
+The upload progress is displayed.<br>
+| Browser Webpage |
+| --- |
+| <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site06_FileLoadInProgress.png" width="300" alt="The upload progress is displayed."> |
+
+### The Upload Completes, Banjo Player ESP32 Reboots and Disconnects from WiFi Router
+The Upload completes and the browser shows complete. The Banjo Player ESP32 reboots automatically. After reboot it does not connect to WiFi Router until it receives another OTA:WEB command.<br>
+| Browser Webpage |
+| --- |
+| <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site07_FileLoadComplete_AutoReboot.png" width="300" alt="The Upload Completes, Banjo Player ESP32 Reboots and Disconnects from WiFi Router."> |
+
+Refreshing the webpages will show that the Banjo Players are not serving the webpage anymore. In fact, they are not connected to the WiFi router at all.<br>
+| Browser Webpage |
+| --- |
+| <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site08_AfterAutoReboot_CannotBeReached.png" width="300" alt="Banjo Player is not connected to the WiFi Router. Refresh of webpage shows not connected."> |

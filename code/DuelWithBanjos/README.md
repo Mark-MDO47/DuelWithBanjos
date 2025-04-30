@@ -72,7 +72,7 @@ This means I include the *.cpp and *.h from UniRemoteRcvrTemplate
 This code supports Over-The-Air (OTA) Web Update. The OTA code comes from my UniRemote project.
 - https://github.com/Mark-MDO47/UniRemote
 
-A story-line showing how to do OTA Web updates to the Banjo Player ESP32.
+Here is a story-line showing how to do OTA Web updates to the Banjo Player ESP32.
 - https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/code/DuelWithBanjos/OTA_story.md
 
 ## ESP32

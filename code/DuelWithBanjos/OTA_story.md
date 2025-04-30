@@ -12,6 +12,7 @@
   * [The Upload Completes, Banjo Player ESP32 Reboots and Disconnects from WiFi Router](#the-upload-completes,-banjo-player-esp32-reboots-and-disconnects-from-wifi-router "The Upload Completes, Banjo Player ESP32 Reboots and Disconnects from WiFi Router")
 
 ## My Adaptation of the ESP32 Example OTAWebUpdater.ino
+[Top](#otaweb-story "Top")<br>
 The idea is that the OTA Web Updater is not started until we receive an ESP-NOW
 command to initialize and start it up. Prior to that, we do not connect to any
 WiFi SSID. We only use ESP-NOW which is point-to-point.
@@ -19,8 +20,10 @@ WiFi SSID. We only use ESP-NOW which is point-to-point.
 In this implementation, it will probably hang if it cannot connect to the specified WiFi SSID.
 
 ## The Story
+[Top](#otaweb-story "Top")<br>
 
 ### The Setup
+[Top](#otaweb-story "Top")<br>
 My two little Banjo Players. We will re-program Over-The-Air the Banjo Player ESP32 (in the box).<br>
 <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/banjo_players_after.jpg" width="500" alt="My Banjo Players">
 
@@ -36,18 +39,21 @@ Before sending the OTA:WEB command, the Banjo Players have not connected to the 
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site01_B4_OTA_WEB_CMD_CannotBeReached.png" width="300" alt="Before sending the OTA:WEB command the website is not available."> |
 
 ### Send OTA-WEB Command
+[Top](#otaweb-story "Top")<br>
 After  sending the OTA:WEB command, the Banjo Players connect to the WiFi router and start the OTA loading website login page. Refreshing the browser will show the page.<br>
 | Browser Webpage |
 | --- |
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site02_After_OTA_WEB.png" width="300" alt="After sending the OTA:WEB command the website is available."> |
 
 ### Enter Login Credentials
+[Top](#otaweb-story "Top")<br>
 After entering login credentials, the OTA upload page appears.<br>
 | Browser Webpage |
 | --- |
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site03_AfterLogin.png" width="300" alt="After entering login credentials, the OTA upload page appears."> |
 
 ### Click on Choose File
+[Top](#otaweb-story "Top")<br>
 After clicking on the Choose File button, a standard open-file dialog box opens. Choose the **"*.bin"** file you want to upload.<br>
 | Browser Webpage |
 | --- |
@@ -65,6 +71,7 @@ The upload progress is displayed.<br>
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site06_FileLoadInProgress.png" width="300" alt="The upload progress is displayed."> |
 
 ### The Upload Completes, Banjo Player ESP32 Reboots and Disconnects from WiFi Router
+[Top](#otaweb-story "Top")<br>
 The Upload completes and the browser shows complete. The Banjo Player ESP32 reboots automatically. After reboot it does not connect to WiFi Router until it receives another OTA:WEB command.<br>
 | Browser Webpage |
 | --- |

@@ -54,7 +54,7 @@ After entering login credentials, the OTA upload page appears.<br>
 
 ### Click on Choose File
 [Top](#otaweb-story "Top")<br>
-After clicking on the Choose File button, a standard open-file dialog box launches. Choose the **"*.bin"** file you want to upload.<br>
+After clicking on the **Choose File** button and a standard open-file dialog box launches. Select the **"*.bin"** file you want to upload.<br>
 | Browser Webpage |
 | --- |
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site04_ChoosingFileToLoad.png" width="500" alt="After clicking the choose-file button, a file brower opens."> |

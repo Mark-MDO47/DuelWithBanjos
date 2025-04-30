@@ -72,7 +72,7 @@ The upload progress is displayed.<br>
 
 ### The Upload Completes, Banjo Player ESP32 Reboots and Disconnects from WiFi Router
 [Top](#otaweb-story "Top")<br>
-The Upload completes and the browser shows complete. The Banjo Player ESP32 reboots automatically. After reboot it does not connect to WiFi Router until it receives another OTA:WEB command.<br>
+The Upload completes and the browser shows complete. The Banjo Player ESP32 reboots automatically. After reboot it does not connect to the WiFi Router until it receives another OTA:WEB command.<br>
 | Browser Webpage |
 | --- |
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site07_FileLoadComplete_AutoReboot.png" width="300" alt="The Upload Completes, Banjo Player ESP32 Reboots and Disconnects from WiFi Router."> |

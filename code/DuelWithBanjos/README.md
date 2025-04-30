@@ -37,6 +37,10 @@ The music and sounds on the MicroSD card are either purchased by me or recorded/
 Currently the music includes
 - Dueling Banjos by Curtis Mcpeake from **Curtis Mcpeake Plays Dueling Banjos & Other Bluegrass Favorites**
 - Several selections from Todd Taylor's **Todd Taylor's Banjo Christmas**
+- Several selections from **The Essential Patriotic Collection**
+- Several selections from Garrick Ohlsson's **The Complete Chopin Piano Works Volume 10: Etudes**
+- Several selections from Claudio Arrau's **Chopin: The Complete Nocturnes/The Complete Impromptus**
+- A selection from Ingrid Filter's **Frederic Chopin Preludes**
 
 ### LICENSE for DFRobot code
 [Top](#duel-with-banjos-code "Top")<br>

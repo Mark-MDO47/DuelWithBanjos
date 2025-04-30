@@ -1,4 +1,4 @@
-# Duel With Banjos
+# Duel With Banjos Code
 
 <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/banjo_players_1024_768.jpg" width="500" alt="My Banjo Players">
 
@@ -60,6 +60,14 @@ I am using UniRemote and its ESP-NOW WiFi capability as the remote control for t
 This means I include the *.cpp and *.h from UniRemoteRcvrTemplate
 - https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteRcvrTemplate
 - https://github.com/Mark-MDO47/UniRemote/blob/master/code/UniRemoteRcvrTemplate/README.md
+
+## Over-The-Air Update
+[Top](#duel-with-banjos "Top")<br>
+This code supports Over-The-Air (OTA) Web Update. The OTA code comes from my UniRemote project.
+- https://github.com/Mark-MDO47/UniRemote
+
+A story-line showing how to do OTA Web updates to the Banjo Player ESP32.
+- https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/code/DuelWithBanjos/OTA_story.md
 
 ## ESP32
 [Top](#duel-with-banjos "Top")<br>

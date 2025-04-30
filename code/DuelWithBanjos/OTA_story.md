@@ -14,8 +14,8 @@
 ## My Adaptation of the ESP32 Example OTAWebUpdater.ino
 [Top](#otaweb-story "Top")<br>
 The idea is that the OTA Web Updater is not started until we receive an ESP-NOW
-command to initialize and start it up. Prior to that, we do not connect to any
-WiFi SSID. We only use ESP-NOW which is point-to-point.
+command **OTA:WEB**, then the ESP32 connects to the WiFi router (using the built-in SSID and credentials) and starts the web page.
+Prior to that, it does not connect to any WiFi SSID. It uses ESP-NOW (which is point-to-point) to receive its commands.
 
 In this implementation, it will probably hang if it cannot connect to the specified WiFi SSID.
 

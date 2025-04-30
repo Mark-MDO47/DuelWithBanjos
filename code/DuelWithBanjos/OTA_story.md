@@ -30,7 +30,7 @@ My two little Banjo Players. We will re-program Over-The-Air the Banjo Player ES
 From the Arduino IDE, export the sketch you want to upload as **compiled binary**.<br>
 <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Sketch_ExportCompiledBinary.png" width="500" alt="Export sketch as compiled binary">
 
-The UniRemoteCYD and the card with the OTA:WEB command card for the Banjo Players. The OTA:WEB command causes the Banjo Players to connect to the WiFi Router and start the login page website for Over-The-Air loading.<br>
+The UniRemoteCYD and the PICC card with the OTA:WEB command for the Banjo Players. The OTA:WEB command causes the Banjo Players to connect to the WiFi Router and start the login page website for Over-The-Air loading.<br>
 <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/OTA_WEB_CMD_UniRemoteCYD.jpg" width="500" alt="UniRemoteCYD and OTA:WEB command card">
 
 Before sending the OTA:WEB command, the Banjo Players have not connected to the WiFi router. A browser cannot find the website for OTA loading. <br>

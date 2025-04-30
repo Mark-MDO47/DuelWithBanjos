@@ -1,6 +1,15 @@
 # OTA:WEB Story
 
 **Table Of Contents**
+* [Top](#otaweb-story "Top")
+* [My Adaptation of the ESP32 Example OTAWebUpdater.ino](#my-adaptation-of-the-esp32-example-otawebupdaterino "My Adaptation of the ESP32 Example OTAWebUpdater.ino")
+* [The Story](#the-story "The Story")
+  * [The Setup](#the-setup "The Setup")
+  * [Send OTA-WEB Command](#send-ota\-web-command "Send OTA-WEB Command")
+  * [Enter Login Credentials](#enter-login-credentials "Enter Login Credentials")
+  * [Click on Choose File](#click-on-choose-file "Click on Choose File")
+  * [Time to Click on the UPDATE Button](#time-to-click-on-the-update-button "Time to Click on the UPDATE Button")
+  * [The Upload Completes, Banjo Player ESP32 Reboots and Disconnects from WiFi Router](#the-upload-completes,-banjo-player-esp32-reboots-and-disconnects-from-wifi-router "The Upload Completes, Banjo Player ESP32 Reboots and Disconnects from WiFi Router")
 
 ## My Adaptation of the ESP32 Example OTAWebUpdater.ino
 The idea is that the OTA Web Updater is not started until we receive an ESP-NOW

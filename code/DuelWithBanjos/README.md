@@ -3,13 +3,14 @@
 <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/banjo_players_1024_768.jpg" width="500" alt="My Banjo Players">
 
 **Table Of Contents**
-* [Top](#duel-with-banjos "Top")
+* [Top](#duel-with-banjos-code "Top")
 * [The Banjo Players](#the-banjo-players "The Banjo Players")
 * [YX5200 Audio Player](#yx5200-audio-player "YX5200 Audio Player")
   * [The Music](#the-music "The Music")
   * [LICENSE for DFRobot code](#license-for-dfrobot-code "LICENSE for DFRobot code")
 * [ESP32 LEDC PWM - LED Dimmer Control](#esp32-ledc-pwm-\--led-dimmer-control "ESP32 LEDC PWM - LED Dimmer Control")
 * [UniRemote and ESP-NOW](#uniremote-and-esp\-now "UniRemote and ESP-NOW")
+* [Over-The-Air Update](#over\-the\-air-update "Over-The-Air Update")
 * [ESP32](#esp32 "ESP32")
 
 ## The Banjo Players

@@ -43,6 +43,7 @@ The plan is to make them
   - https://github.com/Mark-MDO47/DuelWithBanjos/tree/master/code/LEDPinsPwmTemplate
 - support Over-The-Air (OTA) re-programming
   - https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/code/DuelWithBanjos/OTA_story.md
+  - https://github.com/Mark-MDO47/UniRemote/blob/master/code/mdo_use_ota_webupdater/README.md
 
 ## Schematic
 [Top](#duelwithbanjos "Top")<br>

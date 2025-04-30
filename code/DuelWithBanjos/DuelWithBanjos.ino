@@ -29,6 +29,10 @@
 //       https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
 //       https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf
 
+// This can be updated via an "OTA:WEB" ESP-NOW command, which will cause us to open a web page
+//   on the specified SSID allowing Over-The-Air software update. That capability is based on
+//   the ESP32 example OTAWebUpdater.ino
+
 // connections:
 //
 // YX5200/DFPlayer Sound Player
@@ -55,16 +59,20 @@
 //   LICENSE_for_DFRobot_code.txt shows it is OK to do this and describes the legal boundaries
 //   for correct usage.
 
-#include "Arduino.h"              // general Arduino definitions plus uint8_t etc.
-#include <FastLED.h>              // only for the convenient EVERY_N_MILLISECONDS() macro - too lazy to write my own...
+#include "Arduino.h"                // general Arduino definitions plus uint8_t etc.
+#include <FastLED.h>                // only for the convenient EVERY_N_MILLISECONDS() macro - too lazy to write my own...
 
-#include <UniRemoteRcvr.h>        // for UniRemoteRcvr "library"
+#define MDO_USE_OTA 1               // zero to not use, non-zero to use OTA ESP32 Over-The-Air software updates
+#if MDO_USE_OTA
+#include "mdo_use_ota_webupdater.h" // for mdo_use_ota_webupdater "library"
+#endif // MDO_USE_OTA
+#include <UniRemoteRcvr.h>          // for UniRemoteRcvr "library"
 
-#include "HardwareSerial.h"       // to talk with the YX5200
-#include "DFRobotDFPlayerMini.h"  // to communicate with the YX5200 audio player
-#include "SoundNum.h"             // numbers for each sound
+#include "HardwareSerial.h"         // to talk with the YX5200
+#include "DFRobotDFPlayerMini.h"    // to communicate with the YX5200 audio player
+#include "SoundNum.h"               // numbers for each sound
 
-#include "LEDPinsPwm.h"           // to control LED eyes with Pulse Width Modulation
+#include "LEDPinsPwm.h"             // to control LED eyes with Pulse Width Modulation
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -610,6 +618,31 @@ uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
 } // end do_cmd_eyes()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// do_cmd_ota() - Over-The-Air software update command
+//       returns: 0 if no error
+//   process OTA: command if we understand it; call with p_cmd and p_param ALL UPPERCASE
+//
+// OTA:WEB <password>                 = (<password> = valid password to start OTA)
+//
+uint16_t do_cmd_ota(char* p_cmd, char* p_param) {
+  uint16_t ret_val = 0;
+
+#if MDO_USE_OTA // if using Over-The-Air software updates
+  char tmp_str[256]; // p_param is upper-case. We lose some entropy here, but also depending on WiFi password for security
+  strcpy(tmp_str,WIFI_OTA_ESP_NOW_PWD);
+  if ((NULL != strstr(p_cmd, "OTA:WEB")) && (NULL != strstr(p_param, strupr(tmp_str)))) {
+    g_ota_state = MDO_USE_OTA_WEB_UPDATER_REQUESTED; // loop() will handle it
+    Serial.printf("\nOTA Web Updater REQUESTED\n");
+  } else {
+    Serial.printf("\nERROR: bad OTA:WEB command\n");
+    ret_val = 1;
+  }
+#endif // MDO_USE_OTA if using Over-The-Air software updates
+
+  return(ret_val);
+} // end do_cmd_ota()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // do_esp_now_command()
 //       returns: nothing
 //   process command if we understand it; call with my_message ALL UPPERCASE
@@ -623,6 +656,8 @@ uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
 //       <CMD_VERIFIER>: "BANJO"
 //       <command>: "EYES:PATTERN" <param>: "TOGETHER/SINELON"
 //       <command>: "MUSIC:SONG"   <param>: "DUEL-BANJO"
+//
+// BANJO ; OTA:WEB <password>
 //
 // BANJO ; VOLUME:UP #
 // BANJO ; VOLUME:DOWN #
@@ -653,13 +688,14 @@ esp_now_cmd_t esp_now_cmds[] = {
   {.cmd = "EYES:PATTERN", .cmd_idx = 0x0200 },
   {.cmd = "EYES:CYCLE",   .cmd_idx = 0x0201 },
   {.cmd = "EYES:BRIGHT",  .cmd_idx = 0x0202 },
-  {.cmd = "EYES:MVPINS",  .cmd_idx = 0x0203 }
+  {.cmd = "EYES:MVPINS",  .cmd_idx = 0x0203 },
+  {.cmd = "OTA:WEB",      .cmd_idx = 0x0300 }
 };
 #define CMD_VERIFIER "BANJO"
 
 typedef uint16_t(*do_cmd_type_t)(char*, char*);
 
-do_cmd_type_t esp_now_cmd_ptrs[] = { &do_cmd_volume, &do_cmd_music, &do_cmd_eyes };
+do_cmd_type_t esp_now_cmd_ptrs[] = { &do_cmd_volume, &do_cmd_music, &do_cmd_eyes, &do_cmd_ota };
 
 uint16_t do_esp_now_command(uint16_t rcvd_len, char* my_message) {
   // all commands to banjo players start with "BANJO" a.k.a. CMD_VERIFIER
@@ -753,23 +789,17 @@ void loop() {
     }
   } // end EVERY_N_MILLISECONDS 50
 
-/*
-  EVERY_N_MILLISECONDS( 20000 ) {
-    count_eyes ^= 1;
-    for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
-      if (count_eyes ^ (pin_idx%2)) {
-        led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_open_eye, 0, TIME_SCALE_EQUAL, 0);
-        Serial.printf("  pin_id=%d count_eyes=%d ^=%d msec=%ld open_eye\n", pin_idx, count_eyes, count_eyes ^ (pin_idx%2),millis());
-      }
-      else {
-        led_pin_pwm_init_ptrn(pin_idx, g_pwm_ptrn_blink, 0, TIME_SCALE_EQUAL, 0);
-        Serial.printf("  pin_id=%d count_eyes=%d ^=%d msec=%ld blink\n", pin_idx, count_eyes, count_eyes ^ (pin_idx%2),millis());
-      }
-    } // end for each pin_idx
-
-    for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
-      led_pin_pwm_int_dbg_step(pin_idx);
+#if MDO_USE_OTA // if using Over-The-Air software updates
+  EVERY_N_MILLISECONDS( 50 ) { 
+    // if using Over-The-Air software updates
+    if (MDO_USE_OTA_WEB_UPDATER_REQUESTED == g_ota_state) {
+      start_ota_webserver();
+      g_ota_state = MDO_USE_OTA_WEB_UPDATER_INIT;
     }
+    if (MDO_USE_OTA_WEB_UPDATER_INIT == g_ota_state) {
+      g_ota_server.handleClient();
+    } // end if MDO_USE_OTA_WEB_UPDATER_INIT
   }
- */
+#endif // MDO_USE_OTA if using Over-The-Air software updates
+
 } // end loop()

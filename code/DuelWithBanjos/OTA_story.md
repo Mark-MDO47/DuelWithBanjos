@@ -40,7 +40,7 @@ Before sending the OTA:WEB command, the Banjo Players have not connected to the 
 
 ### Send OTA-WEB Command
 [Top](#otaweb-story "Top")<br>
-After  sending the OTA:WEB command, the Banjo Players connect to the WiFi router and start the OTA loading website login page. Refreshing the browser will show the page.<br>
+After sending the OTA:WEB command, the Banjo Players connect to the WiFi router and start the OTA loading website login page. On your browser, you can either enter http://esp32.local/ or the IP address if known in the form w.x.y.z. Refreshing the browser will show the page.<br>
 | Browser Webpage |
 | --- |
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site02_After_OTA_WEB.png" width="300" alt="After sending the OTA:WEB command the website is available."> |

@@ -33,14 +33,14 @@ From the Arduino IDE, export the sketch you want to upload as **compiled binary*
 The UniRemoteCYD and the PICC card with the OTA:WEB command for the Banjo Players. The OTA:WEB command causes the Banjo Players to connect to the WiFi Router and start the login page website for Over-The-Air loading.<br>
 <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/OTA_WEB_CMD_UniRemoteCYD.jpg" width="500" alt="UniRemoteCYD and OTA:WEB command card">
 
-Before sending the OTA:WEB command, the Banjo Players have not connected to the WiFi router. A browser cannot find the website for OTA loading. <br>
+Before sending the OTA:WEB command, the Banjo Players have not connected to the WiFi router.  On your browser, you can either enter http://esp32.local/ or (if known) the IP address in the form w.x.y.z. At this time the browser cannot find the website for OTA loading because we have not yet commanded OTA:WEB.<br>
 | Browser Webpage |
 | --- |
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site01_B4_OTA_WEB_CMD_CannotBeReached.png" width="300" alt="Before sending the OTA:WEB command the website is not available."> |
 
 ### Send OTA-WEB Command
 [Top](#otaweb-story "Top")<br>
-After sending the OTA:WEB command, the Banjo Players connect to the WiFi router and start the OTA loading website login page. On your browser, you can either enter http://esp32.local/ or the IP address if known in the form w.x.y.z. Refreshing the browser will show the page.<br>
+After sending the OTA:WEB command, the Banjo Players connect to the WiFi router and start the OTA loading website login page. On your browser, you can either enter http://esp32.local/ or (if known) the IP address in the form w.x.y.z. Refreshing the browser will show the page.<br>
 | Browser Webpage |
 | --- |
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Site02_After_OTA_WEB.png" width="300" alt="After sending the OTA:WEB command the website is available."> |

@@ -102,19 +102,26 @@ typedef struct {
   uint16_t soundnum;  // number of sound
 } music_song_to_soundnum_t;
 static music_song_to_soundnum_t g_music_song_to_soundnum[] = {
-  { .song_name = (char*)"DUEL-BANJO",                 .soundnum = SOUNDNUM_DuelingBanjos },
-  { .song_name = (char*)"SILENCE",                    .soundnum = SOUNDNUM_silence },
-  { .song_name = (char*)"DECK-HALLS",                 .soundnum = SOUNDNUM_DeckTheDuelingHalls },
-  { .song_name = (char*)"WHAT-CHILD",                 .soundnum = SOUNDNUM_WhatChildIsThis },
-  { .song_name = (char*)"MERRY-GENTLEMEN",            .soundnum = SOUNDNUM_GodRestYe },
-  { .song_name = (char*)"TOWN-BETHLEHEM",             .soundnum = SOUNDNUM_OLittleTownOf },
-  { .song_name = (char*)"KING-WENCESLAS",             .soundnum = SOUNDNUM_GoodKingWenceslas },
-  { .song_name = (char*)"CHOPIN-ETUDE-TRISTESSE",     .soundnum = SOUNDNUM_Chopin_Etude_10_03 },
-  { .song_name = (char*)"CHOPIN-NOCTURNE-E-FLAT",     .soundnum = SOUNDNUM_Chopin_Noct_55_2 },
-  { .song_name = (char*)"CHOPIN-ETUDE-REVOLUTIONARY", .soundnum = SOUNDNUM_Chopin_Etude_10_12 },
-  { .song_name = (char*)"CHOPIN-NOCTURNE-D-FLAT",     .soundnum = SOUNDNUM_Chopin_Noct_27_2 },
-  { .song_name = (char*)"CHOPIN-NOCTURNE-G",          .soundnum = SOUNDNUM_Chopin_Noct_37_2 },
-  { .song_name = (char*)"CHOPIN-PRELUDE-RAINDROP",    .soundnum = SOUNDNUM_Chopin_Prelude_15 }
+  { .song_name = (char*)"DUEL-BANJO",                    .soundnum = SOUNDNUM_DuelingBanjos },
+  { .song_name = (char*)"SILENCE",                       .soundnum = SOUNDNUM_silence },
+  { .song_name = (char*)"DECK-HALLS",                    .soundnum = SOUNDNUM_DeckTheDuelingHalls },
+  { .song_name = (char*)"WHAT-CHILD",                    .soundnum = SOUNDNUM_WhatChildIsThis },
+  { .song_name = (char*)"MERRY-GENTLEMEN",               .soundnum = SOUNDNUM_GodRestYe },
+  { .song_name = (char*)"TOWN-BETHLEHEM",                .soundnum = SOUNDNUM_OLittleTownOf },
+  { .song_name = (char*)"KING-WENCESLAS",                .soundnum = SOUNDNUM_GoodKingWenceslas },
+  { .song_name = (char*)"CHOPIN-ETUDE-TRISTESSE",        .soundnum = SOUNDNUM_Chopin_Etude_10_03 },
+  { .song_name = (char*)"CHOPIN-NOCTURNE-E-FLAT",        .soundnum = SOUNDNUM_Chopin_Noct_55_2 },
+  { .song_name = (char*)"CHOPIN-ETUDE-REVOLUTIONARY",    .soundnum = SOUNDNUM_Chopin_Etude_10_12 },
+  { .song_name = (char*)"CHOPIN-NOCTURNE-D-FLAT",        .soundnum = SOUNDNUM_Chopin_Noct_27_2 },
+  { .song_name = (char*)"CHOPIN-NOCTURNE-G",             .soundnum = SOUNDNUM_Chopin_Noct_37_2 },
+  { .song_name = (char*)"CHOPIN-PRELUDE-RAINDROP",       .soundnum = SOUNDNUM_Chopin_Prelude_15 },
+  { .song_name = (char*)"PATRIOT-BATTLE-HYMN-REPUBLIC",  .soundnum = SOUNDNUM_Patriotic_Battle_Hymn_of_the_Republic },
+  { .song_name = (char*)"PATRIOT-AMERICA-THE-BEAUTIFUL", .soundnum = SOUNDNUM_Patriotic_America_the_Beautiful },
+  { .song_name = (char*)"PATRIOT-JOHNNY-MARCHING-HOME",  .soundnum = SOUNDNUM_Patriotic_When_Johnny_Comes_Marching_Home },
+  { .song_name = (char*)"PATRIOT-MARINE-HYMN",           .soundnum = SOUNDNUM_Patriotic_Marine_Hymn },
+  { .song_name = (char*)"PATRIOT-DIXIE",                 .soundnum = SOUNDNUM_Patriotic_Dixie },
+  { .song_name = (char*)"PATRIOT-SHENANDOAH",            .soundnum = SOUNDNUM_Patriotic_Shenandoah },
+  { .song_name = (char*)"PATRIOT-STAR-SPANGLED-BANNER",  .soundnum = SOUNDNUM_Patriotic_Star_Spangled_Banner }
 };
 typedef struct {
   char*     type_name;
@@ -138,6 +145,15 @@ uint16_t g_music_type_array_chopin[] = {
   SOUNDNUM_Chopin_Noct_37_2,
   SOUNDNUM_Chopin_Prelude_15
 };
+uint16_t g_music_type_array_patriot[] = {
+  SOUNDNUM_Patriotic_Battle_Hymn_of_the_Republic,
+  SOUNDNUM_Patriotic_America_the_Beautiful,
+  SOUNDNUM_Patriotic_When_Johnny_Comes_Marching_Home,
+  SOUNDNUM_Patriotic_Marine_Hymn,
+  SOUNDNUM_Patriotic_Dixie,
+  SOUNDNUM_Patriotic_Shenandoah,
+  SOUNDNUM_Patriotic_Star_Spangled_Banner
+};
 uint16_t g_music_type_array_all[] = {
   SOUNDNUM_DuelingBanjos,
   SOUNDNUM_DeckTheDuelingHalls,
@@ -150,18 +166,27 @@ uint16_t g_music_type_array_all[] = {
   SOUNDNUM_Chopin_Etude_10_12,
   SOUNDNUM_Chopin_Noct_27_2,
   SOUNDNUM_Chopin_Noct_37_2,
-  SOUNDNUM_Chopin_Prelude_15
+  SOUNDNUM_Chopin_Prelude_15,
+  SOUNDNUM_Patriotic_Battle_Hymn_of_the_Republic,
+  SOUNDNUM_Patriotic_America_the_Beautiful,
+  SOUNDNUM_Patriotic_When_Johnny_Comes_Marching_Home,
+  SOUNDNUM_Patriotic_Marine_Hymn,
+  SOUNDNUM_Patriotic_Dixie,
+  SOUNDNUM_Patriotic_Shenandoah,
+  SOUNDNUM_Patriotic_Star_Spangled_Banner
 };
 
 music_type_to_music_list_t g_music_type_to_music_list_duel      = { .type_name=(char*)"DUEL",      .list_array=&g_music_type_array_duel[0],      .num_in_list = NUMOF(g_music_type_array_duel) };
 music_type_to_music_list_t g_music_type_to_music_list_christmas = { .type_name=(char*)"CHRISTMAS", .list_array=&g_music_type_array_christmas[0], .num_in_list = NUMOF(g_music_type_array_christmas) };
 music_type_to_music_list_t g_music_type_to_music_list_chopin    = { .type_name=(char*)"CHOPIN",    .list_array=&g_music_type_array_chopin[0],    .num_in_list = NUMOF(g_music_type_array_chopin) };
+music_type_to_music_list_t g_music_type_to_music_list_patriot   = { .type_name=(char*)"PATRIOT",   .list_array=&g_music_type_array_patriot[0],   .num_in_list = NUMOF(g_music_type_array_patriot) };
 music_type_to_music_list_t g_music_type_to_music_list_all       = { .type_name=(char*)"ALL",       .list_array=&g_music_type_array_all[0],       .num_in_list = NUMOF(g_music_type_array_all) };
 
 music_type_to_music_list_t* g_music_type_to_music_list_array[] = {
   &g_music_type_to_music_list_duel,
   &g_music_type_to_music_list_christmas,
   &g_music_type_to_music_list_chopin,
+  &g_music_type_to_music_list_patriot,
   &g_music_type_to_music_list_all
 };
 
@@ -461,10 +486,12 @@ uint16_t find_music_idx_from_soundnum(uint16_t p_soundnum) {
 //       returns: 0 if no error
 //   process MUSIC: command if we understand it; call with p_cmd and p_param ALL UPPERCASE
 //
-// MUSIC:SONG <name>   = (<name> = SILENCE DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS \
+// MUSIC:SONG <name>   = (<name> = SILENCE DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS
 //                                 CHOPIN-ETUDE-TRISTESSE CHOPIN-NOCTURNE-E-FLAT CHOPIN-ETUDE-REVOLUTIONARY
-//                                 CHOPIN-NOCTURNE-D-FLAT CHOPIN-NOCTURNE-G CHOPIN-PRELUDE-RAINDROP)
-// MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN ALL)
+//                                 CHOPIN-NOCTURNE-D-FLAT CHOPIN-NOCTURNE-G CHOPIN-PRELUDE-RAINDROP
+//                                 PATRIOT-BATTLE-HYMN-REPUBLIC PATRIOT-AMERICA-THE-BEAUTIFUL PATRIOT-JOHNNY-MARCHING-HOME
+//                                 PATRIOT-MARINE-HYMN PATRIOT-DIXIE PATRIOT-SHENANDOAH PATRIOT-STAR-SPANGLED-BANNER)
+// MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN PATRIOT ALL)
 // MUSIC:NEXT <ignore> = start next song from ALL and set mode to MUSIC:SONG
 //
 uint16_t do_cmd_music(char* p_cmd, char* p_param) {
@@ -663,8 +690,10 @@ uint16_t do_cmd_ota(char* p_cmd, char* p_param) {
 //
 // BANJO ; MUSIC:SONG <name>   = (<name> = SILENCE DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS
 //                                         CHOPIN-ETUDE-TRISTESSE CHOPIN-NOCTURNE-E-FLAT CHOPIN-ETUDE-REVOLUTIONARY
-//                                         CHOPIN-NOCTURNE-D-FLAT CHOPIN-NOCTURNE-G CHOPIN-PRELUDE-RAINDROP)
-// BANJO ; MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN ALL)
+//                                         CHOPIN-NOCTURNE-D-FLAT CHOPIN-NOCTURNE-G CHOPIN-PRELUDE-RAINDROP
+//                                         PATRIOT-BATTLE-HYMN-REPUBLIC PATRIOT-AMERICA-THE-BEAUTIFUL PATRIOT-JOHNNY-MARCHING-HOME
+//                                         PATRIOT-MARINE-HYMN PATRIOT-DIXIE PATRIOT-SHENANDOAH PATRIOT-STAR-SPANGLED-BANNER)
+// BANJO ; MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN Patriot ALL)
 // BANJO ; MUSIC:NEXT <ignore> = start next song from ALL and set mode to MUSIC:SONG
 //
 // BANJO ; EYES:PATTERN <coord>/<tscale>/<ptrn> = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64)  (<ptrn> = BLINK OPEN BL-OPN SINELON OFF)

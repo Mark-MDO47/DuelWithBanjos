@@ -19,6 +19,13 @@
 #define SOUNDNUM_Chopin_Noct_27_2    11
 #define SOUNDNUM_Chopin_Noct_37_2    12
 #define SOUNDNUM_Chopin_Prelude_15   13
+#define SOUNDNUM_Patriotic_Battle_Hymn_of_the_Republic     14
+#define SOUNDNUM_Patriotic_America_the_Beautiful           15
+#define SOUNDNUM_Patriotic_When_Johnny_Comes_Marching_Home 16
+#define SOUNDNUM_Patriotic_Marine_Hymn                     17
+#define SOUNDNUM_Patriotic_Dixie                           18
+#define SOUNDNUM_Patriotic_Shenandoah                      19
+#define SOUNDNUM_Patriotic_Star_Spangled_Banner            20
 
 #define SOUNDNUM_INVALID 254 // invalid soundnum
 

@@ -86,14 +86,14 @@ extern const char* g_password;
 // The Web Page allows a user to login and launch the OTA upload/update page.
 // There is a weakness that allows the OTA upload/update web page to be entered without loging in.
 //    I have not looked into fixing this. The problem is somewhat mitigated by not calling
-//    mdo_ota_web_start() all the time but only when commanded to actually do an update.
-//    The weakness cannot be exploited until after mdo_ota_web_start() is called, and also
+//    mdo_ota_web_request() all the time but only when commanded to actually do an update.
+//    The weakness cannot be exploited until after mdo_ota_web_request() is called, and also
 //    goes away with the automatic reboot after the update completes.
 //
 void mdo_ota_web_request(uint16_t p_init_flags);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// mdo_ota_web_request() -  handles the  OTA webserver through its various states. Call periodically from loop()
+// mdo_ota_web_loop() -  handles the OTA webserver through its various states. Call periodically from loop()
 //    returns nothing
 //
 //    Parameters:

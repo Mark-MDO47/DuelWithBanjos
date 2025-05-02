@@ -693,7 +693,7 @@ uint16_t do_cmd_ota(char* p_cmd, char* p_param) {
 //                                         CHOPIN-NOCTURNE-D-FLAT CHOPIN-NOCTURNE-G CHOPIN-PRELUDE-RAINDROP
 //                                         PATRIOT-BATTLE-HYMN-REPUBLIC PATRIOT-AMERICA-THE-BEAUTIFUL PATRIOT-JOHNNY-MARCHING-HOME
 //                                         PATRIOT-MARINE-HYMN PATRIOT-DIXIE PATRIOT-SHENANDOAH PATRIOT-STAR-SPANGLED-BANNER)
-// BANJO ; MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN Patriot ALL)
+// BANJO ; MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN PATRIOT ALL)
 // BANJO ; MUSIC:NEXT <ignore> = start next song from ALL and set mode to MUSIC:SONG
 //
 // BANJO ; EYES:PATTERN <coord>/<tscale>/<ptrn> = (<coord> = TOGETHER SEPARATE OPPOSITE - <coord> no effect for SINELON or OFF) (<tscale> = TBS FIXME TODO 64)  (<ptrn> = BLINK OPEN BL-OPN SINELON OFF)

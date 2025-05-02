@@ -54,7 +54,7 @@ extern const char* g_password;
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// mdo_ota_web_store_flags() - Stores flags for starting OTA webserver. Call prior to mdo_ota_web_request()
+// mdo_ota_web_request() -  Requests that mdo_ota_web_loop() starts the ota_webserver
 //    returns nothing
 //
 //    Parameters:
@@ -65,24 +65,11 @@ extern const char* g_password;
 //         START_OTA_WEB_INIT_UPDATER_WEBPAGE - init and start the updater webpage
 //
 //       example if not using WiFi at all and not connecting to router and also not using ESP-NOW:
-//         mdo_ota_web_store_flags(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//         mdo_ota_web_request(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
 //       example if using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address):
-//         mdo_ota_web_store_flags(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//         mdo_ota_web_request(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
 //       example if already connected to router and have IP address:
-//         mdo_ota_web_store_flags(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
-//
-// Restriction: The parameter that takes effect is the last time it is called before calling mdo_ota_web_request().
-//    The default behavior if it is never called is all flags set (first example above).
-//       START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE
-//
-void mdo_ota_web_store_flags(uint16_t p_init_flags);
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-// mdo_ota_web_request() -  Requests that mdo_ota_web_loop() starts the ota_webserver
-//    returns nothing
-//
-//    Parameters:
-//      None ... but call mdo_ota_web_store_flags() before this
+//         mdo_ota_web_request(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
 //
 // Rationale: if the command to do ota_webserver is an interrupt service routine or a callback routine,
 //    we don't want to do the actual process at that time. Instead we set a flag so the next time through
@@ -99,11 +86,11 @@ void mdo_ota_web_store_flags(uint16_t p_init_flags);
 // The Web Page allows a user to login and launch the OTA upload/update page.
 // There is a weakness that allows the OTA upload/update web page to be entered without loging in.
 //    I have not looked into fixing this. The problem is somewhat mitigated by not calling
-//    mdo_ota_web_request() all the time but only when commanded to actually do an update.
-//    The weakness cannot be exploited until after mdo_ota_web_request() is called, and also
+//    mdo_ota_web_start() all the time but only when commanded to actually do an update.
+//    The weakness cannot be exploited until after mdo_ota_web_start() is called, and also
 //    goes away with the automatic reboot after the update completes.
 //
-void mdo_ota_web_request();
+void mdo_ota_web_request(uint16_t p_init_flags);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // mdo_ota_web_request() -  handles the  OTA webserver through its various states. Call periodically from loop()

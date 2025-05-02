@@ -48,7 +48,7 @@ const char* g_password = WIFI_PWD;
 static uint16_t g_ota_state = MDO_USE_OTA_WEB_UPDATER_NOT_INIT;
 
 // not visible to the user
-static uint16_t g_init_flags = START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE;
+static uint16_t g_init_flags = 0; // mdo_ota_web_request() is guaranteed to be called with this flag setting
 
 // not visible to the user
 static WebServer g_ota_server(80);
@@ -145,7 +145,7 @@ const char* serverIndex =
 //    returns nothing
 //
 //    Parameters:
-//      None ... but call mdo_ota_web_store_flags() before this
+//      None ... but call mdo_ota_web_request() before this
 // Restriction:
 //    It will probably hang if it cannot connect to the specified WiFi SSID.
 //
@@ -243,7 +243,18 @@ void mdo_ota_web_start() {
 //    returns nothing
 //
 //    Parameters:
-//      None ... but call mdo_ota_web_store_flags() before this
+//      p_init_flags - input  - set bit-flags to specify what to do; "bitwise-OR" them together
+//         START_OTA_WEB_INIT_WIFI_STA        - init WiFi to STA mode (do not set if already init ESP-NOW)
+//         START_OTA_WEB_BEGIN_WIFI           - connect to router using known SSID and Password and get IP address
+//         START_OTA_WEB_INIT_MDNS            - init mdns so can route http://esp32.local to the ESP32
+//         START_OTA_WEB_INIT_UPDATER_WEBPAGE - init and start the updater webpage
+//
+//       example if not using WiFi at all and not connecting to router and also not using ESP-NOW:
+//         mdo_ota_web_request(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//       example if using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address):
+//         mdo_ota_web_request(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//       example if already connected to router and have IP address:
+//         mdo_ota_web_request(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
 //
 // Rationale: if the command to do ota_webserver is an interrupt service routine or a callback routine,
 //    we don't want to do the actual process at that time. Instead we set a flag so the next time through
@@ -264,40 +275,15 @@ void mdo_ota_web_start() {
 //    The weakness cannot be exploited until after mdo_ota_web_start() is called, and also
 //    goes away with the automatic reboot after the update completes.
 //
-void mdo_ota_web_request() {
+void mdo_ota_web_request(uint16_t p_init_flags) {
   if (MDO_USE_OTA_WEB_UPDATER_NOT_INIT == g_ota_state) {
+    g_init_flags = p_init_flags;
     g_ota_state = MDO_USE_OTA_WEB_UPDATER_REQUESTED; // loop() will handle it
   }
 } // end mdo_ota_web_request()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// mdo_ota_web_store_flags() - Stores flags for starting OTA webserver. Call prior to mdo_ota_web_request()
-//    returns nothing
-//
-//    Parameters:
-//      p_init_flags - input  - set bit-flags to specify what to do; "bitwise-OR" them together
-//         START_OTA_WEB_INIT_WIFI_STA        - init WiFi to STA mode (do not set if already init ESP-NOW)
-//         START_OTA_WEB_BEGIN_WIFI           - connect to router using known SSID and Password and get IP address
-//         START_OTA_WEB_INIT_MDNS            - init mdns so can route http://esp32.local to the ESP32
-//         START_OTA_WEB_INIT_UPDATER_WEBPAGE - init and start the updater webpage
-//
-//       example if not using WiFi at all and not connecting to router and also not using ESP-NOW:
-//         mdo_ota_web_store_flags(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
-//       example if using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address):
-//         mdo_ota_web_store_flags(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
-//       example if already connected to router and have IP address:
-//         mdo_ota_web_store_flags(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
-//
-// Restriction: The parameter that takes effect is the last time it is called before calling mdo_ota_web_request().
-//    The default behavior if it is never called is all flags set (first example above).
-//       START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE
-//
-void mdo_ota_web_store_flags(uint16_t p_init_flags) {
-  g_init_flags = p_init_flags;
-} // end of mdo_ota_web_store_flags()
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-// mdo_ota_web_request() -  handles the  OTA webserver through its various states. Call periodically from loop()
+// mdo_ota_web_loop() -  handles the  OTA webserver through its various states. Call periodically from loop()
 //    returns nothing
 //
 //    Parameters:

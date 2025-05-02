@@ -421,8 +421,7 @@ void setup() {
   g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(SOUNDNUM_DuelingBanjos);
   DFstartSound(g_music_soundnum_single_song, SOUND_DEFAULT_VOL);
 
-  // for OTA WEB software updating using ESP-NOW - we are in STA mode but no IP address and not connected to router SSID
-  mdo_ota_web_store_flags(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+  // we don't need any setup for mdo_use_ota_webupdater
 
 } // end setup()
 
@@ -629,7 +628,8 @@ uint16_t do_cmd_ota(char* p_cmd, char* p_param) {
   char tmp_str[257]; // p_param is upper-case. We lose some entropy here, but also using WiFi password for security
   strncpy(tmp_str,WIFI_OTA_ESP_NOW_PWD,sizeof(tmp_str)-1);
   if ((NULL != strstr(p_cmd, "OTA:WEB")) && (NULL != strstr(p_param, strupr(tmp_str)))) {
-    mdo_ota_web_request(); // loop() will handle it
+    // This is the correct parameter for code that is using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address)
+    mdo_ota_web_request(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE); // loop() will handle it
     Serial.printf("\nOTA Web Updater REQUESTED\n");
   } else {
     Serial.printf("\nERROR: bad OTA:WEB command\n");
@@ -790,6 +790,7 @@ void loop() {
 #if MDO_USE_OTA // if using Over-The-Air software updates
   EVERY_N_MILLISECONDS( 50 ) { 
     // if using Over-The-Air software updates
+    mdo_ota_web_loop();
   }
 #endif // MDO_USE_OTA if using Over-The-Air software updates
 

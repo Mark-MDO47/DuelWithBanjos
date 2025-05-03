@@ -644,7 +644,7 @@ uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // do_cmd_ota() - Over-The-Air software update command
 //       returns: 0 if no error
-//   process OTA: command if we understand it; call with p_cmd and p_param ALL UPPERCASE
+//   process OTA: command if we understand it; call with p_cmd ALL UPPERCASE, p_param Upper/Lower case
 //
 // OTA:WEB <password>                 = (<password> = valid password to start OTA)
 //
@@ -652,9 +652,7 @@ uint16_t do_cmd_ota(char* p_cmd, char* p_param) {
   uint16_t ret_val = 0;
 
 #if MDO_USE_OTA // if using Over-The-Air software updates
-  char tmp_str[257]; // p_param is upper-case. We lose some entropy here, but also using WiFi password for security
-  strncpy(tmp_str,WIFI_OTA_ESP_NOW_PWD,sizeof(tmp_str)-1);
-  if ((NULL != strstr(p_cmd, "OTA:WEB")) && (NULL != strstr(p_param, strupr(tmp_str)))) {
+  if ((NULL != strstr(p_cmd, "OTA:WEB")) && (NULL != strstr(p_param, WIFI_OTA_ESP_NOW_PWD))) {
     // This is the correct parameter for code that is using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address)
     mdo_ota_web_request(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE); // loop() will handle it
     Serial.printf("\nOTA Web Updater REQUESTED\n");
@@ -670,7 +668,7 @@ uint16_t do_cmd_ota(char* p_cmd, char* p_param) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // do_esp_now_command()
 //       returns: nothing
-//   process command if we understand it; call with my_message ALL UPPERCASE
+//   process command if we understand it; call with my_message Upper/Lower case
 //
 //   "BANJO" is <CMD_VERIFIER> only at the start of the line before first comand
 //     this just helps identify command destination on screen in UniRemote
@@ -701,21 +699,22 @@ uint16_t do_cmd_ota(char* p_cmd, char* p_param) {
 // BANJO ; EYES:BRIGHT  <num>/<den>             = (<num> = numerator of fraction) (<den> = denominator of fraction) (NOTE: 0 <= num/den <= 1, den != 0)
 // EYES:MVPINS  <pin1>/<pin2>/<pin3>/<pin4>     = (<pin# = DIO pin number (ex: 18) for pin_idx=#)
 //
+#define ESP_NOW_PARAM_UC 0x0001 // upper case for parameter
 typedef struct {
   const char * cmd;
   uint16_t cmd_idx;
 } esp_now_cmd_t;
 esp_now_cmd_t esp_now_cmds[] = {
-  {.cmd = "VOLUME:UP",    .cmd_idx = 0x0000 },
-  {.cmd = "VOLUME:DOWN",  .cmd_idx = 0x0001 },
-  {.cmd = "VOLUME:SET",   .cmd_idx = 0x0002 },
-  {.cmd = "MUSIC:SONG",   .cmd_idx = 0x0100 },
-  {.cmd = "MUSIC:TYPE",   .cmd_idx = 0x0101 },
-  {.cmd = "MUSIC:NEXT",   .cmd_idx = 0x0102 },
-  {.cmd = "EYES:PATTERN", .cmd_idx = 0x0200 },
-  {.cmd = "EYES:CYCLE",   .cmd_idx = 0x0201 },
-  {.cmd = "EYES:BRIGHT",  .cmd_idx = 0x0202 },
-  {.cmd = "EYES:MVPINS",  .cmd_idx = 0x0203 },
+  {.cmd = "VOLUME:UP",    .cmd_idx = 0x0000 | ESP_NOW_PARAM_UC },
+  {.cmd = "VOLUME:DOWN",  .cmd_idx = 0x0000 | ESP_NOW_PARAM_UC },
+  {.cmd = "VOLUME:SET",   .cmd_idx = 0x0000 | ESP_NOW_PARAM_UC },
+  {.cmd = "MUSIC:SONG",   .cmd_idx = 0x0100 | ESP_NOW_PARAM_UC },
+  {.cmd = "MUSIC:TYPE",   .cmd_idx = 0x0100 | ESP_NOW_PARAM_UC },
+  {.cmd = "MUSIC:NEXT",   .cmd_idx = 0x0100 | ESP_NOW_PARAM_UC },
+  {.cmd = "EYES:PATTERN", .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
+  {.cmd = "EYES:CYCLE",   .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
+  {.cmd = "EYES:BRIGHT",  .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
+  {.cmd = "EYES:MVPINS",  .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
   {.cmd = "OTA:WEB",      .cmd_idx = 0x0300 }
 };
 #define CMD_VERIFIER "BANJO"
@@ -735,13 +734,13 @@ uint16_t do_esp_now_command(uint16_t rcvd_len, char* my_message) {
   strncpy(tmp_msg, my_message, ESP_NOW_MAX_DATA_LEN);
   token = strtok(tmp_msg, delimiters);
   if (token == NULL) { Serial.printf("ERROR ESP-NOW CMD_VERIFIER missing, not %s\n", CMD_VERIFIER);  return(1); }
-  else if (NULL == strstr(token, CMD_VERIFIER)) { Serial.printf("ERROR ESP-NOW CMD_VERIFIER %s not %s\n", token, CMD_VERIFIER);  return(1); }
+  else if (NULL == strstr(strupr(token), CMD_VERIFIER)) { Serial.printf("ERROR ESP-NOW CMD_VERIFIER %s not %s\n", token, CMD_VERIFIER);  return(1); }
   Serial.printf("CMD_VERIFIER: |%s| seen: |%s|\n", token, CMD_VERIFIER);
 
   while (1) {
     token = strtok(NULL, delimiters);
     if ((token == NULL) || (NULL == strstr(token, ";"))) { ret_val = 0; break; }
-    token = strtok(NULL, delimiters);
+    token = strupr(strtok(NULL, delimiters));
     if ((token == NULL) || (NULL == strstr(token, ":"))) break;
     param_token = strtok(NULL, delimiters);
     if (param_token == NULL) break;
@@ -751,8 +750,11 @@ uint16_t do_esp_now_command(uint16_t rcvd_len, char* my_message) {
       if (!strcmp(token, esp_now_cmds[i].cmd)) {
         Serial.printf("  found %s %s cmd_idx:0x%04x\n", token, param_token, esp_now_cmds[i].cmd_idx);
         uint16_t cmd_type = (esp_now_cmds[i].cmd_idx >> 8) & 0xFF;
-        uint16_t cmd_idx  = esp_now_cmds[i].cmd_idx & 0xFF;
-        esp_now_cmd_ptrs[cmd_type](token, param_token);
+        uint16_t cmd_bits  = esp_now_cmds[i].cmd_idx & 0xFF;
+        if (cmd_bits & ESP_NOW_PARAM_UC)
+          esp_now_cmd_ptrs[cmd_type](token, strupr(param_token));
+        else
+          esp_now_cmd_ptrs[cmd_type](token, param_token);
         not_found = 0;
       }
     }
@@ -791,7 +793,7 @@ void loop() {
   // If 0 == rcvd_len, no message.
   if (rcvd_len > 0) {
     // process command
-    do_esp_now_command(rcvd_len, strupr(my_message));
+    do_esp_now_command(rcvd_len, my_message);
   }
   EVERY_N_MILLISECONDS( 5 ) { 
     led_pins_pwm(); // if needed, output brightness of LED

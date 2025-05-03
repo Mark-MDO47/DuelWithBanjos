@@ -84,7 +84,6 @@
 DFRobotDFPlayerMini myDFPlayer;                                // to talk to YX5200 audio player
 void DFsetup();                                                // how to initialize myDFPlayer
 #define SOUND_DEFAULT_VOL     30  // default volume - 25 is pretty good
-#define SOUND_BKGRND_VOL      20  // background volume
 #define SOUND_ACTIVE_PROTECT 200  // milliseconds to keep SW twiddled sound active after doing myDFPlayer.play(mySound)
 uint32_t gTimerForceSoundActv = 0;  // SOUND_ACTIVE_PROTECT until millis() >= this
 
@@ -257,6 +256,8 @@ pwm_led_ptrn_step g_pwm_ptrn_off[] = {
 };
 
 uint32_t g_eyes_bright; // MS-16bits is <num>, LS-16bits is <den> for led_pin_pwm_set_pwm_scale()
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #if DFPRINTDETAIL

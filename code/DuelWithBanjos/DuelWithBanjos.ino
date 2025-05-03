@@ -83,7 +83,7 @@
 #define DPIN_AUDIO_BUSY 23  // digital input - HIGH when audio finishes
 DFRobotDFPlayerMini myDFPlayer;                                // to talk to YX5200 audio player
 void DFsetup();                                                // how to initialize myDFPlayer
-#define SOUND_DEFAULT_VOL     30  // default volume - 25 is pretty good
+#define SOUND_DEFAULT_VOL     30  // default volume - range 0 to 30
 #define SOUND_ACTIVE_PROTECT 200  // milliseconds to keep SW twiddled sound active after doing myDFPlayer.play(mySound)
 uint32_t gTimerForceSoundActv = 0;  // SOUND_ACTIVE_PROTECT until millis() >= this
 
@@ -120,7 +120,8 @@ static music_song_to_soundnum_t g_music_song_to_soundnum[] = {
   { .song_name = (char*)"PATRIOT-MARINE-HYMN",           .soundnum = SOUNDNUM_Patriotic_Marine_Hymn },
   { .song_name = (char*)"PATRIOT-DIXIE",                 .soundnum = SOUNDNUM_Patriotic_Dixie },
   { .song_name = (char*)"PATRIOT-SHENANDOAH",            .soundnum = SOUNDNUM_Patriotic_Shenandoah },
-  { .song_name = (char*)"PATRIOT-STAR-SPANGLED-BANNER",  .soundnum = SOUNDNUM_Patriotic_Star_Spangled_Banner }
+  { .song_name = (char*)"PATRIOT-STAR-SPANGLED-BANNER",  .soundnum = SOUNDNUM_Patriotic_Star_Spangled_Banner },
+  { .song_name = (char*)"SOUNDNUM_ERR_INVALID",          .soundnum = SOUNDNUM_ERR_INVALID }
 };
 typedef struct {
   char*     type_name;
@@ -173,6 +174,29 @@ uint16_t g_music_type_array_all[] = {
   SOUNDNUM_Patriotic_Dixie,
   SOUNDNUM_Patriotic_Shenandoah,
   SOUNDNUM_Patriotic_Star_Spangled_Banner
+};
+
+uint16_t g_music_type_array_all_plus_invalid[] = {
+  SOUNDNUM_DuelingBanjos,
+  SOUNDNUM_DeckTheDuelingHalls,
+  SOUNDNUM_WhatChildIsThis,
+  SOUNDNUM_GodRestYe,
+  SOUNDNUM_OLittleTownOf,
+  SOUNDNUM_GoodKingWenceslas,
+  SOUNDNUM_Chopin_Etude_10_03,
+  SOUNDNUM_Chopin_Noct_55_2,
+  SOUNDNUM_Chopin_Etude_10_12,
+  SOUNDNUM_Chopin_Noct_27_2,
+  SOUNDNUM_Chopin_Noct_37_2,
+  SOUNDNUM_Chopin_Prelude_15,
+  SOUNDNUM_Patriotic_Battle_Hymn_of_the_Republic,
+  SOUNDNUM_Patriotic_America_the_Beautiful,
+  SOUNDNUM_Patriotic_When_Johnny_Comes_Marching_Home,
+  SOUNDNUM_Patriotic_Marine_Hymn,
+  SOUNDNUM_Patriotic_Dixie,
+  SOUNDNUM_Patriotic_Shenandoah,
+  SOUNDNUM_Patriotic_Star_Spangled_Banner,
+  SOUNDNUM_ERR_INVALID
 };
 
 music_type_to_music_list_t g_music_type_to_music_list_duel      = { .type_name=(char*)"DUEL",      .list_array=&g_music_type_array_duel[0],      .num_in_list = NUMOF(g_music_type_array_duel) };
@@ -314,9 +338,26 @@ void DFprintDetail(uint8_t type, int value){
 #endif // DFPRINTDETAIL
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DFstartSound(tmpSoundNum, tmpVolume) - start tmpSoundNum if it is valid
+// DFstartSound(p_SoundNum, p_Volume) - start p_SoundNum if it is valid
 //
-// tmpSoundNum is the sound file number.
+// p_SoundNum is the sound file number, range 1 to SOUNDNUM_MAX_VALID
+// p_Volume   is the requested vol, range 0 to 30
+//
+uint16_t DFscaleVolume(uint16_t p_SoundNum, uint16_t p_Volume) {
+  uint16_t scaled_volume = p_Volume;
+
+  if (30 < scaled_volume) // ensure valid argument
+    scaled_volume = 30;
+
+  // FIXME TODO truly scale the sound volume
+  return(scaled_volume);
+} // end DFscaleVolume()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DFstartSound(p_SoundNum, p_Volume) - start p_SoundNum if it is valid
+//
+// p_SoundNum is the sound file number, range 1 to SOUNDNUM_MAX_VALID
+// p_Volume   is the requested vol, range 0 to 30
 //
 // Had lots of trouble with reliable operation using playMp3Folder. Came to conclusion
 //    that it is best to use the most primitive of YX5200 commands.
@@ -328,20 +369,42 @@ void DFprintDetail(uint8_t type, int value){
 //    it only seems to trigger when I interrupt a playing sound by starting another.
 //    It is sort of interesting but not needed.
 //
-void  DFstartSound(uint16_t tmpSoundNum, uint16_t tmpVolume) {
+void  DFstartSound(uint16_t p_SoundNum, uint16_t p_Volume) {
   uint16_t idx;
   bool prevHI;
-  uint16_t mySound = tmpSoundNum;
+  uint16_t my_SoundNum = p_SoundNum;
   static uint8_t init_minmax = 2;
   static uint32_t prev_msec;
   static uint32_t max_msec = 0;
   static uint32_t min_msec = 999999;
   uint32_t diff_msec = 0;
   uint32_t now_msec = millis();
+  uint16_t scaled_volume;
 
+  if ((0 == my_SoundNum) || (SOUNDNUM_MAX_VALID < my_SoundNum)) {
+    my_SoundNum = SOUNDNUM_ERR_INVALID; // give error sound that soundnum was invalid
+    Serial.printf("ERROR DFstartSound called with %d (MAX is %d) replaced with error soundnum\n", p_SoundNum, SOUNDNUM_MAX_VALID);
+    
+#ifdef BE_OBNOXIOUS
+    // repeat error message until someone uses UniRemote to send a command
+    g_music_mode = MUSIC_MODE_SINGLE_SONG;
+    g_music_soundnum_single_song = my_SoundNum;
+#else // not 
+    // give error sound once, then start cycling from type == ALL
+    //    when error sound ends, it will start the list ALL from the start
+    uint16_t idx = NUMOF(g_music_type_to_music_list_array) - 1; // music type == ALL
+    g_music_mode = MUSIC_MODE_TYPE_OF_SONG;
+    g_music_type_list = g_music_type_to_music_list_array[idx];
+    g_music_type_list_idx_playing_now = g_music_type_to_music_list_array[idx]->num_in_list - 1;
+#endif // BE_OBNOXIOUS
+
+    // always up to date
+    g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(my_SoundNum);
+  }
 
 #if DFCHANGEVOLUME
-  myDFPlayer.volume(tmpVolume);  // Set volume value. From 0 to 30 - FIXME 25 is good
+  scaled_volume = DFscaleVolume(my_SoundNum, p_Volume);
+  myDFPlayer.volume(scaled_volume);  // Set volume value. Range from 0 to 30
 #if DFPRINTDETAIL
   if (myDFPlayer.available()) {
     Serial.print(F(" DFstartSound ln ")); Serial.print((uint16_t) __LINE__); Serial.println(F(" myDFPlayer problem after volume"));
@@ -350,8 +413,8 @@ void  DFstartSound(uint16_t tmpSoundNum, uint16_t tmpVolume) {
 #endif // DFPRINTDETAIL
 #endif // DFCHANGEVOLUME
 
-  myDFPlayer.play(mySound); //play specific wav in SD: root directory ###.wav; number played is physical copy order; first one copied is 1
-  // Serial.print(F("DEBUG DFstartSound myDFPlayer.play(")); Serial.print((uint16_t) mySound); Serial.println(F(")"));
+  myDFPlayer.play(my_SoundNum); //play specific wav in SD: root directory ###.wav; number played is physical copy order; first one copied is 1
+  // Serial.print(F("DEBUG DFstartSound myDFPlayer.play(")); Serial.print((uint16_t) my_SoundNum); Serial.println(F(")"));
   gTimerForceSoundActv = millis() + SOUND_ACTIVE_PROTECT; // handle YX5200 problem with interrupting play
 
   if (init_minmax) {

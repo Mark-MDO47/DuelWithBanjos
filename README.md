@@ -8,17 +8,11 @@ A quick 38-second video demonstration:
 A story-line showing how to do Over-The-Air (OTA) Web updates to the Banjo Player ESP32.
 - https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/code/DuelWithBanjos/OTA_story.md
 
-My two little banjo players - BEFORE<br>
-<img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/banjo_players_1024_768.jpg" width="500" alt="My Banjo Players">
-
-My two little banjo players - AFTER, with new electronics and sound<br>
-<img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/banjo_players_after.jpg" width="500" alt="My Banjo Players AFTER upgrade">
-
-The new electronics on a prototype board<br>
-<img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Duel_ProtoBoard.png" width="500" alt="My ProtoBoard Banjo Player electronics">
-
-The new electronics inside the cardboard box<br>
-<img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/BanjoBox_inside.png" width="500" alt="Banjo Player electronics inside cardboard box">
+| My two little banjo players - BEFORE | My two little banjo players - AFTER<br>with new electronics and sound |
+| --- | --- |
+| <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/banjo_players_1024_768.jpg" width="300" alt="My Banjo Players BEFORE"> | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/banjo_players_after.jpg" width="300" alt="My Banjo Players AFTER upgrade"> |
+| **The new electronics on a prototype board** | **The new electronics inside the cardboard box** |
+| <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/Duel_ProtoBoard.png" width="300" alt="My ProtoBoard Banjo Player electronics"> | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/BanjoBox_inside.png" width="300" alt="Banjo Player electronics inside cardboard box"> |
 
 **Table Of Contents**
 * [Top](#duelwithbanjos "Top")

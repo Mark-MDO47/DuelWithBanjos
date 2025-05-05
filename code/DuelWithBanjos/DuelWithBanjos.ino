@@ -96,6 +96,9 @@ uint32_t gTimerForceSoundActv = 0;  // SOUND_ACTIVE_PROTECT until millis() >= th
   #define DFprintDetail(type, value) // nothing at all
 #endif // #if DFPRINTDETAIL
 
+uint16_t g_global_volume_scaling = 100;  // integer percentage volume (range 0 through 200)
+uint16_t g_unscaled_volume;              // volume active now before scaling (range 0 thru 30)
+
 typedef struct {
   char*    song_name; // points to name of song to play
   uint16_t soundnum;  // number of sound
@@ -389,7 +392,7 @@ void  DFstartSound(uint16_t p_SoundNum, uint16_t p_Volume) {
     // repeat error message until someone uses UniRemote to send a command
     g_music_mode = MUSIC_MODE_SINGLE_SONG;
     g_music_soundnum_single_song = my_SoundNum;
-#else // not 
+#else // not BE_OBNOXIOUS
     // give error sound once, then start cycling from type == ALL
     //    when error sound ends, it will start the list ALL from the start
     uint16_t idx = NUMOF(g_music_type_to_music_list_array) - 1; // music type == ALL

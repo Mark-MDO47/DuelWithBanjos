@@ -76,20 +76,25 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// definitions for YX5200/DFPlayer and ESP-WROOM-32 serial port 
+// definitions for YX5200/DFPlayer and ESP-WROOM-32 serial port and volume controls
 
 #define DPIN_HWSRL_RX   16  // HW-serial in  - talk to DFPlayer audio player (YX5200)
 #define DPIN_HWSRL_TX   17  // HW-serial out - talk to DFPlayer audio player (YX5200)
 #define DPIN_AUDIO_BUSY 23  // digital input - HIGH when audio finishes
 DFRobotDFPlayerMini myDFPlayer;                                // to talk to YX5200 audio player
 void DFsetup();                                                // how to initialize myDFPlayer
-#define SOUND_DEFAULT_VOL     30  // default volume - range 0 to 30
 #define SOUND_ACTIVE_PROTECT 200  // milliseconds to keep SW twiddled sound active after doing myDFPlayer.play(mySound)
 uint32_t gTimerForceSoundActv = 0;  // SOUND_ACTIVE_PROTECT until millis() >= this
 
-#define DFCHANGEVOLUME 0 // zero does not change sound volume
+#define VOLUME_GSCALE_DIVISOR 100
+uint32_t g_volume_gscale = VOLUME_GSCALE_DIVISOR; // volume global scale factor. range: 0 to 200
+
+#define SOUND_DEFAULT_VOL     25  // default volume - range 0 to 30
+uint16_t g_current_volume_set = SOUND_DEFAULT_VOL; // 
+
 // #define DFPRINTDETAIL 1 // if need detailed status from myDFPlayer (YX5200 communications)
 #define DFPRINTDETAIL 0  // will not print detailed status from myDFPlayer
+
 #if DFPRINTDETAIL // routine to do detailed debugging
   void DFprintDetail(uint8_t type, int value); // definition of call
 #else  // no DFPRINTDETAIL
@@ -346,13 +351,20 @@ void DFprintDetail(uint8_t type, int value){
 // p_SoundNum is the sound file number, range 1 to SOUNDNUM_MAX_VALID
 // p_Volume   is the requested vol, range 0 to 30
 //
+// for simple global scaled volume
+//     VOLUME_GSCALE_DIVISOR is 100, g_volume_gscale has range: 0 to 200
+// else
+//     VOLUME_GSCALE_DIVISOR is 1, g_volume_gscale is 1, and code is #if'd out
+//
 uint16_t DFscaleVolume(uint16_t p_SoundNum, uint16_t p_Volume) {
   uint16_t scaled_volume = p_Volume;
+
+  // simple global scaled volume
+  scaled_volume = (scaled_volume * g_volume_gscale) / VOLUME_GSCALE_DIVISOR;
 
   if (30 < scaled_volume) // ensure valid argument
     scaled_volume = 30;
 
-  // FIXME TODO truly scale the sound volume
   return(scaled_volume);
 } // end DFscaleVolume()
 
@@ -405,7 +417,6 @@ void  DFstartSound(uint16_t p_SoundNum, uint16_t p_Volume) {
     g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(my_SoundNum);
   }
 
-#if DFCHANGEVOLUME
   scaled_volume = DFscaleVolume(my_SoundNum, p_Volume);
   myDFPlayer.volume(scaled_volume);  // Set volume value. Range from 0 to 30
 #if DFPRINTDETAIL
@@ -414,7 +425,6 @@ void  DFstartSound(uint16_t p_SoundNum, uint16_t p_Volume) {
     DFprintDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
   }
 #endif // DFPRINTDETAIL
-#endif // DFCHANGEVOLUME
 
   myDFPlayer.play(my_SoundNum); //play specific wav in SD: root directory ###.wav; number played is physical copy order; first one copied is 1
   // Serial.print(F("DEBUG DFstartSound myDFPlayer.play(")); Serial.print((uint16_t) my_SoundNum); Serial.println(F(")"));
@@ -465,7 +475,7 @@ void DFsetup() {
   }
   myDFPlayer.EQ(DFPLAYER_EQ_BASS); // our speaker is quite small
   myDFPlayer.outputDevice(DFPLAYER_DEVICE_SD); // location of sound files is MicroSD card
-  myDFPlayer.volume(SOUND_DEFAULT_VOL);  // Set volume value. From 0 to 30 - FIXME 25 is good
+  myDFPlayer.volume(g_current_volume_set);  // Set volume value. From 0 to 30 - FIXME 25 is good
   // delay(3000); // allow bluetooth connection to complete - not using bluetooth; tinny sound from small speaker adds to effect
   delay(1000); // allow DFPlayer to stabilize
   Serial.println(F("DFPlayer Mini online."));
@@ -511,7 +521,7 @@ void setup() {
   g_music_mode = MUSIC_MODE_SINGLE_SONG;
   g_music_soundnum_single_song = SOUNDNUM_DuelingBanjos;
   g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(SOUNDNUM_DuelingBanjos);
-  DFstartSound(g_music_soundnum_single_song, SOUND_DEFAULT_VOL);
+  DFstartSound(g_music_soundnum_single_song, g_current_volume_set);
 
   // we don't need any setup for mdo_use_ota_webupdater
 
@@ -522,13 +532,31 @@ void setup() {
 //       returns: 0 if no error
 //   process VOLUME: command if we understand it; call with p_cmd and p_param ALL UPPERCASE
 //
-// VOLUME:UP #
-// VOLUME:DOWN #
-// VOLUME:SET #
+// VOLUME:UP #       range: 0-30 move g_current_volume_set up by #
+// VOLUME:DOWN #     range: 0-30 move g_current_volume_set down by #
+// VOLUME:SET #      range: 0-30 set g_current_volume_set to #
+// VOLUME:GSCALE #   range: 0-200 (percent) set g_volume_gscale to #
 //
 uint16_t do_cmd_volume(char* p_cmd, char* p_param) {
-    Serial.printf("do_cmd_volume %s %s\n", p_cmd, p_param);
-    return(0);
+  Serial.printf("do_cmd_volume %s %s\n", p_cmd, p_param);
+  int16_t num = (int16_t) atoi(p_param);
+  if (num < 0) num = 0;
+  if (NULL != strstr("VOLUME:GSCALE", p_cmd)) {
+    if (num > 200) num = 200;
+    g_volume_gscale = num;
+  } else {
+    if (num > 30) num = 30;
+    if (NULL != strstr("VOLUME:UP", p_cmd)) {
+      g_current_volume_set += num;
+      if (g_current_volume_set > 30) g_current_volume_set = 0;
+    } else if (NULL != strstr("VOLUME:DOWN", p_cmd)) {
+      if (num > g_current_volume_set) g_current_volume_set = 0;
+      else                            g_current_volume_set -= num;
+    } else if (NULL != strstr("VOLUME:SET", p_cmd)) {
+      g_current_volume_set = num;
+    }
+  }
+  return(0);
 } // end do_cmd_volume()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -572,7 +600,7 @@ uint16_t do_cmd_music(char* p_cmd, char* p_param) {
         g_music_mode = MUSIC_MODE_SINGLE_SONG;
         g_music_soundnum_single_song = g_music_song_to_soundnum[idx].soundnum;
         g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(g_music_soundnum_single_song);
-        DFstartSound(g_music_soundnum_single_song, SOUND_DEFAULT_VOL);
+        DFstartSound(g_music_soundnum_single_song, g_current_volume_set);
         break;
       }
     } // end for
@@ -589,7 +617,7 @@ uint16_t do_cmd_music(char* p_cmd, char* p_param) {
         g_music_type_list_idx_playing_now = 0;
         uint16_t tmp_soundnum = g_music_type_list->list_array[g_music_type_list_idx_playing_now];
         g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(tmp_soundnum);
-        DFstartSound(tmp_soundnum, SOUND_DEFAULT_VOL);
+        DFstartSound(tmp_soundnum, g_current_volume_set);
         break;
       }
     } // end for
@@ -605,7 +633,7 @@ uint16_t do_cmd_music(char* p_cmd, char* p_param) {
     g_music_mode = MUSIC_MODE_SINGLE_SONG;
     g_music_soundnum_single_song = tmp_soundnum;
     g_music_song_to_soundnum_idx_playing_now = tmp_idx;
-    DFstartSound(tmp_soundnum, SOUND_DEFAULT_VOL);
+    DFstartSound(tmp_soundnum, g_current_volume_set);
   } else {
     Serial.printf("ERROR: unknown MUSIC command %s %s\n", p_cmd, p_param);
     return(1);
@@ -749,9 +777,10 @@ uint16_t do_cmd_ota(char* p_cmd, char* p_param) {
 //
 // BANJO ; OTA:WEB <password>
 //
-// BANJO ; VOLUME:UP #
-// BANJO ; VOLUME:DOWN #
-// BANJO ; VOLUME:SET #
+// BANJO ; VOLUME:UP #       range: 0-30 move g_current_volume_set up by #
+// BANJO ; VOLUME:DOWN #     range: 0-30 move g_current_volume_set down by #
+// BANJO ; VOLUME:SET #      range: 0-30 set g_current_volume_set to #
+// BANJO ; VOLUME:GSCALE #   range: 0-200 (percent) set g_volume_gscale to #
 //
 // BANJO ; MUSIC:SONG <name>   = (<name> = SILENCE DUEL-BANJO DECK-HALLS WHAT-CHILD MERRY-GENTLEMEN TOWN-BETHLEHEM KING-WENCESLAS
 //                                         CHOPIN-ETUDE-TRISTESSE CHOPIN-NOCTURNE-E-FLAT CHOPIN-ETUDE-REVOLUTIONARY
@@ -772,17 +801,18 @@ typedef struct {
   uint16_t cmd_idx;
 } esp_now_cmd_t;
 esp_now_cmd_t esp_now_cmds[] = {
-  {.cmd = "VOLUME:UP",    .cmd_idx = 0x0000 | ESP_NOW_PARAM_UC },
-  {.cmd = "VOLUME:DOWN",  .cmd_idx = 0x0000 | ESP_NOW_PARAM_UC },
-  {.cmd = "VOLUME:SET",   .cmd_idx = 0x0000 | ESP_NOW_PARAM_UC },
-  {.cmd = "MUSIC:SONG",   .cmd_idx = 0x0100 | ESP_NOW_PARAM_UC },
-  {.cmd = "MUSIC:TYPE",   .cmd_idx = 0x0100 | ESP_NOW_PARAM_UC },
-  {.cmd = "MUSIC:NEXT",   .cmd_idx = 0x0100 | ESP_NOW_PARAM_UC },
-  {.cmd = "EYES:PATTERN", .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
-  {.cmd = "EYES:CYCLE",   .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
-  {.cmd = "EYES:BRIGHT",  .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
-  {.cmd = "EYES:MVPINS",  .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
-  {.cmd = "OTA:WEB",      .cmd_idx = 0x0300 }
+  {.cmd = "VOLUME:UP",     .cmd_idx = 0x0000 | ESP_NOW_PARAM_UC },
+  {.cmd = "VOLUME:DOWN",   .cmd_idx = 0x0000 | ESP_NOW_PARAM_UC },
+  {.cmd = "VOLUME:SET",    .cmd_idx = 0x0000 | ESP_NOW_PARAM_UC },
+  {.cmd = "VOLUME:GSCALE", .cmd_idx = 0x0000 },
+  {.cmd = "MUSIC:SONG",    .cmd_idx = 0x0100 | ESP_NOW_PARAM_UC },
+  {.cmd = "MUSIC:TYPE",    .cmd_idx = 0x0100 | ESP_NOW_PARAM_UC },
+  {.cmd = "MUSIC:NEXT",    .cmd_idx = 0x0100 | ESP_NOW_PARAM_UC },
+  {.cmd = "EYES:PATTERN",  .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
+  {.cmd = "EYES:CYCLE",    .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
+  {.cmd = "EYES:BRIGHT",   .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
+  {.cmd = "EYES:MVPINS",   .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
+  {.cmd = "OTA:WEB",       .cmd_idx = 0x0300 }
 };
 #define CMD_VERIFIER "BANJO"
 
@@ -876,11 +906,11 @@ void loop() {
         g_music_type_list_idx_playing_now = tmp_idx;
         tmp_soundnum = g_music_type_list->list_array[g_music_type_list_idx_playing_now];
         g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(tmp_soundnum);
-        DFstartSound(tmp_soundnum, SOUND_DEFAULT_VOL);
+        DFstartSound(tmp_soundnum, g_current_volume_set);
       } else /* if (MUSIC_MODE_SINGLE_SONG == g_music_mode) */ {
         // restart sound
         g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(g_music_soundnum_single_song);
-        DFstartSound(g_music_soundnum_single_song, SOUND_DEFAULT_VOL);
+        DFstartSound(g_music_soundnum_single_song, g_current_volume_set);
       }
     }
   } // end EVERY_N_MILLISECONDS 50

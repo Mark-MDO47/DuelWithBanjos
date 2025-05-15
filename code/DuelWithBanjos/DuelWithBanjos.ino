@@ -62,11 +62,20 @@
 #include "Arduino.h"                // general Arduino definitions plus uint8_t etc.
 #include <FastLED.h>                // only for the convenient EVERY_N_MILLISECONDS() macro - too lazy to write my own...
 
+// mdo_use_ota_webupdater https://github.com/Mark-MDO47/UniRemote/tree/master/code/mdo_use_ota_webupdater
+// This does not connect to WiFi router until it gets a command
 #define MDO_USE_OTA 1               // zero to not use, non-zero to use OTA ESP32 Over-The-Air software updates
-#if MDO_USE_OTA
+
+// Visual Micro Over-The-Air Debugging https://www.visualmicro.com/page/OTA-Debugging-for-Espressif-ESP-Boards.aspx
+// For this we need to connect to WiFi all the time
+#define VM_OTA_DEBUG 0              // zero to not use, non-zero to use OTA ESP32 debugging with Visual Micro and Microsoft Visual Studio
+
+#if (MDO_USE_OTA || VM_OTA_DEBUG)
 #include "mdo_use_ota_webupdater.h" // for mdo_use_ota_webupdater "library"
-#endif // MDO_USE_OTA
+#endif // (MDO_USE_OTA || VM_OTA_DEBUG)
 #include <UniRemoteRcvr.h>          // for UniRemoteRcvr "library"
+
+
 
 #include "HardwareSerial.h"         // to talk with the YX5200
 #include "DFRobotDFPlayerMini.h"    // to communicate with the YX5200 audio player
@@ -85,6 +94,9 @@ DFRobotDFPlayerMini myDFPlayer;                                // to talk to YX5
 void DFsetup();                                                // how to initialize myDFPlayer
 #define SOUND_ACTIVE_PROTECT 200  // milliseconds to keep SW twiddled sound active after doing myDFPlayer.play(mySound)
 uint32_t gTimerForceSoundActv = 0;  // SOUND_ACTIVE_PROTECT until millis() >= this
+
+// Problem with dynamically setting volume - seems to prevent starting a different song until the current one finishes
+#define VOLUME_ALLOW_CHANGE 0    // 1 if can dynamically set volume
 
 #define VOLUME_GSCALE_DIVISOR 100
 uint32_t g_volume_gscale = VOLUME_GSCALE_DIVISOR; // volume global scale factor. range: 0 to 200
@@ -105,31 +117,33 @@ uint16_t g_global_volume_scaling = 100;  // integer percentage volume (range 0 t
 uint16_t g_unscaled_volume;              // volume active now before scaling (range 0 thru 30)
 
 typedef struct {
-  char*    song_name; // points to name of song to play
-  uint16_t soundnum;  // number of sound
+  char*    song_name;   // points to name of song to play
+  uint16_t soundnum;    // number of sound
+  uint16_t song_volume; // song-suggested volume
 } music_song_to_soundnum_t;
 static music_song_to_soundnum_t g_music_song_to_soundnum[] = {
-  { .song_name = (char*)"DUEL-BANJO",                    .soundnum = SOUNDNUM_DuelingBanjos },
-  { .song_name = (char*)"SILENCE",                       .soundnum = SOUNDNUM_silence },
-  { .song_name = (char*)"DECK-HALLS",                    .soundnum = SOUNDNUM_DeckTheDuelingHalls },
-  { .song_name = (char*)"WHAT-CHILD",                    .soundnum = SOUNDNUM_WhatChildIsThis },
-  { .song_name = (char*)"MERRY-GENTLEMEN",               .soundnum = SOUNDNUM_GodRestYe },
-  { .song_name = (char*)"TOWN-BETHLEHEM",                .soundnum = SOUNDNUM_OLittleTownOf },
-  { .song_name = (char*)"KING-WENCESLAS",                .soundnum = SOUNDNUM_GoodKingWenceslas },
-  { .song_name = (char*)"CHOPIN-ETUDE-TRISTESSE",        .soundnum = SOUNDNUM_Chopin_Etude_10_03 },
-  { .song_name = (char*)"CHOPIN-NOCTURNE-E-FLAT",        .soundnum = SOUNDNUM_Chopin_Noct_55_2 },
-  { .song_name = (char*)"CHOPIN-ETUDE-REVOLUTIONARY",    .soundnum = SOUNDNUM_Chopin_Etude_10_12 },
-  { .song_name = (char*)"CHOPIN-NOCTURNE-D-FLAT",        .soundnum = SOUNDNUM_Chopin_Noct_27_2 },
-  { .song_name = (char*)"CHOPIN-NOCTURNE-G",             .soundnum = SOUNDNUM_Chopin_Noct_37_2 },
-  { .song_name = (char*)"CHOPIN-PRELUDE-RAINDROP",       .soundnum = SOUNDNUM_Chopin_Prelude_15 },
-  { .song_name = (char*)"PATRIOT-BATTLE-HYMN-REPUBLIC",  .soundnum = SOUNDNUM_Patriotic_Battle_Hymn_of_the_Republic },
-  { .song_name = (char*)"PATRIOT-AMERICA-THE-BEAUTIFUL", .soundnum = SOUNDNUM_Patriotic_America_the_Beautiful },
-  { .song_name = (char*)"PATRIOT-JOHNNY-MARCHING-HOME",  .soundnum = SOUNDNUM_Patriotic_When_Johnny_Comes_Marching_Home },
-  { .song_name = (char*)"PATRIOT-MARINE-HYMN",           .soundnum = SOUNDNUM_Patriotic_Marine_Hymn },
-  { .song_name = (char*)"PATRIOT-DIXIE",                 .soundnum = SOUNDNUM_Patriotic_Dixie },
-  { .song_name = (char*)"PATRIOT-SHENANDOAH",            .soundnum = SOUNDNUM_Patriotic_Shenandoah },
-  { .song_name = (char*)"PATRIOT-STAR-SPANGLED-BANNER",  .soundnum = SOUNDNUM_Patriotic_Star_Spangled_Banner },
-  { .song_name = (char*)"SOUNDNUM_ERR_INVALID",          .soundnum = SOUNDNUM_ERR_INVALID }
+  { .song_name = (char*)"DUEL-BANJO",                    .soundnum = SOUNDNUM_DuelingBanjos,                             .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"SILENCE",                       .soundnum = SOUNDNUM_silence,                                   .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"DECK-HALLS",                    .soundnum = SOUNDNUM_DeckTheDuelingHalls,                       .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"WHAT-CHILD",                    .soundnum = SOUNDNUM_WhatChildIsThis,                           .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"MERRY-GENTLEMEN",               .soundnum = SOUNDNUM_GodRestYe,                                 .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"TOWN-BETHLEHEM",                .soundnum = SOUNDNUM_OLittleTownOf,                             .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"KING-WENCESLAS",                .soundnum = SOUNDNUM_GoodKingWenceslas,                         .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"CHOPIN-ETUDE-TRISTESSE",        .soundnum = SOUNDNUM_Chopin_Etude_10_03,                        .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"CHOPIN-NOCTURNE-E-FLAT",        .soundnum = SOUNDNUM_Chopin_Noct_55_2,                          .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"CHOPIN-ETUDE-REVOLUTIONARY",    .soundnum = SOUNDNUM_Chopin_Etude_10_12,                        .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"CHOPIN-NOCTURNE-D-FLAT",        .soundnum = SOUNDNUM_Chopin_Noct_27_2,                          .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"CHOPIN-NOCTURNE-G",             .soundnum = SOUNDNUM_Chopin_Noct_37_2,                          .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"CHOPIN-PRELUDE-RAINDROP",       .soundnum = SOUNDNUM_Chopin_Prelude_15,                         .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"PATRIOT-BATTLE-HYMN-REPUBLIC",  .soundnum = SOUNDNUM_Patriotic_Battle_Hymn_of_the_Republic,     .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"PATRIOT-AMERICA-THE-BEAUTIFUL", .soundnum = SOUNDNUM_Patriotic_America_the_Beautiful,           .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"PATRIOT-JOHNNY-MARCHING-HOME",  .soundnum = SOUNDNUM_Patriotic_When_Johnny_Comes_Marching_Home, .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"PATRIOT-MARINE-HYMN",           .soundnum = SOUNDNUM_Patriotic_Marine_Hymn,                     .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"PATRIOT-DIXIE",                 .soundnum = SOUNDNUM_Patriotic_Dixie,                           .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"PATRIOT-SHENANDOAH",            .soundnum = SOUNDNUM_Patriotic_Shenandoah,                      .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"PATRIOT-STAR-SPANGLED-BANNER",  .soundnum = SOUNDNUM_Patriotic_Star_Spangled_Banner,            .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"A440",                          .soundnum = SOUNDNUM_A440_SIN_WAVE,                             .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"SOUNDNUM_ERR_INVALID",          .soundnum = SOUNDNUM_ERR_INVALID,                               .song_volume = SOUND_DEFAULT_VOL }
 };
 typedef struct {
   char*     type_name;
@@ -204,6 +218,7 @@ uint16_t g_music_type_array_all_plus_invalid[] = {
   SOUNDNUM_Patriotic_Dixie,
   SOUNDNUM_Patriotic_Shenandoah,
   SOUNDNUM_Patriotic_Star_Spangled_Banner,
+  SOUNDNUM_A440_SIN_WAVE,
   SOUNDNUM_ERR_INVALID
 };
 
@@ -417,8 +432,12 @@ void  DFstartSound(uint16_t p_SoundNum, uint16_t p_Volume) {
     g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(my_SoundNum);
   }
 
+#if VOLUME_ALLOW_CHANGE
+  if we allow changing volume
   scaled_volume = DFscaleVolume(my_SoundNum, p_Volume);
   myDFPlayer.volume(scaled_volume);  // Set volume value. Range from 0 to 30
+#endif // VOLUME_ALLOW_CHANGE
+
 #if DFPRINTDETAIL
   if (myDFPlayer.available()) {
     Serial.print(F(" DFstartSound ln ")); Serial.print((uint16_t) __LINE__); Serial.println(F(" myDFPlayer problem after volume"));
@@ -500,6 +519,23 @@ void setup() {
     Serial.println("Error Initializing uni_remote_rcvr!");
     // while (1) ; // don't need to hang; can still play music
   }
+
+#if VM_OTA_DEBUG
+  // Connect to WiFi network
+  WiFi.begin(g_ssid, g_password);
+  Serial.println("");
+
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(g_ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+#endif // VM_OTA_DEBUG
 
   // connect to Banjo Player LED eyes and initially turn off
   Serial.println("\nInitialize LEDPinsPwm");
@@ -749,7 +785,13 @@ uint16_t do_cmd_ota(char* p_cmd, char* p_param) {
 #if MDO_USE_OTA // if using Over-The-Air software updates
   if ((NULL != strstr(p_cmd, "OTA:WEB")) && (NULL != strstr(p_param, WIFI_OTA_ESP_NOW_PWD))) {
     // This is the correct parameter for code that is using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address)
+#if VM_OTA_DEBUG
+    // if doing VM_OTA_DEBUG then already did START_OTA_WEB_BEGIN_WIFI
+    mdo_ota_web_request(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE); // loop() will handle it
+#else // not VM_OTA_DEBUG
+    // if NOT doing VM_OTA_DEBUG then must do START_OTA_WEB_BEGIN_WIFI now
     mdo_ota_web_request(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE); // loop() will handle it
+#endif // VM_OTA_DEBUG
     Serial.printf("\nOTA Web Updater REQUESTED\n");
   } else {
     Serial.printf("\nERROR: bad OTA:WEB command\n");
@@ -795,7 +837,9 @@ uint16_t do_cmd_ota(char* p_cmd, char* p_param) {
 // BANJO ; EYES:BRIGHT  <num>/<den>             = (<num> = numerator of fraction) (<den> = denominator of fraction) (NOTE: 0 <= num/den <= 1, den != 0)
 // EYES:MVPINS  <pin1>/<pin2>/<pin3>/<pin4>     = (<pin# = DIO pin number (ex: 18) for pin_idx=#)
 //
-#define ESP_NOW_PARAM_UC 0x0001 // upper case for parameter
+#define ESP_NOW_PARAM_MASK_CMD_TYPE 0x00FF
+#define ESP_NOW_PARAM_MASK_CMD_BITS 0xFF00
+#define ESP_NOW_PARAM_UC 0x0100 // upper case for parameter
 typedef struct {
   const char * cmd;
   uint16_t cmd_idx;
@@ -805,14 +849,14 @@ esp_now_cmd_t esp_now_cmds[] = {
   {.cmd = "VOLUME:DOWN",   .cmd_idx = 0x0000 | ESP_NOW_PARAM_UC },
   {.cmd = "VOLUME:SET",    .cmd_idx = 0x0000 | ESP_NOW_PARAM_UC },
   {.cmd = "VOLUME:GSCALE", .cmd_idx = 0x0000 },
-  {.cmd = "MUSIC:SONG",    .cmd_idx = 0x0100 | ESP_NOW_PARAM_UC },
-  {.cmd = "MUSIC:TYPE",    .cmd_idx = 0x0100 | ESP_NOW_PARAM_UC },
-  {.cmd = "MUSIC:NEXT",    .cmd_idx = 0x0100 | ESP_NOW_PARAM_UC },
-  {.cmd = "EYES:PATTERN",  .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
-  {.cmd = "EYES:CYCLE",    .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
-  {.cmd = "EYES:BRIGHT",   .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
-  {.cmd = "EYES:MVPINS",   .cmd_idx = 0x0200 | ESP_NOW_PARAM_UC },
-  {.cmd = "OTA:WEB",       .cmd_idx = 0x0300 }
+  {.cmd = "MUSIC:SONG",    .cmd_idx = 0x0001 | ESP_NOW_PARAM_UC },
+  {.cmd = "MUSIC:TYPE",    .cmd_idx = 0x0001 | ESP_NOW_PARAM_UC },
+  {.cmd = "MUSIC:NEXT",    .cmd_idx = 0x0001 | ESP_NOW_PARAM_UC },
+  {.cmd = "EYES:PATTERN",  .cmd_idx = 0x0002 | ESP_NOW_PARAM_UC },
+  {.cmd = "EYES:CYCLE",    .cmd_idx = 0x0002 | ESP_NOW_PARAM_UC },
+  {.cmd = "EYES:BRIGHT",   .cmd_idx = 0x0002 | ESP_NOW_PARAM_UC },
+  {.cmd = "EYES:MVPINS",   .cmd_idx = 0x0002 | ESP_NOW_PARAM_UC },
+  {.cmd = "OTA:WEB",       .cmd_idx = 0x0003 }
 };
 #define CMD_VERIFIER "BANJO"
 
@@ -846,8 +890,8 @@ uint16_t do_esp_now_command(uint16_t rcvd_len, char* my_message) {
     for (int i = 0; (i < NUMOF(esp_now_cmds)) && not_found; i += 1) {
       if (!strcmp(token, esp_now_cmds[i].cmd)) {
         Serial.printf("  found %s %s cmd_idx:0x%04x\n", token, param_token, esp_now_cmds[i].cmd_idx);
-        uint16_t cmd_type = (esp_now_cmds[i].cmd_idx >> 8) & 0xFF;
-        uint16_t cmd_bits  = esp_now_cmds[i].cmd_idx & 0xFF;
+        uint16_t cmd_type = esp_now_cmds[i].cmd_idx & ESP_NOW_PARAM_MASK_CMD_TYPE;
+        uint16_t cmd_bits  = esp_now_cmds[i].cmd_idx & ESP_NOW_PARAM_MASK_CMD_BITS;
         if (cmd_bits & ESP_NOW_PARAM_UC)
           esp_now_cmd_ptrs[cmd_type](token, strupr(param_token));
         else

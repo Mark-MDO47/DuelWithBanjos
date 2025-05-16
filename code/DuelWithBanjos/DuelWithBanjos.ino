@@ -68,6 +68,7 @@
 
 // Visual Micro Over-The-Air Debugging https://www.visualmicro.com/page/OTA-Debugging-for-Espressif-ESP-Boards.aspx
 // For this we need to connect to WiFi all the time
+//    NOTE: somehow this interferes with ESP-NOW and also does not make OTA debug work. It does put the IP address on the router.
 #define VM_OTA_DEBUG 0              // zero to not use, non-zero to use OTA ESP32 debugging with Visual Micro and Microsoft Visual Studio
 
 #if (MDO_USE_OTA || VM_OTA_DEBUG)

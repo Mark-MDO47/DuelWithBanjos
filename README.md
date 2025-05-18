@@ -18,6 +18,7 @@ A story-line showing how to do Over-The-Air (OTA) Web updates to the Banjo Playe
 * [Top](#duelwithbanjos "Top")
 * [Introduction](#introduction "Introduction")
 * [Schematic](#schematic "Schematic")
+  * [Do-It-Yourself Layout Creator](#do\-it\-yourself-layout-creator "Do-It-Yourself Layout Creator")
 * [Code](#code "Code")
 * [Parts List](#parts-list "Parts List")
 * [License](#license "License")

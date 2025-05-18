@@ -39,6 +39,13 @@ The plan is to make them
 - support Over-The-Air (OTA) re-programming
   - https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/code/DuelWithBanjos/OTA_story.md
   - https://github.com/Mark-MDO47/UniRemote/blob/master/code/mdo_use_ota_webupdater/README.md
+- support OTA debugging via the extension "Visual Micro" for Visual Studio Code
+  - I am still working on it - getting ESP-NOW, ota_webupdater, and OTA debugging to play together
+  - https://www.visualmicro.com/
+  - https://code.visualstudio.com/
+- Have volume control for the sound
+  - I am still working on it - volume control commands seem to wait for the start of the next sound and cause other effects
+  - I will try this: https://www.adafruit.com/product/4286
 
 ## Schematic
 [Top](#duelwithbanjos "Top")<br>

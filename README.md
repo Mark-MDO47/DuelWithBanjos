@@ -44,7 +44,7 @@ The plan is to make them
   - https://www.visualmicro.com/
   - https://code.visualstudio.com/
 - Have volume control for the sound
-  - I am still working on it - volume control commands seem to wait for the start of the next sound and cause other effects
+  - I am still working on it - YX5200 volume control commands seem to wait for the start of the next sound and cause other effects
   - I will try this: https://www.adafruit.com/product/4286
 
 ## Schematic

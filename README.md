@@ -47,6 +47,14 @@ This is the schematic of the interesting part of the design, including the ESP32
 - I had to move to pin D26 because of my horrible soldering.
 <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/KiCad/Duel_schematic_01.png" width="800" alt="Schematic of ESP32 module, sound control, and LED control">
 
+### Do-It-Yourself Layout Creator
+[Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+I didn't know about this when I did my perfboard design for Dueling with Banjos but I wish I had used DIYLC instead of hacking away at my perfboard!
+- https://github.com/bancika/diy-layout-creator
+- https://github.com/bancika/diy-layout-creator/releases
+
+Here is a nice YouTube showing how to use it
+- Design Circuits on Stripboard or Veroboard for FREE with DIY Layout Creator by TekSparkz - https://www.youtube.com/watch?v=mzje3eHqi2E
 
 ## Code
 [Top](#duelwithbanjos "Top")<br>

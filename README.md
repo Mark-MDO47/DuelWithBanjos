@@ -112,9 +112,6 @@ I decided to try a "digital potentiometer" or **digipot** to implement the volum
 - Adafruit DS3502 I2C Digital 10K Potentiometer Breakout - https://www.adafruit.com/product/4286
 - https://www.analog.com/media/en/technical-documentation/data-sheets/DS3502.pdf
 
-I used Audacity to create a mono audio file with the frequency of "A" at 440 Hertz (just above middle C on the piano)
-- https://en.wikipedia.org/wiki/Piano_key_frequencies
-
 Looking at the SPK1/SPK2 sound output of the YX5200, I see that
 1. both SPK1 and SPK2 are positive with respect to ground
 2. they are phase-shifted 180 degrees such that the high point on one is the low point on the other
@@ -123,7 +120,10 @@ Looking at the SPK1/SPK2 sound output of the YX5200, I see that
 
 Unfortunately it is hard to power the digipot with a ground based on SPK2, and it would violate the input signal parameters to use the normal ground and let the signal go to -1 volt (which would happen).
 
-My current approach is to use two digipots, one for each SPK signal, and then combine the signals afterwards.
+My current approach is to use two digipots, one for each SPK signal, and then combine the signals afterwards. The question is: what is the frequency response of the digipot?
+
+I used Audacity to create a mono audio file with the frequency of "A" at 440 Hertz (just above middle C on the piano) and "C" at 4641 Hertz (the top key on the piano).
+- https://en.wikipedia.org/wiki/Piano_key_frequencies
 
 ## License
 [Top](#duelwithbanjos "Top")<br>

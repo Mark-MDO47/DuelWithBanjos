@@ -21,6 +21,8 @@ A story-line showing how to do Over-The-Air (OTA) Web updates to the Banjo Playe
   * [Do-It-Yourself Layout Creator](#do\-it\-yourself-layout-creator "Do-It-Yourself Layout Creator")
 * [Code](#code "Code")
 * [Parts List](#parts-list "Parts List")
+* [Items of Note](#items-of-note "Items of Note")
+  * [Volume Control](#volume-control "Volume Control")
 * [License](#license "License")
 
 ## Introduction

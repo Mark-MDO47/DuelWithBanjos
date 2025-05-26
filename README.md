@@ -101,6 +101,7 @@ Work In Progress...
 [Top](#duelwithbanjos "Top")<br>
 
 ### Volume Control
+[Top](#duelwithbanjos "Top")<br>
 In experimenting I found that the volume control command on this particular YX5200 module
 - only takes effect on the next start of a sound file
 - causes commands to change sound file also wait for the next start of a sound file

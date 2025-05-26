@@ -95,6 +95,31 @@ Work In Progress...
 | 18650 2-slot holder | 18650 Battery Holder 2 Slot 3.7V 18650 Battery | https://www.amazon.com/dp/B09LC13D9P | $2.60 |
 | JST SM 2.5mm | 1 @ pair JST SM 2.5mm 3-pin Male/Female connectors and cables for power connection | https://www.amazon.com/mxuteuk-Connectors-Connector-Adapter-Electrical/dp/B0DHKC3ZSF/ref=sr_1_2?th=1 | $0.45 |
 
+## Items of Note
+[Top](#duelwithbanjos "Top")<br>
+
+### Volume Control
+In experimenting I found that the volume control command on this particular YX5200 module
+- only takes effect on the next start of a sound file
+- causes commands to change sound file also wait for the next start of a sound file
+
+YX5200 modules can vary so I am not sure if this applies to most or every module.
+
+I decided to try a "digital potentiometer" or **digipot** to implement the volume control.
+- Adafruit DS3502 I2C Digital 10K Potentiometer Breakout - https://www.adafruit.com/product/4286
+
+I used Audacity to create a mono audio file with the frequency of "A" at 440 Hertz (just above middle C on the piano)
+- https://en.wikipedia.org/wiki/Piano_key_frequencies
+
+Looking at the SPK1/SPK2 sound output of the YX5200, I see that
+1. both SPK1 and SPK2 are positive with respect to ground
+2. they are phase-shifted 180 degrees such that the high point on one is the low point on the other
+3. when connected to the speaker (which does not receive ground) it makes it appear to be a balanced signal around ground, with negative and positive movement
+4. an alternative view would be to assume one signal (say SPK2) is ground; then it appears to be a signal with twice the amplitude of either individual signal to chip ground
+
+Unfortunately it is hard to power the digipot with a ground based on SPK2, and it would violate the input signal parameters to use the normal ground and let the signal go to -1 volt (which would happen).
+
+My current approach is to use two digipots, one for each SPK signal, and then combine the signals afterwards.
 
 ## License
 [Top](#duelwithbanjos "Top")<br>

@@ -110,6 +110,7 @@ YX5200 modules can vary so I am not sure if this applies to most or every module
 
 I decided to try a "digital potentiometer" or **digipot** to implement the volume control.
 - Adafruit DS3502 I2C Digital 10K Potentiometer Breakout - https://www.adafruit.com/product/4286
+- https://www.analog.com/media/en/technical-documentation/data-sheets/DS3502.pdf
 
 I used Audacity to create a mono audio file with the frequency of "A" at 440 Hertz (just above middle C on the piano)
 - https://en.wikipedia.org/wiki/Piano_key_frequencies

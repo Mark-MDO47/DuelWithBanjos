@@ -125,6 +125,14 @@ My current approach is to use two digipots, one for each SPK signal, and then co
 I used Audacity to create a mono audio file with the frequency of "A" at 440 Hertz (just above middle C on the piano) and "C" at 4641 Hertz (the top key on the piano).
 - https://en.wikipedia.org/wiki/Piano_key_frequencies
 
+| YX5200 Oscope traces | C @ 4641 Hz<br>A @ 440 Hz |
+| --- | --- |
+| **C4641 @ 500 usec** | **C4641 @ 100 usec** |
+| <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/C4641_500usec_small.jpg" width="300" alt="C4641 @ 500 usec"> | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/C4641_100usec_small.jpg" width="300" alt="C4641 @ 100 usec"> | 
+| **A440 @ 500 usec** | ... |
+| <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/A440_500usec_small.jpg" width="300" alt="A440 @ 500 usec"> | ... |
+
+
 ## License
 [Top](#duelwithbanjos "Top")<br>
 This repository has a LICENSE file for the Apache 2.0 License. There may be code included that I have modified from other open sources (such as Arduino, Espressif, SparkFun, Seeed Studio, DFRobot, RandomNerds, etc.). These other sources may possibly be licensed using a different license model. In such a case I will include some notation of this. Typically I will include verbatim the license in the included/modified source code, but alternatively there might be a LICENSE file in the source code area that points out exceptions to the Apache 2.0 License.

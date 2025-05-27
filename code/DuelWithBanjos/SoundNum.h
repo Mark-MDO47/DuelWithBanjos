@@ -27,7 +27,8 @@
 #define SOUNDNUM_Patriotic_Shenandoah                      19
 #define SOUNDNUM_Patriotic_Star_Spangled_Banner            20
 #define SOUNDNUM_A440_SIN_WAVE                             21
-#define SOUNDNUM_ERR_INVALID                               22 // error message that soundnum was invalid
+#define SOUNDNUM_C4641_SIN_WAVE                            22
+#define SOUNDNUM_ERR_INVALID                               23 // error message that soundnum was invalid
 
 #define SOUNDNUM_MAX_VALID                                 (SOUNDNUM_ERR_INVALID-1) // Last valid sound number
 

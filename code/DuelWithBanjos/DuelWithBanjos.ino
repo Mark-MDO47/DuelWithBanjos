@@ -144,6 +144,7 @@ static music_song_to_soundnum_t g_music_song_to_soundnum[] = {
   { .song_name = (char*)"PATRIOT-SHENANDOAH",            .soundnum = SOUNDNUM_Patriotic_Shenandoah,                      .song_volume = SOUND_DEFAULT_VOL },
   { .song_name = (char*)"PATRIOT-STAR-SPANGLED-BANNER",  .soundnum = SOUNDNUM_Patriotic_Star_Spangled_Banner,            .song_volume = SOUND_DEFAULT_VOL },
   { .song_name = (char*)"A440",                          .soundnum = SOUNDNUM_A440_SIN_WAVE,                             .song_volume = SOUND_DEFAULT_VOL },
+  { .song_name = (char*)"C4641",                         .soundnum = SOUNDNUM_C4641_SIN_WAVE,                            .song_volume = SOUND_DEFAULT_VOL },
   { .song_name = (char*)"SOUNDNUM_ERR_INVALID",          .soundnum = SOUNDNUM_ERR_INVALID,                               .song_volume = SOUND_DEFAULT_VOL }
 };
 typedef struct {
@@ -220,6 +221,7 @@ uint16_t g_music_type_array_all_plus_invalid[] = {
   SOUNDNUM_Patriotic_Shenandoah,
   SOUNDNUM_Patriotic_Star_Spangled_Banner,
   SOUNDNUM_A440_SIN_WAVE,
+  SOUNDNUM_C4641_SIN_WAVE,
   SOUNDNUM_ERR_INVALID
 };
 

@@ -48,6 +48,7 @@ The plan is to make them
 - Have volume control for the sound
   - I am still working on it - YX5200 volume control commands seem to wait for the start of the next sound and cause other effects
   - I will try this: https://www.adafruit.com/product/4286
+  - [Volume Control](#volume-control "Volume Control")
 
 ## Schematic
 [Top](#duelwithbanjos "Top")<br>

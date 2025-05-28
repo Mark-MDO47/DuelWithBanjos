@@ -133,6 +133,7 @@ I used Audacity to create a mono audio file with the frequency of "A" at 440 Her
 | **A440 @ 500 usec** | ... |
 | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/A440_500usec_small.jpg" width="300" alt="A440 @ 500 usec"> | ... |
 
+Oops - connected the O-scope probe grounds to both the ground and one of the SPK# and blew out the YX5200. Now I understand why they recommend using sockets! Sockets are ordered...
 
 ## License
 [Top](#duelwithbanjos "Top")<br>

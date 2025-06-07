@@ -580,30 +580,31 @@ void setup() {
 //
 uint16_t do_cmd_volume(char* p_cmd, char* p_param) {
   Serial.printf("do_cmd_volume %s %s\n", p_cmd, p_param);
-  int16_t num = (int16_t) atoi(p_param);
+  uint16_t curr_soundnum = g_music_song_to_soundnum[g_music_song_to_soundnum_idx_playing_now].soundnum;
+  int16_t num = (int16_t) atoi(p_param); // int can be + or -
   if (num < 0) num = 0;
   if (NULL != strstr("VOLUME:GSCALE", p_cmd)) {
-    if (num > 200) num = 200;
-    g_volume_gscale = num;
+    if (200 < num) num = 200;
+    if (0   > num) num = 0;
+    g_volume_gscale = (uint32_t) num; // gscale is uint32_t to force int calcs to uint32_t
   } else {
-    if (num > 30) num = 30;
+    if (SOUND_VOL_MIN > num) num = SOUND_VOL_MIN;
+    if (SOUND_VOL_MAX < num) num = SOUND_VOL_MAX;
     if (NULL != strstr("VOLUME:UP", p_cmd)) {
-      for (int i = 0; i < num; i++) {
-        if (SOUND_VOL_MAX <= g_current_volume_set) break;
-        myDFPlayer.volumeUp();
-        g_current_volume_set += 1;
-      } // end for num to move volume
+      num = g_current_volume_set + num;
+      if (SOUND_VOL_MIN > num) num = SOUND_VOL_MIN;
+      if (SOUND_VOL_MAX < num) num = SOUND_VOL_MAX;
+      g_current_volume_set = (uint16_t) num;
     } else if (NULL != strstr("VOLUME:DOWN", p_cmd)) {
-      for (int i = 0; i < num; i++) {
-        if (SOUND_VOL_MIN >= g_current_volume_set) break;
-        myDFPlayer.volumeDown();
-        g_current_volume_set -= 1;
-      } // end for num to move volume
+      num = g_current_volume_set - num;
+      if (SOUND_VOL_MIN > num) num = SOUND_VOL_MIN;
+      if (SOUND_VOL_MAX < num) num = SOUND_VOL_MAX;
+      g_current_volume_set = (uint16_t) num;
     } else if (NULL != strstr("VOLUME:SET", p_cmd)) {
-      g_current_volume_set = num;
+      g_current_volume_set = (uint16_t) num;
     }
   }
-  myDFPlayer.volume(DFscaleVolume(g_music_song_to_soundnum[g_music_song_to_soundnum_idx_playing_now].soundnum, g_current_volume_set));  // Set volume value. Range from 0 to 30
+  myDFPlayer.volume(DFscaleVolume(curr_soundnum, g_current_volume_set));  // Set volume value. Range from 0 to 30
 
   return(0);
 } // end do_cmd_volume()

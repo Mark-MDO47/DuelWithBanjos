@@ -102,8 +102,10 @@ uint32_t gTimerForceSoundActv = 0;  // SOUND_ACTIVE_PROTECT until millis() >= th
 #define VOLUME_GSCALE_DIVISOR 100
 uint32_t g_volume_gscale = VOLUME_GSCALE_DIVISOR; // volume global scale factor. range: 0 to 200
 
-#define SOUND_DEFAULT_VOL     25  // default volume - range 0 to 30
-uint16_t g_current_volume_set = SOUND_DEFAULT_VOL; // 
+#define SOUND_VOL_MIN      0   // range 0 to 30
+#define SOUND_VOL_MAX      30  // range 0 to 30
+#define SOUND_VOL_DEFAULT  25  // default volume - range 0 to 30
+uint16_t g_current_volume_set = SOUND_VOL_DEFAULT; // 
 
 // #define DFPRINTDETAIL 1 // if need detailed status from myDFPlayer (YX5200 communications)
 #define DFPRINTDETAIL 0  // will not print detailed status from myDFPlayer
@@ -123,29 +125,29 @@ typedef struct {
   uint16_t song_volume; // song-suggested volume
 } music_song_to_soundnum_t;
 static music_song_to_soundnum_t g_music_song_to_soundnum[] = {
-  { .song_name = (char*)"DUEL-BANJO",                    .soundnum = SOUNDNUM_DuelingBanjos,                             .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"SILENCE",                       .soundnum = SOUNDNUM_silence,                                   .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"DECK-HALLS",                    .soundnum = SOUNDNUM_DeckTheDuelingHalls,                       .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"WHAT-CHILD",                    .soundnum = SOUNDNUM_WhatChildIsThis,                           .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"MERRY-GENTLEMEN",               .soundnum = SOUNDNUM_GodRestYe,                                 .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"TOWN-BETHLEHEM",                .soundnum = SOUNDNUM_OLittleTownOf,                             .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"KING-WENCESLAS",                .soundnum = SOUNDNUM_GoodKingWenceslas,                         .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"CHOPIN-ETUDE-TRISTESSE",        .soundnum = SOUNDNUM_Chopin_Etude_10_03,                        .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"CHOPIN-NOCTURNE-E-FLAT",        .soundnum = SOUNDNUM_Chopin_Noct_55_2,                          .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"CHOPIN-ETUDE-REVOLUTIONARY",    .soundnum = SOUNDNUM_Chopin_Etude_10_12,                        .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"CHOPIN-NOCTURNE-D-FLAT",        .soundnum = SOUNDNUM_Chopin_Noct_27_2,                          .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"CHOPIN-NOCTURNE-G",             .soundnum = SOUNDNUM_Chopin_Noct_37_2,                          .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"CHOPIN-PRELUDE-RAINDROP",       .soundnum = SOUNDNUM_Chopin_Prelude_15,                         .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"PATRIOT-BATTLE-HYMN-REPUBLIC",  .soundnum = SOUNDNUM_Patriotic_Battle_Hymn_of_the_Republic,     .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"PATRIOT-AMERICA-THE-BEAUTIFUL", .soundnum = SOUNDNUM_Patriotic_America_the_Beautiful,           .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"PATRIOT-JOHNNY-MARCHING-HOME",  .soundnum = SOUNDNUM_Patriotic_When_Johnny_Comes_Marching_Home, .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"PATRIOT-MARINE-HYMN",           .soundnum = SOUNDNUM_Patriotic_Marine_Hymn,                     .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"PATRIOT-DIXIE",                 .soundnum = SOUNDNUM_Patriotic_Dixie,                           .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"PATRIOT-SHENANDOAH",            .soundnum = SOUNDNUM_Patriotic_Shenandoah,                      .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"PATRIOT-STAR-SPANGLED-BANNER",  .soundnum = SOUNDNUM_Patriotic_Star_Spangled_Banner,            .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"A440",                          .soundnum = SOUNDNUM_A440_SIN_WAVE,                             .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"C4641",                         .soundnum = SOUNDNUM_C4641_SIN_WAVE,                            .song_volume = SOUND_DEFAULT_VOL },
-  { .song_name = (char*)"SOUNDNUM_ERR_INVALID",          .soundnum = SOUNDNUM_ERR_INVALID,                               .song_volume = SOUND_DEFAULT_VOL }
+  { .song_name = (char*)"DUEL-BANJO",                    .soundnum = SOUNDNUM_DuelingBanjos,                             .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"SILENCE",                       .soundnum = SOUNDNUM_silence,                                   .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"DECK-HALLS",                    .soundnum = SOUNDNUM_DeckTheDuelingHalls,                       .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"WHAT-CHILD",                    .soundnum = SOUNDNUM_WhatChildIsThis,                           .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"MERRY-GENTLEMEN",               .soundnum = SOUNDNUM_GodRestYe,                                 .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"TOWN-BETHLEHEM",                .soundnum = SOUNDNUM_OLittleTownOf,                             .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"KING-WENCESLAS",                .soundnum = SOUNDNUM_GoodKingWenceslas,                         .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"CHOPIN-ETUDE-TRISTESSE",        .soundnum = SOUNDNUM_Chopin_Etude_10_03,                        .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"CHOPIN-NOCTURNE-E-FLAT",        .soundnum = SOUNDNUM_Chopin_Noct_55_2,                          .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"CHOPIN-ETUDE-REVOLUTIONARY",    .soundnum = SOUNDNUM_Chopin_Etude_10_12,                        .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"CHOPIN-NOCTURNE-D-FLAT",        .soundnum = SOUNDNUM_Chopin_Noct_27_2,                          .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"CHOPIN-NOCTURNE-G",             .soundnum = SOUNDNUM_Chopin_Noct_37_2,                          .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"CHOPIN-PRELUDE-RAINDROP",       .soundnum = SOUNDNUM_Chopin_Prelude_15,                         .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"PATRIOT-BATTLE-HYMN-REPUBLIC",  .soundnum = SOUNDNUM_Patriotic_Battle_Hymn_of_the_Republic,     .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"PATRIOT-AMERICA-THE-BEAUTIFUL", .soundnum = SOUNDNUM_Patriotic_America_the_Beautiful,           .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"PATRIOT-JOHNNY-MARCHING-HOME",  .soundnum = SOUNDNUM_Patriotic_When_Johnny_Comes_Marching_Home, .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"PATRIOT-MARINE-HYMN",           .soundnum = SOUNDNUM_Patriotic_Marine_Hymn,                     .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"PATRIOT-DIXIE",                 .soundnum = SOUNDNUM_Patriotic_Dixie,                           .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"PATRIOT-SHENANDOAH",            .soundnum = SOUNDNUM_Patriotic_Shenandoah,                      .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"PATRIOT-STAR-SPANGLED-BANNER",  .soundnum = SOUNDNUM_Patriotic_Star_Spangled_Banner,            .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"A440",                          .soundnum = SOUNDNUM_A440_SIN_WAVE,                             .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"C4641",                         .soundnum = SOUNDNUM_C4641_SIN_WAVE,                            .song_volume = SOUND_VOL_DEFAULT },
+  { .song_name = (char*)"SOUNDNUM_ERR_INVALID",          .soundnum = SOUNDNUM_ERR_INVALID,                               .song_volume = SOUND_VOL_DEFAULT }
 };
 typedef struct {
   char*     type_name;
@@ -366,7 +368,7 @@ void DFprintDetail(uint8_t type, int value){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DFstartSound(p_SoundNum, p_Volume) - start p_SoundNum if it is valid
 //
-// p_SoundNum is the sound file number, range 1 to SOUNDNUM_MAX_VALID
+// p_SoundNum is the sound file number, range 1 to SOUNDNUM_MAX_VALID; may use in future version
 // p_Volume   is the requested vol, range 0 to 30
 //
 // for simple global scaled volume
@@ -436,7 +438,7 @@ void  DFstartSound(uint16_t p_SoundNum, uint16_t p_Volume) {
   }
 
 #if VOLUME_ALLOW_CHANGE
-  if we allow changing volume
+  // if we allow changing volume
   scaled_volume = DFscaleVolume(my_SoundNum, p_Volume);
   myDFPlayer.volume(scaled_volume);  // Set volume value. Range from 0 to 30
 #endif // VOLUME_ALLOW_CHANGE
@@ -586,15 +588,23 @@ uint16_t do_cmd_volume(char* p_cmd, char* p_param) {
   } else {
     if (num > 30) num = 30;
     if (NULL != strstr("VOLUME:UP", p_cmd)) {
-      g_current_volume_set += num;
-      if (g_current_volume_set > 30) g_current_volume_set = 0;
+      for (int i = 0; i < num; i++) {
+        if (SOUND_VOL_MAX <= g_current_volume_set) break;
+        myDFPlayer.volumeUp();
+        g_current_volume_set += 1;
+      } // end for num to move volume
     } else if (NULL != strstr("VOLUME:DOWN", p_cmd)) {
-      if (num > g_current_volume_set) g_current_volume_set = 0;
-      else                            g_current_volume_set -= num;
+      for (int i = 0; i < num; i++) {
+        if (SOUND_VOL_MIN >= g_current_volume_set) break;
+        myDFPlayer.volumeDown();
+        g_current_volume_set -= 1;
+      } // end for num to move volume
     } else if (NULL != strstr("VOLUME:SET", p_cmd)) {
       g_current_volume_set = num;
     }
   }
+  myDFPlayer.volume(DFscaleVolume(g_music_song_to_soundnum[g_music_song_to_soundnum_idx_playing_now].soundnum, g_current_volume_set));  // Set volume value. Range from 0 to 30
+
   return(0);
 } // end do_cmd_volume()
 

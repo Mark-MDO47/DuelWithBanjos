@@ -21,8 +21,6 @@ A story-line showing how to do Over-The-Air (OTA) Web updates to the Banjo Playe
   * [Do-It-Yourself Layout Creator](#do\-it\-yourself-layout-creator "Do-It-Yourself Layout Creator")
 * [Code](#code "Code")
 * [Parts List](#parts-list "Parts List")
-* [Items of Note](#items-of-note "Items of Note")
-  * [Volume Control](#volume-control "Volume Control")
 * [License](#license "License")
 
 ## Introduction
@@ -38,6 +36,8 @@ The plan is to make them
   - https://github.com/Mark-MDO47/AudioPlayer-YX5200
 - blink LED "eyes" using Pulse Width Modulation (PWM)
   - https://github.com/Mark-MDO47/DuelWithBanjos/tree/master/code/LEDPinsPwmTemplate
+- Have volume control for the sound
+  - Fixed my bug; this now seems to work! I may make it more elaborate later.
 - support Over-The-Air (OTA) re-programming
   - https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/code/DuelWithBanjos/OTA_story.md
   - https://github.com/Mark-MDO47/UniRemote/blob/master/code/mdo_use_ota_webupdater/README.md
@@ -45,10 +45,6 @@ The plan is to make them
   - I am still working on it - getting ESP-NOW, ota_webupdater, and OTA debugging to play together
   - https://www.visualmicro.com/
   - https://code.visualstudio.com/
-- Have volume control for the sound
-  - I am still working on it - YX5200 volume control commands seem to wait for the start of the next sound and cause other effects
-  - I will try this: https://www.adafruit.com/product/4286
-  - [Volume Control](#volume-control "Volume Control")
 
 ## Schematic
 [Top](#duelwithbanjos "Top")<br>
@@ -99,43 +95,6 @@ Work In Progress...
 | 18650 Battery | 2 @ 3.7V 18650 & charger<br>URL has 4 batteries plus charger so price each is inflated | https://www.amazon.com/dp/B0CP6V26QX | $5.00 |
 | 18650 2-slot holder | 18650 Battery Holder 2 Slot 3.7V 18650 Battery | https://www.amazon.com/dp/B09LC13D9P | $2.60 |
 | JST SM 2.5mm | 1 @ pair JST SM 2.5mm 3-pin Male/Female connectors and cables for power connection | https://www.amazon.com/mxuteuk-Connectors-Connector-Adapter-Electrical/dp/B0DHKC3ZSF/ref=sr_1_2?th=1 | $0.45 |
-
-## Items of Note
-[Top](#duelwithbanjos "Top")<br>
-
-### Volume Control
-[Top](#duelwithbanjos "Top")<br>
-In experimenting I found that the volume control command on this particular YX5200 module
-- only takes effect on the next start of a sound file
-- causes commands to change sound file also wait for the next start of a sound file
-
-YX5200 modules can vary so I am not sure if this applies to most or every module.
-
-I decided to try a "digital potentiometer" or **digipot** to implement the volume control.
-- Adafruit DS3502 I2C Digital 10K Potentiometer Breakout - https://www.adafruit.com/product/4286
-- https://www.analog.com/media/en/technical-documentation/data-sheets/DS3502.pdf
-
-Looking at the SPK1/SPK2 sound output of the YX5200, I see that
-1. both SPK1 and SPK2 are positive with respect to ground
-2. they are phase-shifted 180 degrees such that the high point on one is the low point on the other
-3. when connected to the speaker (which does not receive ground) it makes it appear to be a balanced signal around ground, with negative and positive movement
-4. an alternative view would be to assume one signal (say SPK2) is ground; then it appears to be a signal with twice the amplitude of either individual signal to chip ground
-
-Unfortunately it is hard to power the digipot with a ground based on SPK2, and it would violate the input signal parameters to use the normal ground and let the signal go to -1 volt (which would happen).
-
-My current approach is to use two digipots, one for each SPK signal, and then combine the signals afterwards. The question is: what is the frequency response of the digipot?
-
-I used Audacity to create a mono audio file with the frequency of "A" at 440 Hertz (just above middle C on the piano) and "C" at 4641 Hertz (the top key on the piano).
-- https://en.wikipedia.org/wiki/Piano_key_frequencies
-
-| YX5200 Oscope traces | C @ 4641 Hz<br>A @ 440 Hz |
-| --- | --- |
-| **C4641 @ 500 usec** | **C4641 @ 100 usec** |
-| <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/C4641_500usec_small.jpg" width="300" alt="C4641 @ 500 usec"> | <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/C4641_100usec_small.jpg" width="300" alt="C4641 @ 100 usec"> | 
-| **A440 @ 500 usec** | ... |
-| <img src="https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/resources/images/A440_500usec_small.jpg" width="300" alt="A440 @ 500 usec"> | ... |
-
-Oops - connected the O-scope probe grounds to both the ground and one of the SPK# and blew out the YX5200. Now I understand why they recommend using sockets! Sockets are ordered...
 
 ## License
 [Top](#duelwithbanjos "Top")<br>

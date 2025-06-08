@@ -6,8 +6,8 @@
 	(paper "A4")
 	(title_block
 		(title "DuelWithBanjos")
-		(date "2025-05-08")
-		(rev "Rev 0.9")
+		(date "2025-06-08")
+		(rev "Rev 1.0")
 		(company "https://github.com/Mark-MDO47")
 	)
 	(lib_symbols
@@ -867,6 +867,18 @@
 			(embedded_fonts no)
 		)
 	)
+	(rectangle
+		(start 198.12 58.42)
+		(end 223.52 88.9)
+		(stroke
+			(width 1)
+			(type solid)
+		)
+		(fill
+			(type none)
+		)
+		(uuid a5e09200-bfc8-4f37-9d41-dab16bf3c320)
+	)
 	(text "Red"
 		(exclude_from_sim no)
 		(at 80.264 68.58 0)
@@ -899,18 +911,6 @@
 	)
 	(text "3.8V"
 		(exclude_from_sim no)
-		(at 33.02 99.06 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(bold yes)
-			)
-			(justify right bottom)
-		)
-		(uuid "79ce7153-65ab-4dec-a8fc-4eba514a5b5e")
-	)
-	(text "3.8V"
-		(exclude_from_sim no)
 		(at 33.02 81.28 0)
 		(effects
 			(font
@@ -932,16 +932,6 @@
 			(justify right bottom)
 		)
 		(uuid "cdc6236b-4987-4fdf-bc5e-264a41eee845")
-	)
-	(wire
-		(pts
-			(xy 69.85 101.6) (xy 69.85 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0870d2ec-c1a7-4b39-b204-c93be9c9a153")
 	)
 	(wire
 		(pts
@@ -985,16 +975,6 @@
 	)
 	(wire
 		(pts
-			(xy 38.1 83.82) (xy 38.1 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4e3eec16-d222-4c18-b674-de65c4d582ef")
-	)
-	(wire
-		(pts
 			(xy 38.1 66.04) (xy 38.1 76.2)
 		)
 		(stroke
@@ -1002,16 +982,6 @@
 			(type default)
 		)
 		(uuid "5bdb2f02-f229-4cb8-b9cf-af427ed8e672")
-	)
-	(wire
-		(pts
-			(xy 38.1 101.6) (xy 69.85 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "99b6ec57-5b0e-404b-9834-d56bd3c0a86c")
 	)
 	(wire
 		(pts
@@ -1045,6 +1015,16 @@
 	)
 	(wire
 		(pts
+			(xy 38.1 83.82) (xy 38.1 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "be2b80c5-756b-4515-b8ed-8177e5f6853d")
+	)
+	(wire
+		(pts
 			(xy 137.16 68.58) (xy 154.94 68.58)
 		)
 		(stroke
@@ -1062,6 +1042,26 @@
 			(type default)
 		)
 		(uuid "ce0e0522-b937-4a16-adfa-3d5cb106bbea")
+	)
+	(wire
+		(pts
+			(xy 38.1 91.44) (xy 69.85 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d1c12cf1-ee23-41f4-8f46-1249c132f9f5")
+	)
+	(wire
+		(pts
+			(xy 69.85 91.44) (xy 69.85 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dad9dccf-6f61-4d94-b442-a9546c578e4f")
 	)
 	(wire
 		(pts
@@ -1378,76 +1378,6 @@
 			(project ""
 				(path "/c9b0a009-eaf9-4c5a-9c22-a228fddea57d/bc1c1418-3098-4af1-89ea-7f31e7186f1b"
 					(reference "J2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:Battery_Cell")
-		(at 38.1 99.06 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "920f9c53-232d-4c7e-b4d0-9ebc1cb81a85")
-		(property "Reference" "BT3"
-			(at 41.91 96.393 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "Battery_Cell"
-			(at 41.91 98.933 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 38.1 97.536 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 38.1 97.536 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 38.1 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "8bec2c96-2766-438f-826b-cb34b19523ba")
-		)
-		(pin "2"
-			(uuid "e790e259-8d31-4da6-8e13-1d399fe0fbe7")
-		)
-		(instances
-			(project "DuelWithBanjos"
-				(path "/c9b0a009-eaf9-4c5a-9c22-a228fddea57d/bc1c1418-3098-4af1-89ea-7f31e7186f1b"
-					(reference "BT3")
 					(unit 1)
 				)
 			)

@@ -1,6 +1,7 @@
 # DuelWithBanjos
 Just for fun - tiny scarecrow skeletons playing banjo music, placed under the control of the UniRemote!
 - https://github.com/Mark-MDO47/UniRemote
+- DuelWithBanjos now at version V1.0!
 
 A quick 38-second video demonstration:
 - https://youtu.be/nwAhtAX-E6E
@@ -29,7 +30,7 @@ I have two country style skeleton banjo players approximately 14 inches tall ord
 I think they might be similar to this one:
 - https://www.amazon.com/XINANDHAO-Halloween-Animated-Skeletons-Musicians/dp/B0DC56RL1F
 
-The plan is to make them
+Version V1.0 includes the following capabilities:
 - respond to controls from my UniRemote remote controller via ESP-NOW
   - https://github.com/Mark-MDO47/UniRemote
 - play music using a YX5200 Audio Player which reads sound files from a MicroSD card
@@ -41,6 +42,8 @@ The plan is to make them
 - support Over-The-Air (OTA) re-programming
   - https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/code/DuelWithBanjos/OTA_story.md
   - https://github.com/Mark-MDO47/UniRemote/blob/master/code/mdo_use_ota_webupdater/README.md
+
+The future plan is to make them
 - support OTA debugging via the extension "Visual Micro" for Visual Studio Code
   - I am still working on it - getting ESP-NOW, ota_webupdater, and OTA debugging to play together
   - https://www.visualmicro.com/

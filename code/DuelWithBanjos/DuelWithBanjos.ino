@@ -366,7 +366,7 @@ void DFprintDetail(uint8_t type, int value){
 #endif // DFPRINTDETAIL
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DFstartSound(p_SoundNum, p_Volume) - start p_SoundNum if it is valid
+// DFscaleVolume(p_SoundNum, p_Volume) - compute scaled volume
 //
 // p_SoundNum is the sound file number, range 1 to SOUNDNUM_MAX_VALID; may use in future version
 // p_Volume   is the requested vol, range 0 to 30
@@ -559,6 +559,7 @@ void setup() {
   Serial.println("\nDuelWithBanjos init complete...");
 
   // start the first sound, then allow normal loop() processing
+  g_music_type_list = &g_music_type_to_music_list_duel; // just in case, make it valid
   g_music_mode = MUSIC_MODE_SINGLE_SONG;
   g_music_soundnum_single_song = SOUNDNUM_DuelingBanjos;
   g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(SOUNDNUM_DuelingBanjos);
@@ -610,6 +611,23 @@ uint16_t do_cmd_volume(char* p_cmd, char* p_param) {
 } // end do_cmd_volume()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// find_musictype_idx_from_soundnum() - MUSIC:xxx utility
+//     returns 0xFFFF if not found, else idx within g_music_song_to_soundnum
+// 
+uint16_t find_musictype_idx_from_soundnum(uint16_t p_soundnum, music_type_to_music_list_t *p_mtype_2mlist) {
+  uint16_t ret_idx = 0xFFFF;
+
+  for (uint16_t idx = 0; idx < p_mtype_2mlist->num_in_list; idx += 1) {
+    if (p_mtype_2mlist->list_array[idx] == p_soundnum) {
+      ret_idx = idx;
+      break;
+    }
+  }
+
+  return(ret_idx);
+} // end find_musictype_idx_from_soundnum()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // find_music_idx_from_soundnum() - MUSIC:xxx utility
 //     returns 0xFFFF if not found, else idx within g_music_song_to_soundnum
 // 
@@ -638,6 +656,8 @@ uint16_t find_music_idx_from_soundnum(uint16_t p_soundnum) {
 //                                 PATRIOT-MARINE-HYMN PATRIOT-DIXIE PATRIOT-SHENANDOAH PATRIOT-STAR-SPANGLED-BANNER)
 // MUSIC:TYPE <type>   = (<type> = DUEL CHRISTMAS CHOPIN PATRIOT ALL)
 // MUSIC:NEXT <ignore> = start next song from ALL and set mode to MUSIC:SONG
+// MUSIC:SKIP <ignore> = if MUSIC:TYPE skip to next song in this type
+//                       if MUSIC:SONG do same thing as MUSIC:NEXT
 //
 uint16_t do_cmd_music(char* p_cmd, char* p_param) {
   uint16_t found = 0xFFFF;
@@ -675,14 +695,27 @@ uint16_t do_cmd_music(char* p_cmd, char* p_param) {
       Serial.printf("ERROR: unknown MUSIC TYPE in command %s %s\n", p_cmd, p_param);
       return(1);
     }
-  } else if (NULL != strstr("MUSIC:NEXT", p_cmd)) {
+  } else if ((NULL != strstr("MUSIC:NEXT", p_cmd)) || (NULL != strstr("MUSIC:SKIP", p_cmd))) {
+    uint16_t tmp_idx = 0xFFFF;
+    uint16_t tmp_soundnum = g_music_song_to_soundnum[g_music_song_to_soundnum_idx_playing_now].soundnum;
+    if ((NULL != strstr("MUSIC:NEXT", p_cmd)) || (MUSIC_MODE_SINGLE_SONG == g_music_mode)) {
+      // here to force MUSIC_MODE_SINGLE_SONG and skip to next in g_music_type_to_music_list_all
+      g_music_mode = MUSIC_MODE_SINGLE_SONG;
+      g_music_type_list = &g_music_type_to_music_list_all; // we use it temporarily in this routine
+    } else {
+      // here with SKIP and in MUSIC_MODE_TYPE_OF_SONG
+      // g_music_mode already set and g_music_type_list already set
+    }
+
+    // note that 1+0xFFFF (return from not found) -> 0, which is valid for all lists
+    tmp_idx = 1 + find_musictype_idx_from_soundnum(tmp_soundnum, g_music_type_list);
+    if (tmp_idx >= g_music_type_list->num_in_list) {
+      tmp_idx = 0;
+    }
+    tmp_soundnum = g_music_type_list->list_array[tmp_idx];
+
     // g_music_song_to_soundnum_idx_playing_now is ALWAYS up to date
-    uint16_t tmp_idx = g_music_song_to_soundnum_idx_playing_now + 1;
-    if (tmp_idx >= NUMOF(g_music_song_to_soundnum)) tmp_idx = 0;
-    uint16_t tmp_soundnum = g_music_song_to_soundnum[tmp_idx].soundnum;
-    g_music_mode = MUSIC_MODE_SINGLE_SONG;
-    g_music_soundnum_single_song = tmp_soundnum;
-    g_music_song_to_soundnum_idx_playing_now = tmp_idx;
+    g_music_song_to_soundnum_idx_playing_now = find_music_idx_from_soundnum(tmp_soundnum);
     DFstartSound(tmp_soundnum, g_current_volume_set);
   } else {
     Serial.printf("ERROR: unknown MUSIC command %s %s\n", p_cmd, p_param);
@@ -866,6 +899,7 @@ esp_now_cmd_t esp_now_cmds[] = {
   {.cmd = "MUSIC:SONG",    .cmd_idx = 0x0001 | ESP_NOW_PARAM_UC },
   {.cmd = "MUSIC:TYPE",    .cmd_idx = 0x0001 | ESP_NOW_PARAM_UC },
   {.cmd = "MUSIC:NEXT",    .cmd_idx = 0x0001 | ESP_NOW_PARAM_UC },
+  {.cmd = "MUSIC:SKIP",    .cmd_idx = 0x0001 | ESP_NOW_PARAM_UC },
   {.cmd = "EYES:PATTERN",  .cmd_idx = 0x0002 | ESP_NOW_PARAM_UC },
   {.cmd = "EYES:CYCLE",    .cmd_idx = 0x0002 | ESP_NOW_PARAM_UC },
   {.cmd = "EYES:BRIGHT",   .cmd_idx = 0x0002 | ESP_NOW_PARAM_UC },

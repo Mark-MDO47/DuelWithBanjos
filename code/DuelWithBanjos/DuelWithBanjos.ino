@@ -93,8 +93,8 @@
 #define DPIN_AUDIO_BUSY 23  // digital input - HIGH when audio finishes
 DFRobotDFPlayerMini myDFPlayer;                                // to talk to YX5200 audio player
 void DFsetup();                                                // how to initialize myDFPlayer
-#define SOUND_ACTIVE_PROTECT 200  // milliseconds to keep SW twiddled sound active after doing myDFPlayer.play(mySound)
-uint32_t gTimerForceSoundActv = 0;  // SOUND_ACTIVE_PROTECT until millis() >= this
+constexpr uint32_t SOUND_ACTIVE_PROTECT = 200; // milliseconds to keep SW twiddled sound active after doing myDFPlayer.play(mySound)
+uint32_t gTimerForceSoundActv = 0;             // SOUND_ACTIVE_PROTECT until millis() >= this
 
 // Problem with dynamically setting volume - seems to prevent starting a different song until the current one finishes
 #define VOLUME_ALLOW_CHANGE 0    // 1 if can dynamically set volume
@@ -102,9 +102,9 @@ uint32_t gTimerForceSoundActv = 0;  // SOUND_ACTIVE_PROTECT until millis() >= th
 #define VOLUME_GSCALE_DIVISOR 100
 uint32_t g_volume_gscale = VOLUME_GSCALE_DIVISOR; // volume global scale factor. range: 0 to 200
 
-#define SOUND_VOL_MIN      0   // range 0 to 30
-#define SOUND_VOL_MAX      30  // range 0 to 30
-#define SOUND_VOL_DEFAULT  25  // default volume - range 0 to 30
+constexpr uint16_t SOUND_VOL_MIN     =  0;  // range 0 to 30
+constexpr uint16_t SOUND_VOL_MAX     = 30;  // range 0 to 30
+constexpr uint16_t SOUND_VOL_DEFAULT = 25;  // default volume - range 0 to 30
 uint16_t g_current_volume_set = SOUND_VOL_DEFAULT; // 
 
 // #define DFPRINTDETAIL 1 // if need detailed status from myDFPlayer (YX5200 communications)
@@ -241,9 +241,9 @@ music_type_to_music_list_t* g_music_type_to_music_list_array[] = {
   &g_music_type_to_music_list_all
 };
 
-#define MUSIC_MODE_SINGLE_SONG  0
-#define MUSIC_MODE_TYPE_OF_SONG 1
-// #define MUSIC_MODE_OFF          2   this is implemented by using SOUNDNUM_silence
+constexpr uint16_t MUSIC_MODE_SINGLE_SONG  = 0;
+constexpr uint16_t MUSIC_MODE_TYPE_OF_SONG = 1;
+// constexpr uint16_t MUSIC_MODE_OFF       = 2; //  this is implemented by using SOUNDNUM_silence
 uint16_t g_music_song_to_soundnum_idx_playing_now;              // kept current in all modes
 uint16_t g_music_mode = MUSIC_MODE_SINGLE_SONG;
 uint16_t g_music_soundnum_single_song = SOUNDNUM_DuelingBanjos; // only used if MUSIC_MODE_SINGLE_SONG
@@ -737,9 +737,9 @@ uint16_t do_cmd_music(char* p_cmd, char* p_param) {
 //
 uint16_t do_cmd_eyes(char* p_cmd, char* p_param) {
 
-#define EYES_COORD_TOGETHER 0x0000
-#define EYES_COORD_OPPOSITE 0x0001
-#define EYES_COORD_SEPARATE 0x0002
+constexpr uint16_t EYES_COORD_TOGETHER = 0x0000;
+constexpr uint16_t EYES_COORD_OPPOSITE = 0x0001;
+constexpr uint16_t EYES_COORD_SEPARATE = 0x0002;
 #define NUM_EYES_COORD 3
 
   char delimiters[] = "/ \t";
@@ -884,9 +884,9 @@ uint16_t do_cmd_ota(char* p_cmd, char* p_param) {
 // BANJO ; EYES:BRIGHT  <num>/<den>             = (<num> = numerator of fraction) (<den> = denominator of fraction) (NOTE: 0 <= num/den <= 1, den != 0)
 // EYES:MVPINS  <pin1>/<pin2>/<pin3>/<pin4>     = (<pin# = DIO pin number (ex: 18) for pin_idx=#)
 //
-#define ESP_NOW_PARAM_MASK_CMD_TYPE 0x00FF
-#define ESP_NOW_PARAM_MASK_CMD_BITS 0xFF00
-#define ESP_NOW_PARAM_UC 0x0100 // upper case for parameter
+constexpr uint16_t ESP_NOW_PARAM_MASK_CMD_TYPE = 0x00FF;
+constexpr uint16_t ESP_NOW_PARAM_MASK_CMD_BITS = 0xFF00;
+constexpr uint16_t ESP_NOW_PARAM_UC            = 0x0100; // upper case for parameter
 typedef struct {
   const char * cmd;
   uint16_t cmd_idx;

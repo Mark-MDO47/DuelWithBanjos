@@ -94,7 +94,7 @@ void led_pin_pwm_int_ledcWrite(uint16_t p_pin_num, uint16_t p_pwm_val) {
 void led_pin_pwm_int_set_pwm_num_den(uint16_t p_num_pwm_scale, uint16_t p_den_pwm_scale); // to keep the compiler happy
 void led_pin_pwm_int_set_pwm_num_den(uint16_t p_num_pwm_scale, uint16_t p_den_pwm_scale) {
   if (0 == p_den_pwm_scale) {
-    Serial.printf("warning - init denominator for pwm scale specified as zero; both num and den changed to 1");
+    Serial.printf("warning - init denominator for pwm scale specified as zero; both num and den changed to 1\n");
     g_led_pin_pwm_num_pwm_scale = g_led_pin_pwm_den_pwm_scale = 1;
   } else {
     g_led_pin_pwm_num_pwm_scale = p_num_pwm_scale;
@@ -222,7 +222,7 @@ int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint
   for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
     // connect a pin to a channel at a pwm value frequency, and a PWM resolution (1 - 16 bits)
     if (!ledcAttach(g_pwm_pin_info[pin_idx].pin_num, LED_PINS_PWM_FREQ, LED_PINS_PWM_VAL_NUM_BITS)) {
-      Serial.printf("ERROR - could not attach pin %d to LEDC library", g_pwm_pin_info[pin_idx].pin_num);
+      Serial.printf("ERROR - could not attach pin %d to LEDC library\n", g_pwm_pin_info[pin_idx].pin_num);
       ret_val = 1; // 0 is no error
     } else {
       led_pin_pwm_int_ledcWrite(g_pwm_pin_info[pin_idx].pin_num, 0); // initially set to off

@@ -216,7 +216,7 @@ int16_t led_pins_pwm_init(uint16_t p_pwm_freq, uint16_t p_pwm_val_num_bits, uint
   led_pin_pwm_int_set_pwm_num_den(p_num_pwm_scale, p_den_pwm_scale);
 
   // set whether to do serial debug
-  g_led_pin_pwm_dbg_step = p_serial_debugging;
+  led_pin_pwm_set_dbg_enable(p_serial_debugging);
 
   // connect to Banjo Player LED eyes and initially turn off
   for (int pin_idx = 0; pin_idx < NUMOF(g_pwm_pin_info); pin_idx += 1) {
@@ -269,6 +269,9 @@ void led_pins_pwm() {
       // write the pwm value for this step change
       if (my_pin_info->prev_pwm_val != my_pin_info->curr_pwm_val) {
         led_pin_pwm_int_ledcWrite(my_pin_info->pin_num, my_pin_info->curr_pwm_val);
+      }
+      if (0 != g_led_pin_pwm_dbg_step) {
+        led_pin_pwm_int_dbg_step(pin_idx);
       }
       // end if step change happened
     } else if (my_pin_info->scaledtm_next_tick <= time_scaled_now) {
